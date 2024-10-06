@@ -5,11 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, ChevronDown, Menu } from "lucide-react";
-import { ModeToggle } from "./mode-toggle";
-import { checkApiHealth } from "@/lib/api/health-check";
-
-
-
+import { checkApiHealth } from "./check";
+import { ModeToggle } from "../mode-toggle";
 
 const NavbarItem = ({ targetPath }: { targetPath: string }) => {
   const pathname = usePathname();
