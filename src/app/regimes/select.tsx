@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { Regime } from './api';
 import dynamic from 'next/dynamic';
 
-const DynamicRegimeChart = dynamic(() => import('@/components/RegimeChart'), {
+const DynamicRegimeChart = dynamic(() => import('./RegimeChart'), {
   ssr: false,
   loading: () => <p>Loading Chart...</p>
 });
