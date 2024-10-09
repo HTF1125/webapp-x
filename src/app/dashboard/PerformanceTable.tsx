@@ -1,7 +1,6 @@
 // components/PerformanceTable.tsx
 
 import React from "react";
-import { PeriodPerformances } from "@/lib/api/period-performance";
 import {
   Table,
   TableBody,
@@ -11,10 +10,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+interface PeriodPerformances {
+  index: string;
+  level: number;
+  "1D"?: number;
+  "1W"?: number;
+  "1M"?: number;
+  "3M"?: number;
+  "6M"?: number;
+  "1Y"?: number;
+  "3Y"?: number;
+  MTD?: number;
+  YTD?: number;
+}
+
 interface TableData {
   data: PeriodPerformances[];
   title: string;
 }
+
+const periods = ["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "MTD", "YTD"] as const;
+// type Period = typeof periods[number];
 
 export default function PerformanceTable({ data, title }: TableData) {
   return (
@@ -32,16 +48,14 @@ export default function PerformanceTable({ data, title }: TableData) {
               <TableHead className="text-right px-2 py-2 font-semibold dark:text-gray-300 whitespace-nowrap">
                 Level
               </TableHead>
-              {["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "MTD", "YTD"].map(
-                (period) => (
-                  <TableHead
-                    key={period}
-                    className="text-right px-2 py-2 font-semibold dark:text-gray-300 whitespace-nowrap"
-                  >
-                    {period}
-                  </TableHead>
-                )
-              )}
+              {periods.map((period) => (
+                <TableHead
+                  key={period}
+                  className="text-right px-2 py-2 font-semibold dark:text-gray-300 whitespace-nowrap"
+                >
+                  {period}
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -58,31 +72,20 @@ export default function PerformanceTable({ data, title }: TableData) {
                   {item.index}
                 </TableCell>
                 <TableCell className="text-right px-2 py-2 dark:text-gray-300 whitespace-nowrap">
-                  {item.level?.toFixed(2) ?? "N/A"}
+                  {item.level.toFixed(2)}
                 </TableCell>
-                {["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "MTD", "YTD"].map(
-                  (period) => (
-                    <TableCell
-                      key={period}
-                      className={`text-right px-2 py-2 whitespace-nowrap ${
-                        (item[period as keyof PeriodPerformances] as
-                          | number
-                          | undefined) != null &&
-                        (item[period as keyof PeriodPerformances] as number) >=
-                          0
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      {(
-                        item[period as keyof PeriodPerformances] as
-                          | number
-                          | undefined
-                      )?.toFixed(2) ?? "N/A"}
-                      %
-                    </TableCell>
-                  )
-                )}
+                {periods.map((period) => (
+                  <TableCell
+                    key={period}
+                    className={`text-right px-2 py-2 whitespace-nowrap ${
+                      (item[period] ?? 0) >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}
+                  >
+                    {item[period]?.toFixed(2) ?? 'N/A'}%
+                  </TableCell>
+                ))}
               </TableRow>
             ))}
           </TableBody>

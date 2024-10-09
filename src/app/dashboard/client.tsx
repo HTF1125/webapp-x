@@ -13,8 +13,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { PeriodPerformances } from "@/lib/api/period-performance";
-import PerformanceTable from "./performance-table";
+import PerformanceTable from "./PerformanceTable";
+import { PeriodPerformances } from "./api";
 
 interface TableData {
   data: PeriodPerformances[];
