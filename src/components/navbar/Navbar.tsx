@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, ChevronDown, Menu } from "lucide-react";
-import { checkApiHealth } from "./check";
 import { ModeToggle } from "../mode-toggle";
+import Image from "next/image";
+import Logo from "@/images/investment-x-logo.svg";
+import LogoLight from "@/images/investment-x-logo-light.svg";
 
 const NavbarItem = ({ targetPath }: { targetPath: string }) => {
   const pathname = usePathname();
@@ -81,32 +84,16 @@ const NavbarUser = () => {
 };
 
 export default function Navbar() {
+  const { theme } = useTheme();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isApiHealthy, setIsApiHealthy] = useState(false);
   const navItems = useMemo(
     () => ["Dashboard", "Strategies", "Regimes", "Insights"],
     []
   );
 
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const healthStatus = await checkApiHealth();
-        setIsApiHealthy(healthStatus.status === "healthy");
-      } catch (error) {
-        console.error("Error checking API health:", error);
-        setIsApiHealthy(false);
-      }
-    };
-
-    checkHealth();
-    const intervalId = setInterval(checkHealth, 60000); // Check every minute
-
-    return () => clearInterval(intervalId); // Clean up on component unmount
-  }, []);
-
   return (
-    <nav className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <button
@@ -118,7 +105,16 @@ export default function Navbar() {
             <span className="sr-only">Toggle menu</span>
           </button>
           <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl">Investment-X</span>
+            <Image
+              src={theme === "dark" ? LogoLight : Logo}
+              alt="Investment-X Logo"
+              className="w-auto h-auto min-w-[24px] max-w-[200px]" // Adjust the max-width value as needed
+              style={{
+                width: "100%",
+                height: "auto",
+              }}
+              priority
+            />
           </Link>
         </div>
 
@@ -126,16 +122,6 @@ export default function Navbar() {
           {navItems.map((item) => (
             <NavbarItem key={item} targetPath={item} />
           ))}
-          {isApiHealthy && (
-            <Link
-              href="/docs"
-              className="flex items-center px-4 py-2 text-base font-medium transition-all rounded-md text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              API Docs
-            </Link>
-          )}
         </div>
 
         <div className="flex items-center space-x-3">
@@ -157,16 +143,6 @@ export default function Navbar() {
               {navItems.map((item) => (
                 <NavbarItem key={item} targetPath={item} />
               ))}
-              {isApiHealthy && (
-                <Link
-                  href="/docs"
-                  className="flex items-center px-4 py-2 text-base font-medium transition-all rounded-md text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  API Docs
-                </Link>
-              )}
             </div>
           </motion.div>
         )}

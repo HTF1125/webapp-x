@@ -29,10 +29,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen flex flex-col">
+          <div className="flex flex-col min-h-screen">
             <Navbar />
-            <main className="flex-1">
-              <div className="flex min-h-screen flex-col items-center justify-start pt-5">
+            <main className="flex-grow">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {children}
               </div>
             </main>

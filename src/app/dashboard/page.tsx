@@ -1,8 +1,22 @@
 // app/dashboard/page.tsx
 
-import { format } from "date-fns";
 import DashboardClient from "./client";
 import { fetchPeriodPerformances, PeriodPerformances } from "./api";
+import { format, subBusinessDays, isWeekend } from "date-fns";
+
+function getLastWorkingDay(): Date {
+  let currentDate = new Date();
+
+  // If the current day is a weekend, move to Friday
+  while (isWeekend(currentDate)) {
+    currentDate = subBusinessDays(currentDate, 1);
+  }
+
+  // Move back one business day to ensure we're on a working day
+  currentDate = subBusinessDays(currentDate, 1);
+
+  return currentDate;
+}
 
 interface TableData {
   data: PeriodPerformances[];
@@ -31,8 +45,8 @@ async function fetchAllPerformanceData(date: string): Promise<TableData[]> {
 }
 
 export default async function DashboardPage() {
-  const currentDate = new Date();
-  const formattedDate = format(currentDate, "yyyy-MM-dd");
+  const lastWorkingDay = getLastWorkingDay();
+  const formattedDate = format(lastWorkingDay, "yyyy-MM-dd");
 
   let tables: TableData[] = [];
   let error: string | null = null;
@@ -52,5 +66,7 @@ export default async function DashboardPage() {
     );
   }
 
-  return <DashboardClient initialTables={tables} initialDate={currentDate} />;
+  return (
+    <DashboardClient initialTables={tables} initialDate={lastWorkingDay} />
+  );
 }

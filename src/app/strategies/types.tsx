@@ -10,6 +10,7 @@ export interface StrategySummary {
     d: string[];
     v: number[];
     l: number[];
+    b: number[];
     s: { [ticker: string]: number[] }[];
     c: { [ticker: string]: number[] }[];
     w: { [ticker: string]: number[] }[];
