@@ -1,72 +1,66 @@
-// app/dashboard/page.tsx
+// src/app/dashboard/page.tsx
+import React, { Suspense } from 'react';
+import { fetchPeriodPerformances } from './api';
+import { TableData, tableGroups } from './types';
+import dynamic from 'next/dynamic';
 
-import DashboardClient from "./client";
-import { fetchPeriodPerformances, PeriodPerformances } from "./api";
-import { format, subBusinessDays, isWeekend } from "date-fns";
+const DynamicDashboardClient = dynamic(() => import('./DashboardClient'), { ssr: false });
+const DynamicPeriodSelector = dynamic(() => import('./PeriodSelector'), { ssr: false });
+const DynamicPerformanceCharts = dynamic(() => import('./PerformanceCharts'), { ssr: false });
+const DynamicLoadingSpinner = dynamic(() => import('@/components/LoadingSpinner'), { ssr: false });
 
-function getLastWorkingDay(): Date {
-  let currentDate = new Date();
-
-  // If the current day is a weekend, move to Friday
-  while (isWeekend(currentDate)) {
-    currentDate = subBusinessDays(currentDate, 1);
+async function fetchAllPerformanceData(): Promise<TableData[]> {
+  try {
+    const results = await Promise.all(
+      tableGroups.map(async (group) => ({
+        data: await fetchPeriodPerformances(group.group, false),
+        title: group.title,
+      }))
+    );
+    return results;
+  } catch (error) {
+    console.error('Error fetching performance data:', error);
+    return [];
   }
-
-  // Move back one business day to ensure we're on a working day
-  currentDate = subBusinessDays(currentDate, 1);
-
-  return currentDate;
-}
-
-interface TableData {
-  data: PeriodPerformances[];
-  title: string;
-}
-
-async function fetchAllPerformanceData(date: string): Promise<TableData[]> {
-  const tableGroups = [
-    { group: "local-indices", title: "Local Indices" },
-    { group: "global-markets", title: "Global Markets" },
-    { group: "us-gics", title: "US GICS" },
-    { group: "global-bonds", title: "Global Bonds" },
-    { group: "currency", title: "Currency" },
-    { group: "commodities", title: "Commodities" },
-    { group: "theme", title: "Theme" },
-  ];
-
-  const results = await Promise.all(
-    tableGroups.map((group) => fetchPeriodPerformances(date, group.group))
-  );
-
-  return results.map((data, index) => ({
-    data,
-    title: tableGroups[index].title,
-  }));
 }
 
 export default async function DashboardPage() {
-  const lastWorkingDay = getLastWorkingDay();
-  const formattedDate = format(lastWorkingDay, "yyyy-MM-dd");
-
-  let tables: TableData[] = [];
-  let error: string | null = null;
-
-  try {
-    tables = await fetchAllPerformanceData(formattedDate);
-  } catch (e) {
-    console.error("Error fetching performance data:", e);
-    error = e instanceof Error ? e.message : "An unknown error occurred";
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen text-xl font-semibold text-red-600">
-        Error: {error}
-      </div>
-    );
-  }
+  const tables = await fetchAllPerformanceData();
 
   return (
-    <DashboardClient initialTables={tables} initialDate={lastWorkingDay} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Market Performance Dashboard
+          </h1>
+        </header>
+
+        <main>
+          <section className="mb-12">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">
+                Performance Overview
+              </h2>
+              <Suspense fallback={<DynamicLoadingSpinner />}>
+                <DynamicPeriodSelector />
+              </Suspense>
+            </div>
+            <Suspense fallback={<DynamicLoadingSpinner />}>
+              <DynamicPerformanceCharts data={tables} />
+            </Suspense>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
+              Detailed Performance
+            </h2>
+            <Suspense fallback={<DynamicLoadingSpinner />}>
+              <DynamicDashboardClient initialTables={tables} />
+            </Suspense>
+          </section>
+        </main>
+      </div>
+    </div>
   );
 }

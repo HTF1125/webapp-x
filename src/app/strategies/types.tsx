@@ -20,3 +20,9 @@ export interface StrategySummary {
   export interface Strategy extends StrategySummary {
     book: Book;
   }
+
+  export interface StrategyPerformance {
+    d: string[];
+    v: number[];
+    b: number[];
+  }

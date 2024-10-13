@@ -1,9 +1,20 @@
+// app/strategies/api
+
 import { StrategySummary, Strategy } from "./types";
 
 const apiUrl = process.env.API_URL || "";
 
+const noCacheOptions: RequestInit = {
+  cache: 'no-store',
+  headers: {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  },
+};
+
 export async function fetchStrategiesSummary(): Promise<StrategySummary[]> {
-  const response = await fetch(`${apiUrl}/api/data/strategies/summary`);
+  const response = await fetch(`${apiUrl}/api/data/strategies/summary`, noCacheOptions);
   if (!response.ok) {
     throw new Error("Failed to fetch strategies summary");
   }
@@ -11,7 +22,7 @@ export async function fetchStrategiesSummary(): Promise<StrategySummary[]> {
 }
 
 export async function fetchStrategy(code: string): Promise<Strategy> {
-  const response = await fetch(`${apiUrl}/api/data/strategies/${code}`);
+  const response = await fetch(`${apiUrl}/api/data/strategies/${code}`, noCacheOptions);
   if (!response.ok) {
     throw new Error(`Failed to fetch strategy ${code}`);
   }
@@ -28,7 +39,7 @@ export interface StrategyPerformance {
 export async function fetchStrategyPerformance(
   code: string
 ): Promise<StrategyPerformance> {
-  const response = await fetch(`${apiUrl}/api/data/strategies/${code}/performance`);
+  const response = await fetch(`${apiUrl}/api/data/strategies/${code}/performance`, noCacheOptions);
   if (!response.ok) {
     throw new Error(`Failed to fetch performance data for strategy ${code}`);
   }

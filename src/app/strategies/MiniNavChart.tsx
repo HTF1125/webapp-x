@@ -35,6 +35,10 @@ const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
     return <div>No data available</div>;
   }
 
+  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data);
+  const padding = (maxValue - minValue) * 0.1; // Add 10% padding
+
   const chartData = {
     labels: data.map((_, index) => index + 1),
     datasets: [
@@ -50,6 +54,7 @@ const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
 
   const options: ChartOptions<"line"> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,
@@ -64,6 +69,8 @@ const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
       },
       y: {
         display: false,
+        min: minValue - padding,
+        max: maxValue + padding,
       },
     },
     elements: {
@@ -73,7 +80,11 @@ const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
     },
   };
 
-  return <Line data={chartData} options={options} height={50} />;
+  return (
+    <div style={{ width: '100%', height: '50px' }}>
+      <Line data={chartData} options={options} />
+    </div>
+  );
 };
 
 export default MiniNavChart;

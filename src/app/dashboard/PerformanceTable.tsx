@@ -1,96 +1,55 @@
-// components/PerformanceTable.tsx
+// app/dashboard/PerformanceTable.tsx
 
-import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+'use client';
 
-interface PeriodPerformances {
-  index: string;
-  level: number;
-  "1D"?: number;
-  "1W"?: number;
-  "1M"?: number;
-  "3M"?: number;
-  "6M"?: number;
-  "1Y"?: number;
-  "3Y"?: number;
-  MTD?: number;
-  YTD?: number;
-}
+import React from 'react';
+import { KeyPerformance, TableData, periods } from './types';
 
-interface TableData {
-  data: PeriodPerformances[];
-  title: string;
-}
-
-const periods = ["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "MTD", "YTD"] as const;
-// type Period = typeof periods[number];
-
-export default function PerformanceTable({ data, title }: TableData) {
+const PerformanceTable: React.FC<TableData> = ({ data, title }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden h-full">
-      <h2 className="text-lg font-semibold p-4 bg-gray-50 dark:bg-gray-700 dark:text-gray-200 border-b dark:border-gray-600">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden text-xs w-full">
+      <h3 className="text-sm font-semibold p-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-b dark:border-gray-600">
         {title}
-      </h2>
+      </h3>
       <div className="overflow-x-auto">
-        <Table className="w-full text-xs">
-          <TableHeader>
-            <TableRow className="bg-gray-100 dark:bg-gray-700 dark:border-gray-600">
-              <TableHead className="text-left px-2 py-2 font-semibold dark:text-gray-300 whitespace-nowrap">
-                Index
-              </TableHead>
-              <TableHead className="text-right px-2 py-2 font-semibold dark:text-gray-300 whitespace-nowrap">
-                Level
-              </TableHead>
+        <table className="w-full table-fixed">
+          <thead>
+            <tr className="bg-gray-100 dark:bg-gray-600">
+              <th className="p-1 text-left w-1/6">Index</th>
+              <th className="p-1 text-right w-1/12">Level</th>
               {periods.map((period) => (
-                <TableHead
-                  key={period}
-                  className="text-right px-2 py-2 font-semibold dark:text-gray-300 whitespace-nowrap"
-                >
-                  {period}
-                </TableHead>
+                <th key={period} className="p-1 text-right w-1/12">{period.toUpperCase()}</th>
               ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+            </tr>
+          </thead>
+          <tbody>
             {data.map((item, index) => (
-              <TableRow
-                key={item.index}
-                className={`${
-                  index % 2 === 0
-                    ? "bg-gray-50 dark:bg-gray-800"
-                    : "bg-white dark:bg-gray-700"
-                } hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors`}
-              >
-                <TableCell className="font-medium px-2 py-2 dark:text-gray-300 whitespace-nowrap">
-                  {item.index}
-                </TableCell>
-                <TableCell className="text-right px-2 py-2 dark:text-gray-300 whitespace-nowrap">
-                  {item.level.toFixed(2)}
-                </TableCell>
-                {periods.map((period) => (
-                  <TableCell
-                    key={period}
-                    className={`text-right px-2 py-2 whitespace-nowrap ${
-                      (item[period] ?? 0) >= 0
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    }`}
-                  >
-                    {item[period]?.toFixed(2) ?? 'N/A'}%
-                  </TableCell>
-                ))}
-              </TableRow>
+              <tr key={item.code} className={index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700' : ''}>
+                <td className="p-1 font-medium truncate" title={item.code}>{item.code}</td>
+                <td className="p-1 text-right">{item.level.toFixed(2)}</td>
+                {periods.map((period) => {
+                  const value = item[`pct_chg_${period}` as keyof KeyPerformance];
+                  const numericValue = typeof value === 'number' ? value : 0;
+                  return (
+                    <td
+                      key={period}
+                      className={`p-1 text-right ${
+                        numericValue >= 0
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-red-600 dark:text-red-400'
+                      }`}
+                    >
+                      {typeof value === 'number' ? value.toFixed(2) : 'N/A'}%
+                    </td>
+                  );
+                })}
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
     </div>
   );
-}
+};
+
+export default PerformanceTable;

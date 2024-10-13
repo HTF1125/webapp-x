@@ -1,24 +1,29 @@
-import { CSSProperties } from 'react'
+// src/components/LoadingSpinner.tsx
+'use client';
 
-const spinnerStyle: CSSProperties = {
-  border: '4px solid rgba(0, 0, 0, 0.1)',
-  width: '36px',
-  height: '36px',
-  borderRadius: '50%',
-  borderLeftColor: '#09f',
-  animation: 'spin 1s linear infinite',
-}
+import React from 'react';
 
-export default function LoadingSpinner() {
+const LoadingSpinner: React.FC = () => {
   return (
-    <div className="flex justify-center items-center h-full">
-      <div style={spinnerStyle}></div>
+    <div className="flex justify-center items-center">
+      <div className="loader"></div>
       <style jsx>{`
+        .loader {
+          border: 4px solid rgba(75, 192, 192, 0.3);
+          border-top: 4px solid rgba(75, 192, 192, 1);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+        }
+
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
+
+export default LoadingSpinner;
