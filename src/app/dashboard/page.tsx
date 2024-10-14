@@ -1,25 +1,34 @@
-// src/app/dashboard/page.tsx
-import React, { Suspense } from 'react';
-import { fetchPeriodPerformances } from './api';
-import { TableData, tableGroups } from './types';
-import dynamic from 'next/dynamic';
+// src/app/dashboard/page.tsximport React, { Suspense } from 'react';
+import { fetchPeriodPerformances } from "./api";
+import { TableData, tableGroups } from "./types";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
-const DynamicDashboardClient = dynamic(() => import('./DashboardClient'), { ssr: false });
-const DynamicPeriodSelector = dynamic(() => import('./PeriodSelector'), { ssr: false });
-const DynamicPerformanceCharts = dynamic(() => import('./PerformanceCharts'), { ssr: false });
-const DynamicLoadingSpinner = dynamic(() => import('@/components/LoadingSpinner'), { ssr: false });
+const DashboardClient = dynamic(() => import("./DashboardClient"), {
+  ssr: false,
+});
+const PeriodSelector = dynamic(() => import("./PeriodSelector"), {
+  ssr: false,
+});
+const PerformanceCharts = dynamic(() => import("./PerformanceCharts"), {
+  ssr: false,
+});
+const LoadingSpinner = dynamic(
+  () => import("@/components/LoadingSpinner"),
+  { ssr: false }
+);
 
 async function fetchAllPerformanceData(): Promise<TableData[]> {
   try {
     const results = await Promise.all(
       tableGroups.map(async (group) => ({
-        data: await fetchPeriodPerformances(group.group, false),
+        data: await fetchPeriodPerformances({ group: group.group }),
         title: group.title,
       }))
     );
     return results;
   } catch (error) {
-    console.error('Error fetching performance data:', error);
+    console.error("Error fetching performance data:", error);
     return [];
   }
 }
@@ -32,7 +41,7 @@ export default async function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Market Performance Dashboard
+            Dashboard
           </h1>
         </header>
 
@@ -40,23 +49,23 @@ export default async function DashboardPage() {
           <section className="mb-12">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">
-                Performance Overview
+                Key Performance
               </h2>
-              <Suspense fallback={<DynamicLoadingSpinner />}>
-                <DynamicPeriodSelector />
+              <Suspense fallback={<LoadingSpinner />}>
+                <PeriodSelector />
               </Suspense>
             </div>
-            <Suspense fallback={<DynamicLoadingSpinner />}>
-              <DynamicPerformanceCharts data={tables} />
+            <Suspense fallback={<LoadingSpinner />}>
+              <PerformanceCharts data={tables} />
             </Suspense>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-              Detailed Performance
+              Performance
             </h2>
-            <Suspense fallback={<DynamicLoadingSpinner />}>
-              <DynamicDashboardClient initialTables={tables} />
+            <Suspense fallback={<LoadingSpinner />}>
+              <DashboardClient initialTables={tables} />
             </Suspense>
           </section>
         </main>

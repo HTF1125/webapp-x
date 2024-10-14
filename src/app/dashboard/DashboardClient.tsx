@@ -10,7 +10,7 @@ interface DashboardClientProps {
   initialTables: TableData[];
 }
 
-const DashboardClient: React.FC<DashboardClientProps> = ({ initialTables }) => {
+const DashboardClient: React.FC<DashboardClientProps> = React.memo(({ initialTables }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {initialTables.map((table) => (
@@ -18,6 +18,8 @@ const DashboardClient: React.FC<DashboardClientProps> = ({ initialTables }) => {
       ))}
     </div>
   );
-};
+});
+
+DashboardClient.displayName = 'DashboardClient';
 
 export default DashboardClient;

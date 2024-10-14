@@ -1,11 +1,10 @@
 // app/dashboard/PerformanceTable.tsx
-
 'use client';
 
 import React from 'react';
 import { KeyPerformance, TableData, periods } from './types';
 
-const PerformanceTable: React.FC<TableData> = ({ data, title }) => {
+const PerformanceTable: React.FC<TableData> = React.memo(({ data, title }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden text-xs w-full">
       <h3 className="text-sm font-semibold p-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-b dark:border-gray-600">
@@ -50,6 +49,8 @@ const PerformanceTable: React.FC<TableData> = ({ data, title }) => {
       </div>
     </div>
   );
-};
+});
+
+PerformanceTable.displayName = 'PerformanceTable';
 
 export default PerformanceTable;

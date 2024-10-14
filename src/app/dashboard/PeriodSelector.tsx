@@ -1,8 +1,7 @@
 // app/dashboard/PeriodSelector.tsx
-
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { periods, Period } from './types';
 
@@ -11,10 +10,10 @@ const PeriodSelector: React.FC = () => {
   const searchParams = useSearchParams();
   const currentPeriod = (searchParams.get('period') as Period) || '1w';
 
-  const handlePeriodChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePeriodChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     const newPeriod = event.target.value as Period;
     router.push(`?period=${newPeriod}`);
-  };
+  }, [router]);
 
   return (
     <select
@@ -31,4 +30,4 @@ const PeriodSelector: React.FC = () => {
   );
 };
 
-export default PeriodSelector;
+export default React.memo(PeriodSelector);

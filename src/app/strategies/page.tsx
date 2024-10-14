@@ -1,14 +1,16 @@
-import { fetchStrategiesSummary, fetchStrategyPerformance } from './api'
-import StrategiesClient from './StrategiesClient'
-import { StrategyPerformance } from './types'
+// app/strategies/page.tsx
+
+import { fetchStrategiesSummary, fetchStrategyPerformance } from './api';
+import StrategiesClient from './StrategiesClient';
+import { StrategyPerformance } from './types';
 
 export default async function StrategiesPage() {
-  const strategies = await fetchStrategiesSummary()
+  const strategies = await fetchStrategiesSummary();
 
   // Pre-fetch performance data for all strategies
-  const performanceData: Record<string, StrategyPerformance> = {}
+  const performanceData: Record<string, StrategyPerformance> = {};
   for (const strategy of strategies) {
-    performanceData[strategy.code] = await fetchStrategyPerformance(strategy.code)
+    performanceData[strategy.code] = await fetchStrategyPerformance(strategy.code);
   }
 
   return (
@@ -16,5 +18,5 @@ export default async function StrategiesPage() {
       <h1 className="text-2xl font-bold mb-4">Strategies</h1>
       <StrategiesClient initialStrategies={strategies} performanceData={performanceData} />
     </div>
-  )
+  );
 }

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Line } from 'react-chartjs-2';
+// app/strategies/StrategyDetails.tsx
+
+import React, { useState, useMemo } from "react";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,9 +11,9 @@ import {
   Tooltip,
   Legend,
   ChartOptions,
-} from 'chart.js';
-import { StrategyPerformance } from './types';
-import { formatPercentage, formatDate } from '@/lib/fmt';
+} from "chart.js";
+import { StrategyPerformance } from "./types";
+import { formatPercentage, formatDate } from "@/lib/fmt";
 
 ChartJS.register(
   CategoryScale,
@@ -26,23 +28,28 @@ interface StrategyDetailsProps {
   performanceData: StrategyPerformance;
 }
 
-export default function StrategyDetails({ performanceData }: StrategyDetailsProps) {
-  const [timeRange, setTimeRange] = useState<'1M' | '3M' | '6M' | '1Y' | 'ALL'>('ALL');
+const StrategyDetails: React.FC<StrategyDetailsProps> = ({
+  performanceData,
+}) => {
+  const [timeRange, setTimeRange] = useState<"1M" | "3M" | "6M" | "1Y" | "ALL">(
+    "ALL"
+  );
 
   const filterDataByTimeRange = (data: number[], dates: string[]) => {
     const now = new Date();
     let startDate: Date;
+
     switch (timeRange) {
-      case '1M':
+      case "1M":
         startDate = new Date(now.setMonth(now.getMonth() - 1));
         break;
-      case '3M':
+      case "3M":
         startDate = new Date(now.setMonth(now.getMonth() - 3));
         break;
-      case '6M':
+      case "6M":
         startDate = new Date(now.setMonth(now.getMonth() - 6));
         break;
-      case '1Y':
+      case "1Y":
         startDate = new Date(now.setFullYear(now.getFullYear() - 1));
         break;
       default:
@@ -55,104 +62,136 @@ export default function StrategyDetails({ performanceData }: StrategyDetailsProp
     }, [] as number[]);
 
     return {
-      filteredData: filteredIndices.map(i => data[i]),
-      filteredDates: filteredIndices.map(i => dates[i]),
+      filteredData: filteredIndices.map((i) => data[i]),
+      filteredDates: filteredIndices.map((i) => dates[i]),
     };
   };
 
-  const { filteredData: strategyData, filteredDates } = filterDataByTimeRange(performanceData.v, performanceData.d);
-  const { filteredData: benchmarkData } = filterDataByTimeRange(performanceData.b, performanceData.d);
+  const normalizeData = (data: number[]) => {
+    const startValue = data[0];
+    return data.map((value) => ((value - startValue) / startValue) * 100);
+  };
 
-  const skipFactor = Math.ceil(filteredDates.length / Math.min(filteredDates.length / 2, 12));
+  const { filteredData: strategyData, filteredDates } = useMemo(
+    () => filterDataByTimeRange(performanceData.v, performanceData.d),
+    [performanceData, timeRange]
+  );
+
+  const { filteredData: benchmarkData } = useMemo(
+    () => filterDataByTimeRange(performanceData.b, performanceData.d),
+    [performanceData, timeRange]
+  );
+
+  const normalizedStrategyData = useMemo(
+    () => (timeRange !== "ALL" ? normalizeData(strategyData) : strategyData),
+    [strategyData, timeRange]
+  );
+
+  const normalizedBenchmarkData = useMemo(
+    () => (timeRange !== "ALL" ? normalizeData(benchmarkData) : benchmarkData),
+    [benchmarkData, timeRange]
+  );
 
   const chartData = {
-    labels: filteredDates.filter((_, index) => index % skipFactor === 0),
+    labels: filteredDates,
     datasets: [
       {
-        label: 'Strategy Value',
-        data: strategyData.filter((_, index) => index % skipFactor === 0),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+        label: "Strategy Value",
+        data: normalizedStrategyData,
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.1)",
         fill: true,
-        borderWidth: 1.5,
-        pointRadius: 0,
+        pointRadius: 0, // Remove dots
       },
       {
-        label: 'Benchmark',
-        data: benchmarkData.filter((_, index) => index % skipFactor === 0),
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+        label: "Benchmark",
+        data: normalizedBenchmarkData,
+        borderColor: "rgba(255,99,132,1)",
+        backgroundColor: "rgba(255,99,132,0.1)",
         fill: true,
-        borderWidth: 1.5,
-        pointRadius: 0,
+        pointRadius: 0, // Remove dots
       },
     ],
   };
 
-  const chartOptions: ChartOptions<'line'> = {
+  const options: ChartOptions<"line"> = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: "top" as const,
       },
       title: {
         display: true,
-        text: 'Strategy vs Benchmark Performance',
+        text: "Strategy vs Benchmark Performance",
       },
       tooltip: {
-        mode: 'index',
+        mode: "index",
         intersect: false,
         callbacks: {
-          title: (context) => formatDate(context[0].label),
-        }
+          label: (context) => {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label +=
+                timeRange !== "ALL"
+                  ? formatPercentage(context.parsed.y / 100)
+                  : context.parsed.y.toFixed(2);
+            }
+            return label;
+          },
+        },
       },
     },
     scales: {
       x: {
         title: {
           display: true,
-          text: 'Date',
+          text: "Date",
         },
       },
       y: {
         title: {
           display: true,
-          text: 'Value',
+          text: timeRange !== "ALL" ? "Percentage Change" : "Value",
         },
-        beginAtZero: false,
+        ticks: {
+          callback: function (value: number | string) {
+            if (typeof value === "number") {
+              return timeRange !== "ALL"
+                ? formatPercentage(value / 100)
+                : value.toFixed(2);
+            }
+            return value;
+          },
+        },
       },
     },
-    interaction: {
-      mode: 'nearest',
-      axis: 'x',
-      intersect: false,
+    elements: {
+      point: {
+        radius: 0, // Ensure no points are displayed
+      },
     },
   };
-
-  const calculatePerformance = (data: number[]) => {
-    const start = data[0];
-    const end = data[data.length - 1];
-    return (end - start) / start;
-  };
-
-  const strategyPerformance = calculatePerformance(strategyData);
-  const benchmarkPerformance = calculatePerformance(benchmarkData);
 
   return (
     <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <h3 className="text-xl font-semibold mb-4">Performance Analysis</h3>
       <div className="flex justify-between items-center mb-4">
         <div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Time Range:</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Time Range:
+          </p>
           <div className="mt-1">
-            {['1M', '3M', '6M', '1Y', 'ALL'].map((range) => (
+            {["1M", "3M", "6M", "1Y", "ALL"].map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range as any)}
                 className={`px-2 py-1 text-sm rounded ${
                   timeRange === range
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 } mr-2`}
               >
                 {range}
@@ -160,17 +199,9 @@ export default function StrategyDetails({ performanceData }: StrategyDetailsProp
             ))}
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm font-medium">
-            Strategy Performance: <span className={strategyPerformance >= 0 ? 'text-green-600' : 'text-red-600'}>{formatPercentage(strategyPerformance)}</span>
-          </p>
-          <p className="text-sm font-medium">
-            Benchmark Performance: <span className={benchmarkPerformance >= 0 ? 'text-green-600' : 'text-red-600'}>{formatPercentage(benchmarkPerformance)}</span>
-          </p>
-        </div>
       </div>
       <div className="h-[400px]">
-        <Line data={chartData} options={chartOptions} />
+        <Line data={chartData} options={options} />
       </div>
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
         <div>
@@ -184,4 +215,6 @@ export default function StrategyDetails({ performanceData }: StrategyDetailsProp
       </div>
     </div>
   );
-}
+};
+
+export default StrategyDetails;

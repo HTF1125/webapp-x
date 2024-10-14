@@ -1,5 +1,3 @@
-"use client"
-
 // components/MiniNavChart.tsx
 
 import React from "react";
@@ -37,7 +35,7 @@ const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
 
   const minValue = Math.min(...data);
   const maxValue = Math.max(...data);
-  const padding = (maxValue - minValue) * 0.1; // Add 10% padding
+  const padding = (maxValue - minValue) * 0.1;
 
   const chartData = {
     labels: data.map((_, index) => index + 1),
