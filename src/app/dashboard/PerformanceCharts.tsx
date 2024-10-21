@@ -19,9 +19,9 @@ const chartOptions = {
   layout: {
     padding: {
       left: 0,
-      right: 30,
-      top: 10,
-      bottom: 10
+      right: 40, // Increased right padding for labels
+      top: 5,
+      bottom: 5
     }
   },
   plugins: {
@@ -37,7 +37,7 @@ const chartOptions = {
     },
     y: {
       ticks: {
-        font: { size: 8 },
+        font: { size: 10 }, // Slightly increased font size
         color: 'rgba(156, 163, 175, 0.9)',
         padding: 0,
         autoSkip: false,
@@ -81,20 +81,20 @@ const PerformanceCharts: React.FC<PerformanceChartsProps> = React.memo(({ data }
         },
         borderWidth: 1,
         borderRadius: 2,
-        barPercentage: 0.95,
-        categoryPercentage: 0.9,
+        barPercentage: 1, // Increased to fill more space
+        categoryPercentage: 0.95, // Increased to fill more space
       }],
     };
   }, [currentPeriod]);
 
   return (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
       {data.map((tableData, index) => (
         <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
           <h3 className="text-sm font-semibold mb-2 text-center text-gray-800 dark:text-gray-200">
             {tableData.title}
           </h3>
-          <div style={{ height: '140px' }}> {/* Slightly increased height */}
+          <div className="h-[200px]">
             <Bar
               options={chartOptions}
               data={generateChartData(tableData)}
@@ -105,13 +105,13 @@ const PerformanceCharts: React.FC<PerformanceChartsProps> = React.memo(({ data }
                   ctx.save();
                   data.datasets[0].data.forEach((datapoint, index) => {
                     const y = scales.y.getPixelForTick(index);
-                    ctx.font = '8px Arial';
+                    ctx.font = '10px Arial'; // Slightly increased font size
                     ctx.fillStyle = 'rgba(156, 163, 175, 0.9)';
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(
                       `${(datapoint as number).toFixed(2)}%`,
-                      chartArea.right + 25,
+                      chartArea.right + 35, // Adjusted position
                       y
                     );
                   });

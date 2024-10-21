@@ -22,7 +22,7 @@ async function fetchAllPerformanceData(): Promise<TableData[]> {
   try {
     const results = await Promise.all(
       tableGroups.map(async (group) => ({
-        data: await fetchPeriodPerformances({ group: group.group }),
+        data: await fetchPeriodPerformances({ group: group.group,  }),
         title: group.title,
       }))
     );

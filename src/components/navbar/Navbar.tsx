@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, ChevronDown, Menu, X } from "lucide-react";
 import Image from "next/image";
-import Logo from "@/images/investment-x-logo.svg";
+import LogoDark from "@/images/investment-x-logo-dark.svg";
 import LogoLight from "@/images/investment-x-logo-light.svg";
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
@@ -173,7 +173,7 @@ export default function Navbar() {
           )}
           <Link href="/" className="flex items-center space-x-2">
             <Image
-              src={theme === "dark" ? LogoLight : Logo}
+              src={theme === "dark" ? LogoLight : LogoDark}
               alt="Investment-X Logo"
               className="w-auto h-auto min-w-[24px] max-w-[200px]"
               style={{

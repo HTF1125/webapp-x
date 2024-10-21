@@ -1,4 +1,3 @@
-// app/strategies/StrategiesClient.tsx
 "use client";
 
 import React, { useState, useMemo } from "react";
@@ -15,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import StrategyDetails from "./StrategyDetails";
 import { formatDate, formatPercentage } from "@/lib/fmt";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { Search, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 import MiniNavChart from "@/components/MiniNavChart";
 
 interface StrategiesClientProps {
@@ -30,53 +29,50 @@ export default function StrategiesClient({
   const [strategies] = useState<StrategySummary[]>(initialStrategies);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("code");
-  const [expandedStrategyCode, setExpandedStrategyCode] = useState<
-    string | null
-  >(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [selectedStrategy, setSelectedStrategy] = useState<string | null>(null);
   const router = useRouter();
 
-  const strategiesPerPage = 10;
-
   const filteredAndSortedStrategies = useMemo(() => {
-    if (!strategies || strategies.length === 0) return [];
-
     return strategies
       .filter((strategy) =>
         strategy.code.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .sort((a, b) => {
+        let comparison = 0;
         if (sortBy === "return") {
-          return (b.ann_return ?? 0) - (a.ann_return ?? 0);
+          comparison = (b.ann_return ?? 0) - (a.ann_return ?? 0);
+        } else if (sortBy === "volatility") {
+          comparison = (b.ann_volatility ?? 0) - (a.ann_volatility ?? 0);
+        } else {
+          comparison = a.code.localeCompare(b.code);
         }
-        if (sortBy === "volatility") {
-          return (b.ann_volatility ?? 0) - (a.ann_volatility ?? 0);
-        }
-        return a.code.localeCompare(b.code);
+        return sortOrder === "asc" ? comparison : -comparison;
       });
-  }, [strategies, searchTerm, sortBy]);
-
-  const indexOfLastStrategy = currentPage * strategiesPerPage;
-  const indexOfFirstStrategy = indexOfLastStrategy - strategiesPerPage;
-  const currentStrategies = filteredAndSortedStrategies.slice(
-    indexOfFirstStrategy,
-    indexOfLastStrategy
-  );
-
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  }, [strategies, searchTerm, sortBy, sortOrder]);
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between mb-4 gap-4">
-        <Input
-          type="text"
-          placeholder="Search strategies..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xs"
-        />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
+        Strategy Overview
+      </h1>
+
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="relative flex-grow">
+          <Input
+            type="text"
+            placeholder="Search strategies..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 w-full"
+          />
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
+        </div>
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full md:w-48">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -85,129 +81,95 @@ export default function StrategiesClient({
             <SelectItem value="volatility">Annual Volatility</SelectItem>
           </SelectContent>
         </Select>
+        <Button
+          onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+          variant="outline"
+          className="w-full md:w-auto"
+        >
+          {sortOrder === "asc" ? "Ascending" : "Descending"}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+        <Button
+          onClick={() => router.push("/strategies/compare")}
+          className="w-full md:w-auto"
+        >
+          Compare Strategies
+        </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-auto">
-          <thead className="bg-gray-100 dark:bg-gray-800">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Strategy Code
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Last Updated
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Annual Return
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Annual Volatility
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                NAV History
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-            {currentStrategies.map((strategy) => (
-              <React.Fragment key={strategy.code}>
-                <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={() =>
-                        setExpandedStrategyCode(
-                          expandedStrategyCode === strategy.code
-                            ? null
-                            : strategy.code
-                        )
-                      }
-                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      aria-label={
-                        expandedStrategyCode === strategy.code
-                          ? "Collapse strategy details"
-                          : "Expand strategy details"
-                      }
-                    >
-                      {expandedStrategyCode === strategy.code ? (
-                        <ChevronDown size={20} />
-                      ) : (
-                        <ChevronRight size={20} />
-                      )}
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {strategy.code}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {formatDate(strategy.last_updated)}
-                  </td>
-                  <td
-                    className={`px-6 py-4 whitespace-nowrap ${
-                      strategy.ann_return && strategy.ann_return > 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {formatPercentage(strategy.ann_return)}
-                  </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-yellow-600`}>
-                    {formatPercentage(strategy.ann_volatility)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="w-24 h-12">
-                      <MiniNavChart data={strategy.nav_history || []} />
-                    </div>
-                  </td>
-                </tr>
-                {expandedStrategyCode === strategy.code && (
-                  <tr>
-                    <td colSpan={6} className="p-4">
-                      <StrategyDetails
-                        performanceData={performanceData[strategy.code]}
-                      />
-                    </td>
-                  </tr>
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredAndSortedStrategies.map((strategy) => (
+          <div
+            key={strategy.code}
+            className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 ${
+              selectedStrategy === strategy.code
+                ? "ring-2 ring-blue-500 shadow-lg transform scale-105"
+                : "hover:shadow-lg hover:scale-102"
+            }`}
+            onClick={() =>
+              setSelectedStrategy(
+                strategy.code === selectedStrategy ? null : strategy.code
+              )
+            }
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {strategy.code}
+              </h3>
+              {selectedStrategy === strategy.code ? (
+                <ChevronUp className="text-blue-500" size={20} />
+              ) : (
+                <ChevronDown className="text-gray-400" size={20} />
+              )}
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Last updated: {formatDate(strategy.last_updated)}
+            </p>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Annual Return
+                </p>
+                <p
+                  className={`text-lg font-bold ${
+                    strategy.ann_return && strategy.ann_return > 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formatPercentage(strategy.ann_return)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Annual Volatility
+                </p>
+                <p className="text-lg font-bold text-yellow-600">
+                  {formatPercentage(strategy.ann_volatility)}
+                </p>
+              </div>
+            </div>
+            <div className="w-full h-24">
+              <MiniNavChart data={strategy.nav_history || []} />
+            </div>
+          </div>
+        ))}
       </div>
 
       {filteredAndSortedStrategies.length === 0 && (
         <p className="text-center text-gray-500 mt-4">No strategies found</p>
       )}
 
-      <div className="mt-4 flex justify-center">
-        {Array.from(
-          {
-            length: Math.ceil(
-              filteredAndSortedStrategies.length / strategiesPerPage
-            ),
-          },
-          (_, i) => (
-            <button
-              key={i}
-              onClick={() => paginate(i + 1)}
-              className={`mx-1 px-3 py-1 rounded ${
-                currentPage === i + 1
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {i + 1}
-            </button>
-          )
-        )}
-      </div>
-
-      <Button
-        onClick={() => router.push("/strategies/compare")}
-        className="mt-8 w-full"
-      >
-        Compare Strategies
-      </Button>
+      {selectedStrategy && (
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            Strategy Details: {selectedStrategy}
+          </h2>
+          <StrategyDetails
+            performanceData={performanceData[selectedStrategy]}
+          />
+        </div>
+      )}
     </div>
   );
 }

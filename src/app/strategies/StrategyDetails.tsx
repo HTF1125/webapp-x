@@ -6,6 +6,7 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  LogarithmicScale,
   LineElement,
   Title,
   Tooltip,
@@ -13,11 +14,12 @@ import {
   ChartOptions,
 } from "chart.js";
 import { StrategyPerformance } from "./types";
-import { formatPercentage, formatDate } from "@/lib/fmt";
+import { formatDate } from "@/lib/fmt";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
+  LogarithmicScale,
   LineElement,
   Title,
   Tooltip,
@@ -28,193 +30,250 @@ interface StrategyDetailsProps {
   performanceData: StrategyPerformance;
 }
 
+const TIME_RANGES = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "ALL"] as const;
+type TimeRange = (typeof TIME_RANGES)[number];
+
 const StrategyDetails: React.FC<StrategyDetailsProps> = ({
   performanceData,
 }) => {
-  const [timeRange, setTimeRange] = useState<"1M" | "3M" | "6M" | "1Y" | "ALL">(
-    "ALL"
+  const [timeRange, setTimeRange] = useState<TimeRange>("ALL");
+  const [isLogScale, setIsLogScale] = useState(true);
+
+  const { filteredStrategyData, filteredBenchmarkData, filteredDates } =
+    useMemo(() => {
+      const { filteredData: strategyData, filteredDates } =
+        filterDataByTimeRange(performanceData.v, performanceData.d, timeRange);
+      const { filteredData: benchmarkData } = filterDataByTimeRange(
+        performanceData.b,
+        performanceData.d,
+        timeRange
+      );
+      return {
+        filteredStrategyData: normalizeData(strategyData),
+        filteredBenchmarkData: normalizeData(benchmarkData),
+        filteredDates,
+      };
+    }, [performanceData, timeRange]);
+
+  const chartData = createChartData(
+    filteredDates,
+    filteredStrategyData,
+    filteredBenchmarkData
   );
+  const chartOptions = createChartOptions(timeRange, isLogScale);
 
-  const filterDataByTimeRange = (data: number[], dates: string[]) => {
-    const now = new Date();
-    let startDate: Date;
+  return (
+    <div className="w-full mt-4 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h3 className="text-xl font-semibold mb-4">Performance Analysis</h3>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <TimeRangeSelector timeRange={timeRange} setTimeRange={setTimeRange} />
+        <ScaleToggle isLogScale={isLogScale} setIsLogScale={setIsLogScale} />
+      </div>
+      <div className="w-full h-[400px]">
+        <Line data={chartData} options={chartOptions} />
+      </div>
+      <PerformanceSummary
+        startDate={filteredDates[0]}
+        endDate={filteredDates[filteredDates.length - 1]}
+      />
+    </div>
+  );
+};
 
-    switch (timeRange) {
-      case "1M":
-        startDate = new Date(now.setMonth(now.getMonth() - 1));
-        break;
-      case "3M":
-        startDate = new Date(now.setMonth(now.getMonth() - 3));
-        break;
-      case "6M":
-        startDate = new Date(now.setMonth(now.getMonth() - 6));
-        break;
-      case "1Y":
-        startDate = new Date(now.setFullYear(now.getFullYear() - 1));
-        break;
-      default:
-        return { filteredData: data, filteredDates: dates };
-    }
+const TimeRangeSelector: React.FC<{
+  timeRange: TimeRange;
+  setTimeRange: (range: TimeRange) => void;
+}> = ({ timeRange, setTimeRange }) => (
+  <div className="w-full sm:w-auto">
+    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Time Range:</p>
+    <div className="flex flex-wrap gap-2">
+      {TIME_RANGES.map((range) => (
+        <button
+          key={range}
+          onClick={() => setTimeRange(range)}
+          className={`px-3 py-1 text-sm rounded transition-colors ${
+            timeRange === range
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+          }`}
+        >
+          {range}
+        </button>
+      ))}
+    </div>
+  </div>
+);
 
-    const filteredIndices = dates.reduce((acc, date, index) => {
-      if (new Date(date) >= startDate) acc.push(index);
-      return acc;
-    }, [] as number[]);
+const ScaleToggle: React.FC<{
+  isLogScale: boolean;
+  setIsLogScale: (isLog: boolean) => void;
+}> = ({ isLogScale, setIsLogScale }) => (
+  <div className="w-full sm:w-auto">
+    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Scale:</p>
+    <div className="flex gap-2">
+      <button
+        onClick={() => setIsLogScale(true)}
+        className={`px-3 py-1 text-sm rounded transition-colors ${
+          isLogScale
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+        }`}
+      >
+        Log
+      </button>
+      <button
+        onClick={() => setIsLogScale(false)}
+        className={`px-3 py-1 text-sm rounded transition-colors ${
+          !isLogScale
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+        }`}
+      >
+        Linear
+      </button>
+    </div>
+  </div>
+);
 
-    return {
-      filteredData: filteredIndices.map((i) => data[i]),
-      filteredDates: filteredIndices.map((i) => dates[i]),
-    };
+const PerformanceSummary: React.FC<{ startDate: string; endDate: string }> = ({
+  startDate,
+  endDate,
+}) => (
+  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+    <div>
+      <p className="font-medium">Start Date:</p>
+      <p>{formatDate(startDate)}</p>
+    </div>
+    <div>
+      <p className="font-medium">End Date:</p>
+      <p>{formatDate(endDate)}</p>
+    </div>
+  </div>
+);
+
+function filterDataByTimeRange(
+  data: number[],
+  dates: string[],
+  timeRange: TimeRange
+) {
+  const now = new Date();
+  let startDate: Date;
+
+  switch (timeRange) {
+    case "1M":
+      startDate = new Date(now.setMonth(now.getMonth() - 1));
+      break;
+    case "3M":
+      startDate = new Date(now.setMonth(now.getMonth() - 3));
+      break;
+    case "6M":
+      startDate = new Date(now.setMonth(now.getMonth() - 6));
+      break;
+    case "1Y":
+      startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+      break;
+    case "3Y":
+      startDate = new Date(now.setFullYear(now.getFullYear() - 3));
+      break;
+    case "5Y":
+      startDate = new Date(now.setFullYear(now.getFullYear() - 5));
+      break;
+    default:
+      return { filteredData: data, filteredDates: dates };
+  }
+
+  const filteredIndices = dates.reduce((acc, date, index) => {
+    if (new Date(date) >= startDate) acc.push(index);
+    return acc;
+  }, [] as number[]);
+
+  return {
+    filteredData: filteredIndices.map((i) => data[i]),
+    filteredDates: filteredIndices.map((i) => dates[i]),
   };
+}
 
-  const normalizeData = (data: number[]) => {
-    const startValue = data[0];
-    return data.map((value) => ((value - startValue) / startValue) * 100);
-  };
+function normalizeData(data: number[]) {
+  const startValue = data[0];
+  return data.map((value) => value / startValue);
+}
 
-  const { filteredData: strategyData, filteredDates } = useMemo(
-    () => filterDataByTimeRange(performanceData.v, performanceData.d),
-    [performanceData, timeRange]
-  );
-
-  const { filteredData: benchmarkData } = useMemo(
-    () => filterDataByTimeRange(performanceData.b, performanceData.d),
-    [performanceData, timeRange]
-  );
-
-  const normalizedStrategyData = useMemo(
-    () => (timeRange !== "ALL" ? normalizeData(strategyData) : strategyData),
-    [strategyData, timeRange]
-  );
-
-  const normalizedBenchmarkData = useMemo(
-    () => (timeRange !== "ALL" ? normalizeData(benchmarkData) : benchmarkData),
-    [benchmarkData, timeRange]
-  );
-
-  const chartData = {
-    labels: filteredDates,
+function createChartData(
+  dates: string[],
+  strategyData: number[],
+  benchmarkData: number[]
+) {
+  return {
+    labels: dates,
     datasets: [
       {
         label: "Strategy Value",
-        data: normalizedStrategyData,
+        data: strategyData,
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.1)",
-        fill: true,
-        pointRadius: 0, // Remove dots
+        fill: false,
+        borderWidth: 2,
+        pointRadius: 0,
       },
       {
         label: "Benchmark",
-        data: normalizedBenchmarkData,
+        data: benchmarkData,
         borderColor: "rgba(255,99,132,1)",
         backgroundColor: "rgba(255,99,132,0.1)",
-        fill: true,
-        pointRadius: 0, // Remove dots
+        fill: false,
+        borderWidth: 2,
+        pointRadius: 0,
       },
     ],
   };
+}
 
-  const options: ChartOptions<"line"> = {
+function createChartOptions(
+  timeRange: TimeRange,
+  isLogScale: boolean
+): ChartOptions<"line"> {
+  return {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Strategy vs Benchmark Performance",
-      },
+      legend: { position: "top" },
+      title: { display: true, text: "Strategy vs Benchmark Performance" },
       tooltip: {
         mode: "index",
         intersect: false,
         callbacks: {
           label: (context) => {
-            let label = context.dataset.label || "";
-            if (label) {
-              label += ": ";
-            }
-            if (context.parsed.y !== null) {
-              label +=
-                timeRange !== "ALL"
-                  ? formatPercentage(context.parsed.y / 100)
-                  : context.parsed.y.toFixed(2);
-            }
-            return label;
+            const label = context.dataset.label || "";
+            const value =
+              context.parsed.y !== null ? context.parsed.y.toFixed(2) : "";
+            return `${label}: ${value}`;
           },
         },
       },
     },
     scales: {
       x: {
-        title: {
-          display: true,
-          text: "Date",
+        title: { display: true, text: "Date" },
+        ticks: {
+          maxTicksLimit: 8,
+          maxRotation: 0,
+          minRotation: 0,
         },
       },
       y: {
+        type: isLogScale ? "logarithmic" : "linear",
         title: {
           display: true,
-          text: timeRange !== "ALL" ? "Percentage Change" : "Value",
+          text: `Value (${isLogScale ? "Log" : "Linear"} Scale)`,
         },
         ticks: {
-          callback: function (value: number | string) {
-            if (typeof value === "number") {
-              return timeRange !== "ALL"
-                ? formatPercentage(value / 100)
-                : value.toFixed(2);
-            }
-            return value;
-          },
+          callback: (value) =>
+            typeof value === "number" ? value.toFixed(2) : value,
         },
       },
     },
-    elements: {
-      point: {
-        radius: 0, // Ensure no points are displayed
-      },
-    },
+    elements: { point: { radius: 0 } },
   };
-
-  return (
-    <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h3 className="text-xl font-semibold mb-4">Performance Analysis</h3>
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Time Range:
-          </p>
-          <div className="mt-1">
-            {["1M", "3M", "6M", "1Y", "ALL"].map((range) => (
-              <button
-                key={range}
-                onClick={() => setTimeRange(range as any)}
-                className={`px-2 py-1 text-sm rounded ${
-                  timeRange === range
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                } mr-2`}
-              >
-                {range}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="h-[400px]">
-        <Line data={chartData} options={options} />
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-        <div>
-          <p className="font-medium">Start Date:</p>
-          <p>{formatDate(filteredDates[0])}</p>
-        </div>
-        <div>
-          <p className="font-medium">End Date:</p>
-          <p>{formatDate(filteredDates[filteredDates.length - 1])}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
+}
 
 export default StrategyDetails;

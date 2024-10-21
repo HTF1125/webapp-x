@@ -27,7 +27,6 @@ export const tableGroups = [
   { group: "global-markets", title: "Global Markets" },
   { group: "us-gics", title: "US GICS" },
   { group: "global-bonds", title: "Global Bonds" },
-  { group: "currency", title: "Currency" },
   { group: "commodities", title: "Commodities" },
   { group: "theme", title: "Theme" },
 ] as const;
