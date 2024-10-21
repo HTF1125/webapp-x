@@ -2,7 +2,10 @@
 
 import { StrategySummary, Strategy, StrategyPerformance } from "./types";
 
-const apiUrl = process.env.API_URL || "";
+const API_URL = process.env.API_URL || "";
+
+// Add this line to print the API_URL during build
+console.log("API_URL:", API_URL);
 
 // Set cache duration to 1 hour (3600 seconds)
 const CACHE_DURATION = 3600;
@@ -15,8 +18,10 @@ const cacheOptions: RequestInit = {
 };
 
 export async function fetchStrategiesSummary(): Promise<StrategySummary[]> {
+  const url = new URL("/api/data/strategies/summary", API_URL);
+  console.log("Fetching strategies summary from URL:", url.toString());
   try {
-    const response = await fetch(`${apiUrl}/api/data/strategies/summary`, cacheOptions);
+    const response = await fetch(url.toString(), cacheOptions);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -28,8 +33,10 @@ export async function fetchStrategiesSummary(): Promise<StrategySummary[]> {
 }
 
 export async function fetchStrategy(code: string): Promise<Strategy> {
+  const url = new URL(`/api/data/strategies/${code}`, API_URL);
+  console.log(`Fetching strategy ${code} from URL:`, url.toString());
   try {
-    const response = await fetch(`${apiUrl}/api/data/strategies/${code}`, cacheOptions);
+    const response = await fetch(url.toString(), cacheOptions);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -41,8 +48,10 @@ export async function fetchStrategy(code: string): Promise<Strategy> {
 }
 
 export async function fetchStrategyPerformance(code: string): Promise<StrategyPerformance> {
+  const url = new URL(`/api/data/strategies/${code}/performance`, API_URL);
+  console.log(`Fetching performance data for strategy ${code} from URL:`, url.toString());
   try {
-    const response = await fetch(`${apiUrl}/api/data/strategies/${code}/performance`, cacheOptions);
+    const response = await fetch(url.toString(), cacheOptions);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

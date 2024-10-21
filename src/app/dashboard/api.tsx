@@ -4,6 +4,9 @@ import { KeyPerformance } from "./types";
 
 const API_URL = process.env.API_URL || "";
 
+// Add this line to print the API_URL during build
+console.log("API_URL:", API_URL);
+
 interface FetchOptions {
   group: string;
   forceRefresh?: boolean;
@@ -15,6 +18,9 @@ export async function fetchPeriodPerformances({
 }: FetchOptions): Promise<KeyPerformance[]> {
   const url = new URL("/api/data/performance", API_URL);
   url.searchParams.set("group", group);
+
+  // Add another print statement here to see the full URL
+  console.log("Fetching from URL:", url.toString());
 
   const fetchOptions: RequestInit = {
     method: "GET",
