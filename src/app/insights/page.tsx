@@ -1,21 +1,16 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+// app/insights/page.tsx
 
-export default function Home() {
+import { fetchFinancialInsights } from './api';
+import { InsightHeader } from './types';
+import InsightsList from './InsightsList';
+
+export default async function InsightsPage() {
+  const insightHeaders: InsightHeader[] = await fetchFinancialInsights();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-4xl font-bold mb-6">Welcome to Investment-X</h1>
-      <p className="text-xl mb-8 text-center">
-        Advanced investment research and strategy platform
-      </p>
-      <div className="space-y-4">
-        <Link href="/sign-up">
-          <Button>Sign Up</Button>
-        </Link>
-        <Link href="/sign-in">
-          <Button variant="outline">Sign In</Button>
-        </Link>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Financial Insights</h1>
+      <InsightsList insightHeaders={insightHeaders} />
     </div>
   );
 }

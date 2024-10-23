@@ -1,6 +1,6 @@
 // app/strategies/api.ts
 
-import { StrategySummary, Strategy, StrategyPerformance } from "./types";
+import { Strategy } from "./types";
 
 const API_URL = process.env.API_URL || "";
 
@@ -8,17 +8,17 @@ const API_URL = process.env.API_URL || "";
 console.log("API_URL:", API_URL);
 
 // Set cache duration to 1 hour (3600 seconds)
-const CACHE_DURATION = 3600;
+const CACHE_DURATION = 20;
 
 const cacheOptions: RequestInit = {
   next: { revalidate: CACHE_DURATION },
   headers: {
-    'Cache-Control': `max-age=0, s-maxage=${CACHE_DURATION}, stale-while-revalidate`,
+    "Cache-Control": `max-age=0, s-maxage=${CACHE_DURATION}, stale-while-revalidate`,
   },
 };
 
-export async function fetchStrategiesSummary(): Promise<StrategySummary[]> {
-  const url = new URL("/api/data/strategies/summary", API_URL);
+export async function fetchStrategies(): Promise<Strategy[]> {
+  const url = new URL("/api/data/strategies", API_URL);
   console.log("Fetching strategies summary from URL:", url.toString());
   try {
     const response = await fetch(url.toString(), cacheOptions);
@@ -47,9 +47,12 @@ export async function fetchStrategy(code: string): Promise<Strategy> {
   }
 }
 
-export async function fetchStrategyPerformance(code: string): Promise<StrategyPerformance> {
-  const url = new URL(`/api/data/strategies/${code}/performance`, API_URL);
-  console.log(`Fetching performance data for strategy ${code} from URL:`, url.toString());
+export async function fetchStrategyById(id: string): Promise<Strategy> {
+  const url = new URL(`/api/data/strategies/${id}`, API_URL);
+  console.log(
+    `Fetching performance data for strategy ${id} from URL:`,
+    url.toString()
+  );
   try {
     const response = await fetch(url.toString(), cacheOptions);
     if (!response.ok) {
@@ -57,7 +60,10 @@ export async function fetchStrategyPerformance(code: string): Promise<StrategyPe
     }
     return response.json();
   } catch (error) {
-    console.error(`Failed to fetch performance data for strategy ${code}:`, error);
+    console.error(
+      `Failed to fetch performance data for strategy ${id}:`,
+      error
+    );
     throw error;
   }
 }

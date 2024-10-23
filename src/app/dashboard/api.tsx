@@ -30,7 +30,7 @@ export async function fetchPeriodPerformances({
     },
     ...(forceRefresh
       ? { cache: 'no-store' as const }
-      : { next: { revalidate: 3600 } }),
+      : { next: { revalidate: 60 } }),
   };
 
   try {

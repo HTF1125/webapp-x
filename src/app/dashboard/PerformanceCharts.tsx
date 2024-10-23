@@ -88,13 +88,13 @@ const PerformanceCharts: React.FC<PerformanceChartsProps> = React.memo(({ data }
   }, [currentPeriod]);
 
   return (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2">
       {data.map((tableData, index) => (
         <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
           <h3 className="text-sm font-semibold mb-2 text-center text-gray-800 dark:text-gray-200">
             {tableData.title}
           </h3>
-          <div className="h-[200px]">
+          <div className="h-[160px]">
             <Bar
               options={chartOptions}
               data={generateChartData(tableData)}

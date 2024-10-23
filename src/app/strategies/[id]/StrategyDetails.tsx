@@ -1,4 +1,4 @@
-// app/strategies/StrategyDetails.tsx
+"use client";
 
 import React, { useState, useMemo } from "react";
 import { Line } from "react-chartjs-2";
@@ -7,19 +7,21 @@ import {
   CategoryScale,
   LinearScale,
   LogarithmicScale,
+  PointElement,
   LineElement,
   Title,
   Tooltip,
   Legend,
   ChartOptions,
 } from "chart.js";
-import { StrategyPerformance } from "./types";
-import { formatDate } from "@/lib/fmt";
+import { Strategy } from "../types";
+import { formatDate, formatPercentage } from "@/lib/fmt";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   LogarithmicScale,
+  PointElement,
   LineElement,
   Title,
   Tooltip,
@@ -27,25 +29,35 @@ ChartJS.register(
 );
 
 interface StrategyDetailsProps {
-  performanceData: StrategyPerformance;
+  strategy: Strategy | null; // Allow for null to handle loading state
 }
 
 const TIME_RANGES = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "ALL"] as const;
 type TimeRange = (typeof TIME_RANGES)[number];
 
-const StrategyDetails: React.FC<StrategyDetailsProps> = ({
-  performanceData,
-}) => {
+const StrategyDetails: React.FC<StrategyDetailsProps> = ({ strategy }) => {
   const [timeRange, setTimeRange] = useState<TimeRange>("ALL");
   const [isLogScale, setIsLogScale] = useState(true);
 
   const { filteredStrategyData, filteredBenchmarkData, filteredDates } =
     useMemo(() => {
+      if (!strategy || !strategy.book) {
+        return {
+          filteredStrategyData: [],
+          filteredBenchmarkData: [],
+          filteredDates: [],
+        };
+      }
+
       const { filteredData: strategyData, filteredDates } =
-        filterDataByTimeRange(performanceData.v, performanceData.d, timeRange);
+        filterDataByTimeRange(
+          strategy.book.v || [],
+          strategy.book.d || [],
+          timeRange
+        );
       const { filteredData: benchmarkData } = filterDataByTimeRange(
-        performanceData.b,
-        performanceData.d,
+        strategy.book.b || [],
+        strategy.book.d || [],
         timeRange
       );
       return {
@@ -53,29 +65,60 @@ const StrategyDetails: React.FC<StrategyDetailsProps> = ({
         filteredBenchmarkData: normalizeData(benchmarkData),
         filteredDates,
       };
-    }, [performanceData, timeRange]);
+    }, [strategy, timeRange]);
+
+  if (!strategy) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="loader">Loading...</div> {/* Loading Spinner */}
+      </div>
+    );
+  }
 
   const chartData = createChartData(
     filteredDates,
     filteredStrategyData,
     filteredBenchmarkData
   );
+
   const chartOptions = createChartOptions(timeRange, isLogScale);
 
   return (
-    <div className="w-full mt-4 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h3 className="text-xl font-semibold mb-4">Performance Analysis</h3>
+    <div className="w-full p-4 sm:p-6 md:p-8 lg:p-10">
+      <h2 className="text-2xl font-semibold mb-4">Strategy: {strategy.code}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Last Updated
+          </p>
+          <p className="text-lg font-medium">
+            {formatDate(strategy.last_updated)}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Annual Return
+          </p>
+          <p className="text-lg font-medium">
+            {formatPercentage(strategy.ann_return)}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Annual Volatility
+          </p>
+          <p className="text-lg font-medium">
+            {formatPercentage(strategy.ann_volatility)}
+          </p>
+        </div>
+      </div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <TimeRangeSelector timeRange={timeRange} setTimeRange={setTimeRange} />
         <ScaleToggle isLogScale={isLogScale} setIsLogScale={setIsLogScale} />
       </div>
-      <div className="w-full h-[400px]">
+      <div className="w-full h-[600px]">
         <Line data={chartData} options={chartOptions} />
       </div>
-      <PerformanceSummary
-        startDate={filteredDates[0]}
-        endDate={filteredDates[filteredDates.length - 1]}
-      />
     </div>
   );
 };
@@ -135,22 +178,6 @@ const ScaleToggle: React.FC<{
   </div>
 );
 
-const PerformanceSummary: React.FC<{ startDate: string; endDate: string }> = ({
-  startDate,
-  endDate,
-}) => (
-  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-    <div>
-      <p className="font-medium">Start Date:</p>
-      <p>{formatDate(startDate)}</p>
-    </div>
-    <div>
-      <p className="font-medium">End Date:</p>
-      <p>{formatDate(endDate)}</p>
-    </div>
-  </div>
-);
-
 function filterDataByTimeRange(
   data: number[],
   dates: string[],
@@ -194,8 +221,12 @@ function filterDataByTimeRange(
 }
 
 function normalizeData(data: number[]) {
+  if (data.length === 0) return [];
+
   const startValue = data[0];
-  return data.map((value) => value / startValue);
+
+  // Avoid division by zero if startValue is zero.
+  return data.map((value) => (startValue !== 0 ? value / startValue : value));
 }
 
 function createChartData(
@@ -209,8 +240,8 @@ function createChartData(
       {
         label: "Strategy Value",
         data: strategyData,
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.1)",
+        borderColor: "rgba(75,192,192,1)",
+        backgroundColor: "rgba(75,192,192,0.2)",
         fill: false,
         borderWidth: 2,
         pointRadius: 0,
@@ -218,8 +249,8 @@ function createChartData(
       {
         label: "Benchmark",
         data: benchmarkData,
-        borderColor: "rgba(255,99,132,1)",
-        backgroundColor: "rgba(255,99,132,0.1)",
+        borderColor: "rgba(255 ,99 ,132 ,1)",
+        backgroundColor: "rgba(255 ,99 ,132 ,0.2)",
         fill: false,
         borderWidth: 2,
         pointRadius: 0,
@@ -259,6 +290,9 @@ function createChartOptions(
           maxRotation: 0,
           minRotation: 0,
         },
+        grid: {
+          color: "rgba(255,255,255,0.2)", // Set grid line color for x-axis
+        },
       },
       y: {
         type: isLogScale ? "logarithmic" : "linear",
@@ -267,8 +301,12 @@ function createChartOptions(
           text: `Value (${isLogScale ? "Log" : "Linear"} Scale)`,
         },
         ticks: {
-          callback: (value) =>
-            typeof value === "number" ? value.toFixed(2) : value,
+          callback(value) {
+            return typeof value === "number" ? value.toFixed(2) : value;
+          },
+        },
+        grid: {
+          color: "rgba(255,255,255,0.2)", // Set grid line color for y-axis
         },
       },
     },

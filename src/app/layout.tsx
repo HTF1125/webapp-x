@@ -12,7 +12,7 @@ const roboto = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Investment-X"
+  title: "Investment-X",
 };
 
 export default function RootLayout({
@@ -30,13 +30,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
-            <main>{children}</main>
-            <footer>
-              <p>
-                © {new Date().getFullYear()} Investment-X. All rights reserved.
-              </p>
-            </footer>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="w-full flex-grow max-w-[1800px] mx-auto">{children}</main>
+            </div>
           </ThemeProvider>
         </ErrorBoundary>
         <Analytics />
