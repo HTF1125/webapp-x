@@ -27,11 +27,11 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
   const router = useRouter();
 
   const filteredAndSortedStrategies = useMemo(() => {
-    let sorted = strategies.filter((strategy) =>
+    const filtered = strategies.filter((strategy) =>
       strategy.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    sorted.sort((a, b) => {
+    return filtered.sort((a, b) => {
       if (sortConfig.field === "code") {
         return sortConfig.order === "asc"
           ? a.code.localeCompare(b.code)
@@ -44,8 +44,6 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
           : (bValue as number) - (aValue as number);
       }
     });
-
-    return sorted;
   }, [strategies, searchTerm, sortConfig]);
 
   const handleSort = (field: SortField) => {
