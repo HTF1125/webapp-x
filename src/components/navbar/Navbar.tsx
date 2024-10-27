@@ -133,9 +133,6 @@ const NavbarUser = () => {
             <button className="block w-full text-left px-4 py-2 text-base text-popover-foreground hover:bg-secondary">
               Sign out
             </button>
-            <div className="px-4 py-2">
-              <ThemeToggle aria-label="Toggle theme" />
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -194,6 +191,7 @@ export default function Navbar() {
         )}
 
         <div className="flex items-center space-x-3">
+          <ThemeToggle aria-label="Toggle theme" />
           <NavbarUser />
         </div>
       </div>

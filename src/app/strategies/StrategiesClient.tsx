@@ -5,46 +5,56 @@ import { useRouter } from "next/navigation";
 import { Strategy } from "./types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { formatDate, formatPercentage } from "@/lib/fmt";
-import { Search, ArrowUpDown } from "lucide-react";
+import { Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import MiniNavChart from "@/components/MiniNavChart";
 
 interface StrategiesClientProps {
   initialStrategies: Strategy[];
 }
 
+type SortField = "code" | "ann_return" | "ann_volatility";
+type SortOrder = "asc" | "desc";
+
 export default function StrategiesClient({ initialStrategies }: StrategiesClientProps) {
   const [strategies] = useState<Strategy[]>(initialStrategies);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("code");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortConfig, setSortConfig] = useState<{ field: SortField; order: SortOrder }>({
+    field: "code",
+    order: "asc",
+  });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const filteredAndSortedStrategies = useMemo(() => {
-    return strategies
-      .filter((strategy) =>
-        strategy.code.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => {
-        let comparison = 0;
-        if (sortBy === "return") {
-          comparison = (b.ann_return ?? 0) - (a.ann_return ?? 0);
-        } else if (sortBy === "volatility") {
-          comparison = (b.ann_volatility ?? 0) - (a.ann_volatility ?? 0);
-        } else {
-          comparison = a.code.localeCompare(b.code);
-        }
-        return sortOrder === "asc" ? comparison : -comparison;
-      });
-  }, [strategies, searchTerm, sortBy, sortOrder]);
+    let sorted = strategies.filter((strategy) =>
+      strategy.code.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    sorted.sort((a, b) => {
+      if (sortConfig.field === "code") {
+        return sortConfig.order === "asc"
+          ? a.code.localeCompare(b.code)
+          : b.code.localeCompare(a.code);
+      } else {
+        const aValue = a[sortConfig.field] ?? 0;
+        const bValue = b[sortConfig.field] ?? 0;
+        return sortConfig.order === "asc"
+          ? (aValue as number) - (bValue as number)
+          : (bValue as number) - (aValue as number);
+      }
+    });
+
+    return sorted;
+  }, [strategies, searchTerm, sortConfig]);
+
+  const handleSort = (field: SortField) => {
+    setSortConfig((prevConfig) => ({
+      field,
+      order:
+        prevConfig.field === field && prevConfig.order === "asc" ? "desc" : "asc",
+    }));
+  };
 
   const handleStrategyClick = async (strategyId: string) => {
     setLoading(true);
@@ -52,8 +62,17 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
     setLoading(false);
   };
 
+  const renderSortIcon = (field: SortField) => {
+    if (sortConfig.field !== field) return <ArrowUpDown className="ml-2 h-4 w-4" />;
+    return sortConfig.order === "asc" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
+    );
+  };
+
   return (
-    <div className="w-full p-4 bg-gray-100 rounded-lg shadow-md">
+    <div className="w-full p-4 bg-gray-100 dark:bg-gray-900 rounded-lg shadow-md">
       {loading && <div className="loading-spinner">Loading...</div>}
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -63,32 +82,42 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
             placeholder="Search strategies..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
             size={20}
           />
         </div>
 
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-full md:w-48 border border-gray-300 rounded-md">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="code">Code</SelectItem>
-            <SelectItem value="return">Annual Return</SelectItem>
-            <SelectItem value="volatility">Annual Volatility</SelectItem>
-          </SelectContent>
-        </Select>
+        <Button
+          onClick={() => handleSort("code")}
+          variant="outline"
+          className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center ${
+            sortConfig.field === "code" ? "bg-blue-100 dark:bg-blue-800" : ""
+          }`}
+        >
+          Code {renderSortIcon("code")}
+        </Button>
 
         <Button
-          onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+          onClick={() => handleSort("ann_return")}
           variant="outline"
-          className="w-full md:w-auto border border-gray-300 rounded-md flex items-center justify-center"
+          className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center ${
+            sortConfig.field === "ann_return" ? "bg-blue-100 dark:bg-blue-800" : ""
+          }`}
         >
-          {sortOrder === "asc" ? "Ascending" : "Descending"}
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          Return {renderSortIcon("ann_return")}
+        </Button>
+
+        <Button
+          onClick={() => handleSort("ann_volatility")}
+          variant="outline"
+          className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center ${
+            sortConfig.field === "ann_volatility" ? "bg-blue-100 dark:bg-blue-800" : ""
+          }`}
+        >
+          Volatility {renderSortIcon("ann_volatility")}
         </Button>
       </div>
 
@@ -97,20 +126,19 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
         {filteredAndSortedStrategies.map((strategy) => (
           <div
             key={strategy.code}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform transform hover:scale-105 cursor-pointer"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform transform hover:scale-105 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
             onClick={() => handleStrategyClick(strategy._id)}
           >
-            <h3 className="text-lg font-semibold">{strategy.code}</h3>
+            <h3 className="text-lg font-semibold text-black dark:text-white">{strategy.code}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Last Updated: {formatDate(strategy.last_updated)}
             </p>
-            <p className={`text-lg font-medium ${strategy.ann_return > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-lg font-medium ${strategy.ann_return > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               Annual Return: {formatPercentage(strategy.ann_return)}
             </p>
-            <p className={`text-lg font-medium ${strategy.ann_volatility > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
+            <p className={`text-lg font-medium ${strategy.ann_volatility > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
               Annual Volatility: {formatPercentage(strategy.ann_volatility)}
             </p>
-            {/* MiniNavChart for displaying NAV history */}
             <MiniNavChart data={strategy.nav_history} />
           </div>
         ))}
