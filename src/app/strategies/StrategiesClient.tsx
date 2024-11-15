@@ -49,8 +49,7 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
   const handleSort = (field: SortField) => {
     setSortConfig((prevConfig) => ({
       field,
-      order:
-        prevConfig.field === field && prevConfig.order === "asc" ? "desc" : "asc",
+      order: prevConfig.field === field && prevConfig.order === "asc" ? "desc" : "asc",
     }));
   };
 
@@ -70,10 +69,16 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
   };
 
   return (
-    <div className="w-full p-4 bg-gray-100 dark:bg-gray-900 rounded-lg shadow-md">
-      {loading && <div className="loading-spinner">Loading...</div>}
+    <div className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg">
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg">
+            <p className="text-lg font-semibold text-black dark:text-white">Loading...</p>
+          </div>
+        </div>
+      )}
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
         <div className="relative flex-grow">
           <Input
             type="text"
@@ -82,41 +87,23 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
-            size={20}
-          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300" size={20} />
         </div>
 
-        <Button
-          onClick={() => handleSort("code")}
-          variant="outline"
-          className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center ${
-            sortConfig.field === "code" ? "bg-blue-100 dark:bg-blue-800" : ""
-          }`}
-        >
-          Code {renderSortIcon("code")}
-        </Button>
-
-        <Button
-          onClick={() => handleSort("ann_return")}
-          variant="outline"
-          className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center ${
-            sortConfig.field === "ann_return" ? "bg-blue-100 dark:bg-blue-800" : ""
-          }`}
-        >
-          Return {renderSortIcon("ann_return")}
-        </Button>
-
-        <Button
-          onClick={() => handleSort("ann_volatility")}
-          variant="outline"
-          className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center ${
-            sortConfig.field === "ann_volatility" ? "bg-blue-100 dark:bg-blue-800" : ""
-          }`}
-        >
-          Volatility {renderSortIcon("ann_volatility")}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {["code", "ann_return", "ann_volatility"].map((field) => (
+            <Button
+              key={field}
+              onClick={() => handleSort(field as SortField)}
+              variant="outline"
+              className={`flex items-center justify-center border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 transition-colors duration-200 ${
+                sortConfig.field === field ? "bg-blue-100 dark:bg-blue-800" : ""
+              }`}
+            >
+              {field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')} {renderSortIcon(field as SortField)}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* Strategy Cards Section */}
@@ -124,17 +111,15 @@ export default function StrategiesClient({ initialStrategies }: StrategiesClient
         {filteredAndSortedStrategies.map((strategy) => (
           <div
             key={strategy.code}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform transform hover:scale-105 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 transition-transform transform hover:scale-105 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700"
             onClick={() => handleStrategyClick(strategy._id)}
           >
-            <h3 className="text-lg font-semibold text-black dark:text-white">{strategy.code}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Last Updated: {formatDate(strategy.last_updated)}
-            </p>
-            <p className={`text-lg font-medium ${strategy.ann_return > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            <h3 className="text-md font-semibold text-black dark:text-white">{strategy.code}</h3>
+            <p className="text-xs text-gray-600 dark:text-gray-400">Last Updated: {formatDate(strategy.last_updated)}</p>
+            <p className={`text-md font-medium ${strategy.ann_return > 0 ? 'text-green-600' : 'text-red-600'}`}>
               Annual Return: {formatPercentage(strategy.ann_return)}
             </p>
-            <p className={`text-lg font-medium ${strategy.ann_volatility > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
+            <p className={`text-md font-medium ${strategy.ann_volatility > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
               Annual Volatility: {formatPercentage(strategy.ann_volatility)}
             </p>
             <MiniNavChart data={strategy.nav_history} />

@@ -1,20 +1,21 @@
 // components/ClientOnly.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-function ClientOnly({ children }: { children: React.ReactNode }) {
-  const [hasMounted, setHasMounted] = useState(false);
+interface ClientOnlyProps {
+  children: ReactNode;
+}
+
+function ClientOnly({ children }: ClientOnlyProps) {
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setHasMounted(true);
+    setIsClient(true);
   }, []);
 
-  if (!hasMounted) {
-    return null;
-  }
-
-  return <>{children}</>;
+  // Render `null` on the server and content only on the client
+  return isClient ? <>{children}</> : null;
 }
 
 export default ClientOnly;

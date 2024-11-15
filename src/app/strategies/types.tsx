@@ -1,14 +1,14 @@
 // app/strategies/types.tsx
 
 export interface Book {
-  d: string[];
-  v: number[];
-  l: number[];
-  b: number[];
-  s: { [ticker: string]: number[] }[];
-  c: { [ticker: string]: number[] }[];
-  w: { [ticker: string]: number[] }[];
-  a: { [ticker: string]: number[] }[];
+  d: string[]; //dates
+  v: number[]; //nav values
+  l: number[]; //liquidity values
+  b: number[]; //benchmark values
+  s: { [ticker: string]: number[] }[]; //holding shares
+  c: { [ticker: string]: number[] }[]; //holding capitals
+  w: { [ticker: string]: number[] }[]; //holding weight
+  a: { [ticker: string]: number[] }[]; //allocation weight
 }
 
 export interface Strategy {

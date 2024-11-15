@@ -1,52 +1,53 @@
-// app/insights/InsightsList.tsx
+// app/insights/components/InsightsList.tsx
 
-"use client"; // This makes the component a client component
+"use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { InsightHeader } from "./types";
-import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
+import InsightCard from "./InsightCard";
 
-interface InsightsListProps {
-  insightHeaders: InsightHeader[];
+interface Insight {
+  _id: string;
+  title: string;
+  date: string;
+  content: string;
+  tags: string[];
 }
 
-const InsightsList: React.FC<InsightsListProps> = ({ insightHeaders }) => {
-  const [error] = useState<string | null>(null);
-  const { theme } = useTheme();
+interface InsightsListProps {
+  initialInsights: Insight[];
+}
 
-  if (error) {
-    return (
-      <div className="text-red-500 text-center mt-8">
-        <p>{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
+const InsightsList: React.FC<InsightsListProps> = ({ initialInsights }) => {
+  const [insights] = useState<Insight[]>(initialInsights);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {insightHeaders.map((header) => (
-        <Link href={`/insights/${header._id}`} key={header._id}>
-          <div
-            className={`block shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 transform hover:-translate-y-1 ${
-              theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black"
-            }`}
-          >
-            <p className={`text-sm mb-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-              {header.date}
-            </p>
-            <h2 className={`text-xl font-semibold mb-2 ${theme === "dark" ? "text-white" : "text-black"}`}>
-              {header.title}
-            </h2>
-          </div>
-        </Link>
-      ))}
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {successMessage && (
+        <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+          {successMessage}
+        </div>
+      )}
+      {insights.length === 0 ? (
+        <p className="text-center text-gray-500 dark:text-gray-400">
+          No insights available. Add a new insight to get started!
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {insights.map((insight) => (
+            <InsightCard key={insight._id} insight={insight} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

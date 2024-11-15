@@ -80,9 +80,9 @@ const PerformanceCharts: React.FC<PerformanceChartsProps> = React.memo(({ data }
           return value >= 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)';
         },
         borderWidth: 1,
-        borderRadius: 2,
-        barPercentage: 1, // Increased to fill more space
-        categoryPercentage: 0.95, // Increased to fill more space
+        borderRadius: 1,
+        barPercentage: 0.85, // Increased to fill more space
+        categoryPercentage: 1, // Increased to fill more space
       }],
     };
   }, [currentPeriod]);
@@ -90,8 +90,8 @@ const PerformanceCharts: React.FC<PerformanceChartsProps> = React.memo(({ data }
   return (
     <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2">
       {data.map((tableData, index) => (
-        <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-          <h3 className="text-sm font-semibold mb-2 text-center text-gray-800 dark:text-gray-200">
+        <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-sm">
+          <h3 className="text-sm font-semibold mb-2 text-center text-gray-200">
             {tableData.title}
           </h3>
           <div className="h-[160px]">

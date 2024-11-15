@@ -1,13 +1,12 @@
 import "@/styles/globals.css";
-import { Roboto_Mono } from "next/font/google"; // Change here
+import { Inter } from "next/font/google";
 import { Metadata } from "next";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { Analytics } from "@vercel/analytics/react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Navbar from "@/components/navbar/Navbar";
 
-const roboto = Roboto_Mono({
-  weight: "400",
+const inter = Inter({
+  weight: ["400", "600", "700"],
   subsets: ["latin"],
 });
 
@@ -21,20 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={roboto.className}>
-      <body>
+    <html lang="en" suppressHydrationWarning className={`${inter.className} dark`}>
+      <body className="bg-gray-900 text-gray-100">
         <ErrorBoundary>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="w-full flex-grow max-w-[1800px] mx-auto">{children}</main>
-            </div>
-          </ThemeProvider>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="w-full flex-grow max-w-[1800px] mx-auto">{children}</main>
+          </div>
         </ErrorBoundary>
         <Analytics />
       </body>

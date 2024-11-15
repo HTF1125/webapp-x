@@ -1,27 +1,31 @@
-// src/components/LoadingSpinner.tsx
-'use client';
+// app/insights/components/LoadingSpinner.tsx
 
-import React from 'react';
+"use client";
 
-const LoadingSpinner: React.FC = () => {
+interface LoadingSpinnerProps {
+  size?: number; // spinner size in pixels
+  color?: string; // color for the spinner
+  message?: string; // optional loading message
+}
+
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  size = 40,
+  color = "text-blue-500",
+  message = "Loading...",
+}) => {
   return (
-    <div className="flex justify-center items-center">
-      <div className="loader"></div>
-      <style jsx>{`
-        .loader {
-          border: 4px solid rgba(75, 192, 192, 0.3);
-          border-top: 4px solid rgba(75, 192, 192, 1);
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <div
+        className={`animate-spin rounded-full ${color}`}
+        style={{
+          width: size,
+          height: size,
+          borderWidth: size / 10,
+          borderColor: `${color.replace("text", "border")}`,
+          borderTopColor: "transparent",
+        }}
+      ></div>
+      {message && <p className="mt-4 text-lg text-gray-500">{message}</p>}
     </div>
   );
 };
