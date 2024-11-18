@@ -23,11 +23,11 @@ ChartJS.register(
   Legend
 );
 
-interface MiniNavChartProps {
+interface MiniLineChartProps {
   data: number[];
 }
 
-const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
+const MiniLineChart: React.FC<MiniLineChartProps> = ({ data }) => {
   if (!data || data.length === 0) {
     return <div>No data available</div>;
   }
@@ -37,14 +37,14 @@ const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
   const padding = (maxValue - minValue) * 0.1;
 
   const chartData: ChartData<"line"> = {
-    labels: data.map((_, index) => index + 1),
+    labels: data.map((_, index) => index + 1), // X-axis labels as indices
     datasets: [
       {
         label: "NAV",
-        data: data,
+        data: data, // Y-axis values
         fill: false,
-        borderColor: "rgb(75, 192, 192)",
-        tension: 0.1,
+        borderColor: "white",
+        tension: 0.1, // Smoothing
       },
     ],
   };
@@ -54,34 +54,37 @@ const MiniNavChart: React.FC<MiniNavChartProps> = ({ data }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false,
+        display: false, // Hide the legend
       },
       tooltip: {
-        enabled: false,
+        enabled: false, // Disable tooltips
+      },
+      datalabels: {
+        display: false, // Ensure no datalabels are shown
       },
     },
     scales: {
       x: {
-        display: false,
+        display: false, // Hide X-axis
       },
       y: {
-        display: false,
-        min: minValue - padding,
-        max: maxValue + padding,
+        display: false, // Hide Y-axis
+        min: minValue - padding, // Add padding below min value
+        max: maxValue + padding, // Add padding above max value
       },
     },
     elements: {
       point: {
-        radius: 0,
+        radius: 0, // Remove points on the line
       },
     },
   };
 
   return (
-    <div style={{ width: '100%', height: '50px' }}>
+    <div style={{ width: "100%", height: "50px" }}>
       <Line data={chartData} options={options} />
     </div>
   );
 };
 
-export default MiniNavChart;
+export default MiniLineChart;

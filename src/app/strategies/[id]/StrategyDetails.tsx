@@ -14,7 +14,7 @@ import {
   Legend,
   ChartOptions,
 } from "chart.js";
-import { Strategy } from "../types";
+import { Strategy } from "./types";
 import { formatDate, formatPercentage } from "@/lib/fmt";
 
 ChartJS.register(

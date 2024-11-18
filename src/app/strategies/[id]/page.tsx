@@ -1,6 +1,6 @@
 import React from "react";
 import StrategyDetails from "./StrategyDetails";
-import { fetchStrategyById } from "../api";
+import { fetchStrategyById } from "./api";
 import Link from "next/link";
 
 // Define the type for the params

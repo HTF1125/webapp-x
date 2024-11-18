@@ -1,12 +1,12 @@
 import "@/styles/globals.css";
-import { Inter } from "next/font/google";
+import { Roboto_Condensed } from "next/font/google";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import Navbar from "@/components/navbar/Navbar";
 
-const inter = Inter({
-  weight: ["400", "600", "700"],
+const font = Roboto_Condensed({
+  weight: ["400", "500", "700"],
   subsets: ["latin"],
 });
 
@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.className} dark`}>
-      <body className="bg-gray-900 text-gray-100">
+    <html lang="en" suppressHydrationWarning className={`${font.className} dark`}>
+      <body className="bg-black text-white">
         <ErrorBoundary>
           <div className="flex flex-col min-h-screen">
             <Navbar />
