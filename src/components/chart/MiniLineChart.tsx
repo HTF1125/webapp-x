@@ -43,7 +43,7 @@ const MiniLineChart: React.FC<MiniLineChartProps> = ({ data }) => {
         label: "NAV",
         data: data, // Y-axis values
         fill: false,
-        borderColor: "white",
+        borderColor: "#00FFFF",
         tension: 0.1, // Smoothing
       },
     ],
@@ -81,7 +81,7 @@ const MiniLineChart: React.FC<MiniLineChartProps> = ({ data }) => {
   };
 
   return (
-    <div style={{ width: "100%", height: "50px" }}>
+    <div style={{ width: "100%", height: "150px" }}>
       <Line data={chartData} options={options} />
     </div>
   );

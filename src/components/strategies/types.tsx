@@ -11,6 +11,17 @@ export interface Book {
   a: { [ticker: string]: number[] }[]; //allocation weight
 }
 
+
+
+export interface StrategiesKeyInfo {
+  code: string;
+  last_updated: string;
+  ann_return: number;
+  ann_volatility: number;
+  nav_history: number[];
+}
+
+
 export interface Strategy {
   _id: string;
   code: string;

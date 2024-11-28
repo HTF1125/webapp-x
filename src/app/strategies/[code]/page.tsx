@@ -1,16 +1,16 @@
 import React from "react";
 import StrategyDetails from "./StrategyDetails";
-import { fetchStrategyById } from "./api";
+import { fetchStrategyByCode } from "./api";
 import Link from "next/link";
 
 // Define the type for the params
 interface Params {
-  id: string;
+  code: string;
 }
 
 const StrategyPage = async ({ params }: { params: Params }) => {
   try {
-    const strategy = await fetchStrategyById(params.id);
+    const strategy = await fetchStrategyByCode(params.code);
     return (
       <div className="container mx-auto px-4 py-8">
         <Link

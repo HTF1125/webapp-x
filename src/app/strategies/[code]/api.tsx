@@ -32,7 +32,7 @@ export async function fetchStrategies(): Promise<Strategy[]> {
   }
 }
 
-export async function fetchStrategy(code: string): Promise<Strategy> {
+export async function fetchStrategyByCode(code: string): Promise<Strategy> {
   const url = new URL(`/api/data/strategies/${code}`, API_URL);
   console.log(`Fetching strategy ${code} from URL:`, url.toString());
   try {

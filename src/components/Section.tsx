@@ -8,13 +8,14 @@ interface SectionProps {
 
 const Section: React.FC<SectionProps> = ({ header, children, className }) => {
   return (
-    <div className="p-6"> {/* Added padding around the section */}
-      <section className={`w-full shadow rounded-lg p-2 ${className || ""}`}>
-        <header className="flex items-center justify-between border-b border-gray-200 pb-2 mb-1">
-          <h2 className="text-xl font-bold text-white">{header}</h2>
+    <div className="p-2 w-full"> {/* Reduced outer padding */}
+      <section
+        className={`w-full shadow-md p-4 ${className || ""}`} // Reduced padding and adjusted shadow
+      >
+        <header className="flex items-center justify-between border-b border-gray-600 pb-2 mb-2"> {/* Reduced padding and margin */}
+          <h2 className="text-lg font-medium text-white">{header}</h2> {/* Adjusted font size and weight */}
         </header>
-
-        <div>{children}</div>
+        <div className="text-sm text-gray-300">{children}</div> {/* Adjusted font size and color */}
       </section>
     </div>
   );

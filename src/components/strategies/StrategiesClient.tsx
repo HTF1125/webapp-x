@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Strategy } from "./types";
+import { StrategiesKeyInfo } from "./types";
 import { Input } from "@/components/ui/input";
 import { formatDate, formatPercentage } from "@/lib/fmt";
 import { Search} from "lucide-react";
@@ -10,7 +10,7 @@ import MiniLineChart from "@/components/chart/MiniLineChart";
 import Section from "@/components/Section";
 
 interface StrategiesClientProps {
-  initialStrategies: Strategy[];
+  initialStrategies: StrategiesKeyInfo[];
 }
 
 type SortField = "code" | "ann_return" | "ann_volatility";
@@ -19,7 +19,7 @@ type SortOrder = "asc" | "desc";
 export default function StrategiesClient({
   initialStrategies,
 }: StrategiesClientProps) {
-  const [strategies] = useState<Strategy[]>(initialStrategies);
+  const [strategies] = useState<StrategiesKeyInfo[]>(initialStrategies);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig] = useState<{
     field: SortField;
@@ -63,7 +63,7 @@ export default function StrategiesClient({
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg">
-            <p className="text-lg font-semibold text-black dark:text-white">
+            <p className="text-lg font-semibold text-white">
               Loading...
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function StrategiesClient({
           <div
             key={strategy.code}
             className="bg-transparent p-4 border border-white rounded-lg shadow-sm transition-transform transform hover:scale-105 cursor-pointer"
-            onClick={() => handleStrategyClick(strategy._id)}
+            onClick={() => handleStrategyClick(strategy.code)}
           >
             <h3 className="text-sm font-semibold text-center text-white mb-3">
               {strategy.code}

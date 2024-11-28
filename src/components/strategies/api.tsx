@@ -17,11 +17,13 @@ const cacheOptions: RequestInit = {
   },
 };
 
-export async function fetchStrategies(): Promise<Strategy[]> {
-  const url = new URL("/api/data/strategies", API_URL);
-  console.log("Fetching strategies summary from URL:", url.toString());
+import { StrategiesKeyInfo } from "./types";
+
+
+export async function fetchStrategies(): Promise<StrategiesKeyInfo[]> {
+  const url = new URL("/api/data/strategies/keyinfo", API_URL);
   try {
-    const response = await fetch(url.toString(), cacheOptions);
+    const response = await fetch(url.toString());
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
