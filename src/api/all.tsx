@@ -157,8 +157,10 @@ export async function fetchSignalCodes(): Promise<string[]> {
 }
 
 export async function fetchSignalByCode(code: string): Promise<Signal> {
-  const endpoint = `${API_URL}/api/data/signals/${encodeURIComponent(code)}`;
-
+  const endpoint = new URL(
+    `api/data/signals/${encodeURIComponent(code)}`,
+    API_URL
+  ).toString();
   try {
     const response = await fetch(endpoint, {
       method: "GET", // Explicitly specifying the GET method
