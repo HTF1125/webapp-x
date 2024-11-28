@@ -76,8 +76,9 @@ const fetchOptions: RequestInit = {
 
 export async function fetchAllIndexGroupPerformances(): Promise<IndexGroupPeriodPerformances> {
   try {
-    const url = new URL("/api/data/index_groups/all", API_URL);
-    const response = await fetch(url.toString(), fetchOptions);
+    const endpoint = new URL("/api/data/index_groups/all", API_URL).toString();
+
+    const response = await fetch(endpoint, fetchOptions);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -107,9 +108,10 @@ export type Period = (typeof periods)[number];
 export async function fetchPerformancesByCode(
   code: string
 ): Promise<PeriodPerformance[]> {
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/index_groups/performances/${encodeURIComponent(
-    code
-  )}`;
+  const endpoint = new URL(
+    `api/data/index_groups/performances/${encodeURIComponent(code)}`,
+    NEXT_PUBLIC_API_URL
+  ).toString();
 
   try {
     const response = await fetch(endpoint, {
@@ -135,29 +137,23 @@ export async function fetchPerformancesByCode(
 }
 
 export async function fetchSignalCodes(): Promise<string[]> {
-  const endpoint = `${API_URL}/api/data/signals/codes`;
+  const endpoint = new URL("/api/data/signals/codes/", API_URL).toString();
+  const response = await fetch(endpoint, {
+    method: "GET", // Explicitly specifying the GET method
+    headers: {
+      Accept: "application/json",
+    },
+    next: { revalidate: 60 },
+  });
 
-  try {
-    const response = await fetch(endpoint, {
-      method: "GET", // Explicitly specifying the GET method
-      headers: {
-        Accept: "application/json",
-      },
-      next: { revalidate: 60 },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error(`Error fetching signal codes:`, errorData);
-      throw new Error(errorData.error || "Failed to fetch signal codes");
-    }
-
-    const data: string[] = await response.json();
-    return data;
-  } catch (error) {
-    console.error(`Failed to fetch signal codes:`, error);
-    throw error; // Re-throw the error to allow the caller to handle it
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error(`Error fetching signal codes:`, errorData);
+    throw new Error(errorData.error || "Failed to fetch signal codes");
   }
+
+  const data: string[] = await response.json();
+  return data;
 }
 
 export async function fetchSignalByCode(code: string): Promise<Signal> {
@@ -197,7 +193,7 @@ export interface TickerInfo {
 }
 
 export async function fetchAllTickers(): Promise<TickerInfo[]> {
-  const endpoint = `${API_URL}/api/data/tickers/all`;
+  const endpoint = new URL("/api/data/tickers/all", API_URL).toString();
 
   const fetchOptions: RequestInit = {
     method: "GET",
@@ -224,9 +220,14 @@ export async function fetchAllTickers(): Promise<TickerInfo[]> {
   }
 }
 
-
-export async function updateTicker(code: string, tickerUpdate: Partial<TickerInfo>): Promise<TickerInfo> {
-  const endpoint = `${API_URL}/api/data/tickers/${encodeURIComponent(code)}`;
+export async function updateTicker(
+  code: string,
+  tickerUpdate: Partial<TickerInfo>
+): Promise<TickerInfo> {
+  const endpoint = new URL(
+    `/api/data/tickers/${encodeURIComponent(code)}`,
+    API_URL
+  ).toString();
 
   try {
     const response = await fetch(endpoint, {
@@ -240,7 +241,9 @@ export async function updateTicker(code: string, tickerUpdate: Partial<TickerInf
     if (!response.ok) {
       const errorData = await response.json();
       console.error(`Error updating ticker ${code}:`, errorData);
-      throw new Error(errorData.error || `Failed to update ticker with code ${code}.`);
+      throw new Error(
+        errorData.error || `Failed to update ticker with code ${code}.`
+      );
     }
 
     const updatedTicker: TickerInfo = await response.json();
