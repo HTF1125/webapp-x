@@ -8,7 +8,7 @@ interface SectionProps {
 
 const Section: React.FC<SectionProps> = ({ header, children, className }) => {
   return (
-    <div className="p-2 w-full"> {/* Reduced outer padding */}
+    <div className="p-2 w-full h-full"> {/* Reduced outer padding */}
       <section
         className={`w-full shadow-md p-4 ${className || ""}`} // Reduced padding and adjusted shadow
       >
