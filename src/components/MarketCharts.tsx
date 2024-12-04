@@ -34,11 +34,9 @@ const MarketCharts: React.FC<{
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
       {Object.entries(allIndexGroupPerformances).map(
         ([indexGroup, periodPerformances]) => {
-          const chartData = getChartData(periodPerformances as PeriodPerformance[]);
-
-          // Debug: Log chart data to ensure correctness
-          console.log(`Chart data for ${indexGroup}:`, chartData);
-
+          const chartData = getChartData(
+            periodPerformances as PeriodPerformance[]
+          );
           return (
             <div
               key={indexGroup}
@@ -49,7 +47,9 @@ const MarketCharts: React.FC<{
                   <h3 className="text-sm font-semibold mb-1 text-white">
                     {indexGroup}
                   </h3>
-                  <div style={{ height: 200, width: "100%", position: "relative" }}>
+                  <div
+                    style={{ height: 200, width: "100%", position: "relative" }}
+                  >
                     <PerformanceChart data={chartData} />
                   </div>
                 </>
@@ -58,7 +58,6 @@ const MarketCharts: React.FC<{
               )}
             </div>
           );
-
         }
       )}
     </div>

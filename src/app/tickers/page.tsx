@@ -1,43 +1,15 @@
-// app/tickers/page.tsx
-import TickerRow from "./TickerRow"; // Import the Client Component
-import { TickerInfo, fetchAllTickers } from "@/api/all";
+import { fetchAllTickers } from "@/api/all";
+import TickerTableClient from "./TickerTableClient";
 
 export default async function TickerTablePage() {
-  const tickers = await getTickers();
+  const tickers = await fetchAllTickers();
 
   return (
-    <div className="container">
-      <h1 className="title">Tickers</h1>
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Name</th>
-              <th>Exchange</th>
-              <th>Market</th>
-              <th>Source</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tickers.map((ticker) => (
-              <TickerRow key={ticker.code} ticker={ticker} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="container mx-auto p-4 bg-black text-gray-100 min-h-screen">
+      <h1 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">
+        Ticker Management
+      </h1>
+      <TickerTableClient initialTickers={tickers} />
     </div>
   );
-}
-
-// Fetch tickers on the server
-async function getTickers(): Promise<TickerInfo[]> {
-  try {
-    const tickers = await fetchAllTickers();
-    return tickers;
-  } catch (error) {
-    console.error("Error fetching tickers on the server:", error);
-    return [];
-  }
 }

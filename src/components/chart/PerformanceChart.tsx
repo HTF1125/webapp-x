@@ -95,7 +95,15 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       },
     },
     plugins: {
-      legend: { display: false },
+      legend: {
+        display: false,
+        labels: {
+          font: {
+            size: 10, // Smaller font for the legend
+          },
+          color: "#fff", // Legend text color
+        },
+      },
       tooltip: {
         callbacks: {
           label: (tooltipItem: TooltipItem<"bar">) => {
@@ -109,21 +117,24 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       },
       datalabels: {
         display: true,
-        align: "end" as const, // Explicitly cast to the literal type "end"
-        anchor: "end" as const, // Explicitly cast to the literal type "end"
+        align: "end" as const,
+        anchor: "end" as const,
         formatter: (value: number, context: Context) => {
           const signedValue = context.dataset.data[context.dataIndex] as number;
           return `${signedValue > 0 ? "+" : ""}${signedValue}%`;
         },
+        font: {
+          size: 10, // Smaller font for data labels
+        },
         color: "#fff",
-        clip: false,
+        clip: false, // Prevents cutting off data labels
       },
     },
     layout: {
       padding: {
         top: 20,
         bottom: 20,
-        right: 50,
+        right: 100, // Adjust padding to prevent cutoff
         left: 10,
       },
     },

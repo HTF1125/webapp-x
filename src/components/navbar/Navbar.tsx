@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,40 +37,42 @@ function useWindowSize() {
   return windowSize;
 }
 
-const NavbarItem = React.memo(({ targetPath, onClick }: { targetPath: string; onClick: () => void }) => {
-  const pathname = usePathname();
-  const router = useRouter();
+const NavbarItem = React.memo(
+  ({ targetPath, onClick }: { targetPath: string; onClick: () => void }) => {
+    const pathname = usePathname();
+    const router = useRouter();
 
-  const formatTargetPath = useCallback((path: string) => {
-    return path
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }, []);
+    const formatTargetPath = useCallback((path: string) => {
+      return path
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    }, []);
 
-  const isActive = pathname === `/${targetPath.toLowerCase()}`;
+    const isActive = pathname === `/${targetPath.toLowerCase()}`;
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    onClick();
-    router.push(`/${targetPath.toLowerCase()}`);
-  };
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      onClick();
+      router.push(`/${targetPath.toLowerCase()}`);
+    };
 
-  return (
-    <Link
-      href={`/${targetPath.toLowerCase()}`}
-      onClick={handleClick}
-      className={`flex items-center px-4 py-2 text-base font-medium transition-all rounded-md
+    return (
+      <Link
+        href={`/${targetPath.toLowerCase()}`}
+        onClick={handleClick}
+        className={`flex items-center px-4 py-2 text-base font-medium transition-all rounded-md
         ${
           isActive
             ? "text-white border border-white"
             : "text-gray-400 hover:text-white hover:border hover:border-white"
         }`}
-    >
-      {formatTargetPath(targetPath)}
-    </Link>
-  );
-});
+      >
+        {formatTargetPath(targetPath)}
+      </Link>
+    );
+  }
+);
 
 NavbarItem.displayName = "NavbarItem";
 
@@ -152,7 +160,11 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-expanded={isMenuOpen}
             >
-              {isMenuOpen ? <X className="h-7 w-7 text-gray-400" /> : <Menu className="h-7 w-7 text-gray-400" />}
+              {isMenuOpen ? (
+                <X className="h-7 w-7 text-gray-400" />
+              ) : (
+                <Menu className="h-7 w-7 text-gray-400" />
+              )}
               <span className="sr-only">Toggle menu</span>
             </button>
           )}

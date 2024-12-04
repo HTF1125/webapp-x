@@ -1,8 +1,6 @@
 // src/api/all.ts
 
-// Constants
-const API_URL = process.env.API_URL || ""; // Ensure this is correctly set in your environment
-const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || ""; // Ensure this is correctly set in your environment
+import { API_URL, NEXT_PUBLIC_API_URL } from "@/config";
 
 // Interfaces
 export const IndexGroups = [
@@ -195,7 +193,10 @@ export interface TickerInfo {
 }
 
 export async function fetchAllTickers(): Promise<TickerInfo[]> {
-  const endpoint = new URL("/api/data/tickers/all", API_URL).toString();
+  const endpoint = new URL(
+    "/api/data/tickers/all",
+    NEXT_PUBLIC_API_URL
+  ).toString();
 
   const fetchOptions: RequestInit = {
     method: "GET",
@@ -228,7 +229,7 @@ export async function updateTicker(
 ): Promise<TickerInfo> {
   const endpoint = new URL(
     `/api/data/tickers/${encodeURIComponent(code)}`,
-    API_URL
+    NEXT_PUBLIC_API_URL
   ).toString();
 
   try {
@@ -254,4 +255,109 @@ export async function updateTicker(
     console.error(`Failed to update ticker ${code}:`, error);
     throw error;
   }
+}
+
+export async function fetchTickerByCode(code: string): Promise<TickerInfo> {
+  const endpoint = new URL(
+    `/api/data/tickers/${encodeURIComponent(code)}`,
+    API_URL
+  ).toString();
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Error fetching ticker with code ${code}:`, errorData);
+      throw new Error(
+        errorData.error || `Failed to fetch ticker with code ${code}.`
+      );
+    }
+
+    const ticker: TickerInfo = await response.json();
+    return ticker;
+  } catch (error) {
+    console.error(`Failed to fetch ticker with code ${code}:`, error);
+    throw error;
+  }
+}
+
+export async function addNewTicker(
+  ticker: Partial<TickerInfo>
+): Promise<TickerInfo> {
+  const endpoint = new URL(
+    "/api/data/tickers/add",
+    NEXT_PUBLIC_API_URL
+  ).toString();
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(ticker),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error adding new ticker:", errorData);
+      throw new Error(errorData.error || "Failed to add new ticker.");
+    }
+
+    const newTicker: TickerInfo = await response.json();
+    return newTicker;
+  } catch (error) {
+    console.error("Failed to add new ticker:", error);
+    throw error;
+  }
+}
+
+export async function fetchResearchFileCodes(): Promise<string[]> {
+  const endpoint = new URL(
+    "/api/data/research_file/codes/",
+    API_URL
+  ).toString();
+  const response = await fetch(endpoint, {
+    method: "GET", // Explicitly specifying the GET method
+    headers: {
+      Accept: "application/json",
+    },
+    next: { revalidate: 60 },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error(`Error fetching signal codes:`, errorData);
+    throw new Error(errorData.error || "Failed to fetch signal codes");
+  }
+
+  const data: string[] = await response.json();
+  return data;
+}
+
+export async function fetchResearchFileByCode(code: string): Promise<Uint8Array> {
+  const endpoint = new URL(
+    `/api/data/research_file/${code}`,
+    NEXT_PUBLIC_API_URL
+  ).toString();
+
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: {
+      Accept: "application/pdf",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch PDF file: ${response.statusText}`);
+  }
+
+  const buffer = await response.arrayBuffer();
+  return new Uint8Array(buffer); // Convert ArrayBuffer to Uint8Array
 }
