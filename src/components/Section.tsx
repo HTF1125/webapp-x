@@ -3,19 +3,19 @@ import React from "react";
 interface SectionProps {
   header: string;
   children: React.ReactNode;
-  className?: string; // Optional prop for additional styling
+  className?: string;
 }
 
 const Section: React.FC<SectionProps> = ({ header, children, className }) => {
   return (
-    <div className="p-2 w-full h-full"> {/* Reduced outer padding */}
+    <div className="p-2 w-full h-full flex-grow">
       <section
-        className={`w-full shadow-md p-4 ${className || ""}`} // Reduced padding and adjusted shadow
+        className={`h-full rounded-md shadow-lg p-6 flex flex-col ${className || ""}`}
       >
-        <header className="flex items-center justify-between border-b border-gray-600 pb-2 mb-2"> {/* Reduced padding and margin */}
-          <h2 className="text-lg font-medium text-white">{header}</h2> {/* Adjusted font size and weight */}
+        <header className="border-b border-gray-600 pb-4 mb-4">
+          <h2 className="text-xl font-semibold text-white">{header}</h2>
         </header>
-        <div className="text-sm text-gray-300">{children}</div> {/* Adjusted font size and color */}
+        <div className="flex-1 overflow-auto">{children}</div>
       </section>
     </div>
   );

@@ -39,14 +39,6 @@ export interface Strategy {
   book: Book;
 }
 
-export interface Insight {
-  _id: string;
-  title: string;
-  date: string;
-  content: string;
-  tags: string[];
-}
-
 export interface PeriodPerformance {
   code: string;
   level: number;
@@ -341,7 +333,9 @@ export async function fetchResearchFileCodes(): Promise<string[]> {
   return data;
 }
 
-export async function fetchResearchFileByCode(code: string): Promise<Uint8Array> {
+export async function fetchResearchFileByCode(
+  code: string
+): Promise<Uint8Array> {
   const endpoint = new URL(
     `/api/data/research_file/${code}`,
     NEXT_PUBLIC_API_URL
@@ -360,4 +354,37 @@ export async function fetchResearchFileByCode(code: string): Promise<Uint8Array>
 
   const buffer = await response.arrayBuffer();
   return new Uint8Array(buffer); // Convert ArrayBuffer to Uint8Array
+}
+
+export interface Insight {
+  _id: string;
+  issuer: string;
+  name: string;
+  date: string; // ISO format date (e.g., "2024-12-06")
+  summary?: string | null;
+}
+
+export default Insight;
+
+export async function fetchInsights(skip = 0, limit = 100): Promise<Insight[]> {
+  const endpoint = new URL("/api/data/insights/", API_URL);
+  endpoint.searchParams.append("skip", skip.toString());
+  endpoint.searchParams.append("limit", limit.toString());
+
+  const response = await fetch(endpoint.toString(), {
+    method: "GET", // Explicitly specifying the GET method
+    headers: {
+      Accept: "application/json",
+    },
+    next: { revalidate: 60 },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error(`Error fetching insights:`, errorData);
+    throw new Error(errorData.error || "Failed to fetch insights");
+  }
+
+  const data: Insight[] = await response.json();
+  return data;
 }

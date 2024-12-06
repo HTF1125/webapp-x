@@ -156,7 +156,7 @@ const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
   };
 
   return (
-    <div className="bg-black p-4 rounded-lg shadow-md">
+    <div className=" p-4 rounded-lg shadow-md">
       <h3 className="text-sm font-semibold mb-2 text-center text-gray-200">
         {title}
       </h3>
