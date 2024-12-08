@@ -1,10 +1,10 @@
 import ResearchFilesList from "@/app/insights/ResearchFiles";
-import { fetchInsights, Insight } from "@/api/all";
 import React from "react";
 import Section from "@/components/Section";
 
+
+
 export default async function Page() {
-  const insights: Insight[] = await fetchInsights();
 
   return (
     <div
@@ -12,8 +12,8 @@ export default async function Page() {
       style={{ height: "calc(100vh - 100px)" }}
     >
       <div className="w-full h-full overflow-hidden">
-        <Section header="Research">
-          <ResearchFilesList insights={insights} />
+        <Section header="Insights">
+          <ResearchFilesList/>
         </Section>
       </div>
     </div>

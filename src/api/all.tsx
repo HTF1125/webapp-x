@@ -360,7 +360,7 @@ export interface Insight {
   _id: string;
   issuer: string;
   name: string;
-  date: string; // ISO format date (e.g., "2024-12-06")
+  published_date: string; // ISO format date (e.g., "2024-12-06")
   summary?: string | null;
 }
 

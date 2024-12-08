@@ -1,267 +1,389 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { FaFilePdf } from "react-icons/fa"; // Import PDF icon
-import Insight from "@/api/all";
+import { FaFilePdf, FaEdit, FaTrash, FaSort, FaPlus } from "react-icons/fa";
 import { NEXT_PUBLIC_API_URL } from "@/config";
+import Insight from "@/api/all";
 
-interface ResearchFilesListProps {
-  insights: Insight[]; // List of Insight objects
-}
-
-const ResearchFilesList = ({ insights }: ResearchFilesListProps) => {
+const ResearchFilesList = () => {
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>(""); // Search term
-  const [expandedSummary, setExpandedSummary] = useState<string | null>(null);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Sort order
-  const [editingInsight, setEditingInsight] = useState<Partial<Insight> | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [currentInsight, setCurrentInsight] = useState<Partial<Insight> | null>(
+    null
+  );
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [expandedSummaries, setExpandedSummaries] = useState<string[]>([]);
 
-  const updateInsight = async (_id: string, updates: Partial<Insight>) => {
+  useEffect(() => {
+    async function fetchInsights() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(
+          `${NEXT_PUBLIC_API_URL}/api/data/insights`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setInsights(data);
+        } else {
+          throw new Error("Failed to fetch insights");
+        }
+      } catch (error) {
+        console.error("Error fetching insights:", error);
+        setError("Unable to fetch insights.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchInsights();
+  }, []);
+
+  const openModal = (insight: Partial<Insight> | null = null) => {
+    setCurrentInsight(insight);
+    setFile(null);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setCurrentInsight(null);
+    setFile(null);
+    setIsModalOpen(false);
+  };
+
+  const convertPdfToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        if (event.target && event.target.result) {
+          const arrayBuffer = event.target.result as ArrayBuffer;
+          const uint8Array = new Uint8Array(arrayBuffer);
+
+          // Use a more memory-efficient approach to create the Base64 string
+          const binaryString = uint8Array.reduce(
+            (acc, byte) => acc + String.fromCharCode(byte),
+            ""
+          );
+
+          const base64String = btoa(binaryString);
+          resolve(base64String);
+        } else {
+          reject(new Error("Failed to read file"));
+        }
+      };
+
+      reader.onerror = (error) => {
+        reject(error);
+      };
+
+      reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
+    });
+  };
+
+  const handleSaveInsight = async () => {
     try {
       setError(null);
       setSuccessMessage(null);
 
-      const endpoint = new URL(
-        `api/data/insights/${encodeURIComponent(_id)}`,
-        NEXT_PUBLIC_API_URL
-      ).toString();
+      let serializedPdf = null;
+
+      if (file) {
+        // Convert the PDF file to Base64
+        serializedPdf = await convertPdfToBase64(file);
+      }
+
+      const payload = {
+        issuer: currentInsight?.issuer || "",
+        name: currentInsight?.name || "",
+        published_date: currentInsight?.published_date
+          ? new Date(currentInsight.published_date).toISOString().split("T")[0]
+          : "",
+        summary: currentInsight?.summary || "",
+        content: serializedPdf, // Add the Base64 PDF string here
+      };
+
+      const endpoint = currentInsight?._id
+        ? `${NEXT_PUBLIC_API_URL}/api/data/insights/update/${currentInsight._id}`
+        : `${NEXT_PUBLIC_API_URL}/api/data/insights/new`;
+
+      const method = currentInsight?._id ? "PUT" : "POST";
 
       const response = await fetch(endpoint, {
-        method: "PUT",
+        method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(payload), // Send JSON with the Base64 PDF content
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to update insight");
+        throw new Error(errorData.detail || "Failed to save insight");
       }
 
-      setSuccessMessage("Insight updated successfully.");
-      setEditingInsight(null); // Close edit form
+      const updatedInsight = await response.json();
+      if (currentInsight?._id) {
+        setInsights((prev) =>
+          prev.map((i) => (i._id === updatedInsight._id ? updatedInsight : i))
+        );
+      } else {
+        setInsights((prev) => [updatedInsight, ...prev]);
+      }
+
+      setSuccessMessage(
+        currentInsight?._id
+          ? "Insight updated successfully."
+          : "Insight added successfully."
+      );
+      closeModal();
     } catch (err) {
-      console.error("Error updating insight:", err);
-      setError("Failed to update insight. Please try again.");
+      console.error("Error saving insight:", err);
+      setError("Failed to save insight. Please try again.");
     }
   };
 
-  const handleFileClick = (_id: string) => {
+  const handleDeleteInsight = async (id: string) => {
     try {
-      const fileUrl = `${NEXT_PUBLIC_API_URL}/api/data/insights/${encodeURIComponent(
-        _id
-      )}`;
-      window.open(fileUrl, "_blank");
-    } catch (err) {
-      console.error("Error opening file:", err);
-      setError("Failed to open the file. Please try again.");
-    }
-  };
+      setError(null);
+      setSuccessMessage(null);
 
-  const toggleSummary = (_id: string) => {
-    setExpandedSummary(expandedSummary === _id ? null : _id);
+      const response = await fetch(
+        `${NEXT_PUBLIC_API_URL}/api/data/insights/delete/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to delete insight");
+      }
+
+      setInsights((prev) => prev.filter((i) => i._id !== id));
+      setSuccessMessage("Insight deleted successfully.");
+    } catch (err) {
+      console.error("Error deleting insight:", err);
+      setError("Failed to delete insight. Please try again.");
+    }
   };
 
   const toggleSortOrder = () => {
-    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
-  const handleEditClick = (insight: Insight) => {
-    setEditingInsight(insight);
+  const toggleSummary = (id: string) => {
+    setExpandedSummaries((prev) =>
+      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+    );
   };
 
-  const handleEditSubmit = () => {
-    if (editingInsight && editingInsight._id) {
-      updateInsight(editingInsight._id, editingInsight);
-    }
-  };
-
-  const filteredInsights = insights.filter(
-    ({ issuer, name, date, summary }) => {
+  const filteredInsights = (insights || []).filter(
+    ({ issuer, name, published_date, summary }) => {
       const term = searchTerm.toLowerCase();
       return (
         issuer.toLowerCase().includes(term) ||
         name.toLowerCase().includes(term) ||
-        (date && date.includes(term)) ||
+        (published_date && published_date.includes(term)) ||
         (summary && summary.toLowerCase().includes(term))
       );
     }
   );
 
   const sortedInsights = filteredInsights.sort((a, b) => {
-    const dateA = new Date(a.date || "").getTime();
-    const dateB = new Date(b.date || "").getTime();
-
+    const dateA = new Date(a.published_date || "").getTime();
+    const dateB = new Date(b.published_date || "").getTime();
     return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
   });
 
+  if (loading) return <div className="text-white">Loading insights...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
+
   return (
     <div className="flex flex-col gap-4 w-full h-full text-white">
-      <div className="w-full">
+      {/* Search and Add Section */}
+      <div className="flex items-center gap-4 w-full">
         <input
           type="text"
           placeholder="Search files..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-800 text-white text-sm"
+          className="flex-grow p-2 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-800 text-white text-sm"
         />
+        <button
+          onClick={toggleSortOrder}
+          className="flex items-center gap-2 p-2 text-white bg-gray-700 rounded hover:bg-gray-600"
+        >
+          <FaSort />
+          Sort ({sortOrder === "asc" ? "↑" : "↓"})
+        </button>
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 p-2 text-white bg-green-700 rounded hover:bg-green-600"
+        >
+          <FaPlus />
+          Add Insight
+        </button>
       </div>
 
-      <div className="flex-1 overflow-auto border border-gray-700 rounded bg-gray-800">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-700 sticky top-0 text-gray-300">
-            <tr>
-              <th className="px-4 py-2 border-b">Issuer</th>
-              <th className="px-4 py-2 border-b">Name</th>
-              <th
-                className="px-4 py-2 border-b cursor-pointer"
-                onClick={toggleSortOrder}
+      {/* Success/Error Messages */}
+      {successMessage && <div className="text-green-500">{successMessage}</div>}
+      {error && <div className="text-red-500">{error}</div>}
+
+      {/* Insights Grid */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {sortedInsights.map((insight) => {
+          const isExpanded = expandedSummaries.includes(insight._id);
+          return (
+            <div
+              key={insight._id}
+              className="p-4 bg-gray-800 border border-gray-700 rounded-lg hover:shadow-lg transition relative"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <div className="px-2 py-1 bg-blue-700 rounded text-sm font-semibold">
+                  {insight.issuer}
+                </div>
+                <div className="px-2 py-1 bg-gray-700 rounded text-sm font-semibold">
+                  {insight.published_date || "Invalid Date"}
+                </div>
+              </div>
+              <h2 className="text-lg font-bold mb-2">{insight.name}</h2>
+              <div className="text-sm text-gray-300 mb-4">
+                <ReactMarkdown>
+                  {isExpanded
+                    ? insight.summary || "No summary available."
+                    : (insight.summary?.substring(0, 100) ||
+                        "No summary available") +
+                      ((insight.summary?.length ?? 0) > 100 ? "..." : "")}
+                </ReactMarkdown>
+                {insight.summary && insight.summary.length > 100 && (
+                  <button
+                    onClick={() => toggleSummary(insight._id)}
+                    className="mt-2 text-blue-400 text-xs hover:underline"
+                  >
+                    {isExpanded ? "Show Less" : "Show More"}
+                  </button>
+                )}
+              </div>
+              <div className="flex justify-between items-center">
+                <FaFilePdf
+                  className="text-red-500 cursor-pointer hover:scale-110"
+                  onClick={() => {
+                    const pdfUrl = `${NEXT_PUBLIC_API_URL}/api/data/insights/${insight._id}`;
+                    console.log("Opening PDF:", pdfUrl);
+                    window.open(pdfUrl, "_blank");
+                  }}
+                  title="Open PDF"
+                  size={24}
+                />
+                <button
+                  className="text-green-400 hover:underline"
+                  onClick={() => openModal(insight)}
+                >
+                  <FaEdit className="inline-block mr-2" />
+                  Edit
+                </button>
+                <button
+                  className="text-red-400 hover:underline"
+                  onClick={() => handleDeleteInsight(insight._id)}
+                >
+                  <FaTrash className="inline-block mr-2" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Modal for Add/Edit Insight */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4">
+          <div className="bg-gray-800 p-8 rounded-lg max-w-4xl w-full min-h-[400px]">
+            <h3 className="text-white font-bold mb-6 text-xl">
+              {currentInsight?._id ? "Edit Insight" : "Add New Insight"}
+            </h3>
+            <div className="mb-6">
+              <label className="block text-gray-400 text-sm">Issuer</label>
+              <input
+                type="text"
+                value={currentInsight?.issuer || ""}
+                onChange={(e) =>
+                  setCurrentInsight({
+                    ...currentInsight,
+                    issuer: e.target.value,
+                  })
+                }
+                className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-400 text-sm">Name</label>
+              <input
+                type="text"
+                value={currentInsight?.name || ""}
+                onChange={(e) =>
+                  setCurrentInsight({ ...currentInsight, name: e.target.value })
+                }
+                className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-400 text-sm">Date</label>
+              <input
+                type="date"
+                value={currentInsight?.published_date || ""}
+                onChange={(e) =>
+                  setCurrentInsight({
+                    ...currentInsight,
+                    published_date: e.target.value,
+                  })
+                }
+                className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-400 text-sm">Summary</label>
+              <textarea
+                value={currentInsight?.summary || ""}
+                onChange={(e) =>
+                  setCurrentInsight({
+                    ...currentInsight,
+                    summary: e.target.value,
+                  })
+                }
+                className="w-full p-4 border border-gray-600 rounded bg-gray-700 text-white text-lg"
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-400 text-sm">PDF File</label>
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
+              />
+            </div>
+            <div className="flex justify-between">
+              <button
+                className="text-green-400 hover:underline"
+                onClick={handleSaveInsight}
               >
-                Date {sortOrder === "asc" ? "↑" : "↓"}
-              </th>
-              <th className="px-4 py-2 border-b">Summary</th>
-              <th className="px-4 py-2 border-b">PDF</th>
-              <th className="px-4 py-2 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedInsights.map((insight) => {
-              const isExpanded = expandedSummary === insight._id;
-              const shortSummary = insight.summary
-                ? insight.summary.split("\n")[0]
-                : "";
-
-              return (
-                <tr
-                  key={insight._id}
-                  className="hover:bg-gray-600 transition duration-150"
-                >
-                  <td className="px-4 py-2 border-b">{insight.issuer}</td>
-                  <td className="px-4 py-2 border-b">{insight.name}</td>
-                  <td className="px-4 py-2 border-b">{insight.date || "Invalid Date"}</td>
-                  <td className="px-4 py-2 border-b">
-                    <ReactMarkdown>
-                      {isExpanded ? insight.summary : shortSummary}
-                    </ReactMarkdown>
-                  </td>
-                  <td className="px-4 py-2 border-b text-center">
-                    <FaFilePdf
-                      className="text-red-500 cursor-pointer hover:scale-110"
-                      onClick={() => handleFileClick(insight._id)}
-                      title="Open PDF"
-                      size={20}
-                    />
-                  </td>
-                  <td className="px-4 py-2 border-b">
-                    <button
-                      className="text-blue-400 hover:underline"
-                      onClick={() => toggleSummary(insight._id)}
-                    >
-                      {isExpanded ? "Show less" : "Show more"}
-                    </button>
-                    <button
-                      className="text-green-400 hover:underline ml-2"
-                      onClick={() => handleEditClick(insight)}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {filteredInsights.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-2 text-center text-gray-400 border-b"
-                >
-                  No results found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {editingInsight && (
-        <div className="p-4 border border-gray-700 bg-gray-800 rounded mt-4">
-          <h3 className="text-white font-bold mb-2">Edit Insight</h3>
-          <label className="block text-xs text-gray-400">
-            Issuer
-            <input
-              type="text"
-              value={editingInsight.issuer || ""}
-              onChange={(e) =>
-                setEditingInsight({
-                  ...editingInsight,
-                  issuer: e.target.value,
-                })
-              }
-              className="w-full p-2 border border-gray-600 rounded focus:outline-none bg-gray-700 text-white text-xs mt-1"
-            />
-          </label>
-          <label className="block text-xs text-gray-400 mt-2">
-            Name
-            <input
-              type="text"
-              value={editingInsight.name || ""}
-              onChange={(e) =>
-                setEditingInsight({ ...editingInsight, name: e.target.value })
-              }
-              className="w-full p-2 border border-gray-600 rounded focus:outline-none bg-gray-700 text-white text-xs mt-1"
-            />
-          </label>
-          <label className="block text-xs text-gray-400 mt-2">
-            Date
-            <input
-              type="date"
-              value={editingInsight.date || ""}
-              onChange={(e) =>
-                setEditingInsight({ ...editingInsight, date: e.target.value })
-              }
-              className="w-full p-2 border border-gray-600 rounded focus:outline-none bg-gray-700 text-white text-xs mt-1"
-            />
-          </label>
-          <label className="block text-xs text-gray-400 mt-2">
-            Summary
-            <textarea
-              value={editingInsight.summary || ""}
-              onChange={(e) =>
-                setEditingInsight({
-                  ...editingInsight,
-                  summary: e.target.value,
-                })
-              }
-              className="w-full p-2 border border-gray-600 rounded focus:outline-none bg-gray-700 text-white text-xs mt-1"
-            />
-          </label>
-          <button
-            className="text-green-400 hover:underline mt-2"
-            onClick={handleEditSubmit}
-          >
-            Save
-          </button>
-          <button
-            className="text-red-400 hover:underline mt-2 ml-4"
-            onClick={() => setEditingInsight(null)}
-          >
-            Cancel
-          </button>
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="text-green-500 text-xs border border-green-600 p-2 rounded">
-          {successMessage}
-        </div>
-      )}
-
-      {error && (
-        <div className="text-red-500 text-xs border border-red-600 p-2 rounded">
-          {error}
+                {currentInsight?._id ? "Update" : "Add"}
+              </button>
+              <button
+                className="text-red-400 hover:underline"
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
