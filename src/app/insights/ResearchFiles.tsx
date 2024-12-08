@@ -26,7 +26,7 @@ const ResearchFilesList = () => {
         setLoading(true);
         setError(null);
         const response = await fetch(
-          `${NEXT_PUBLIC_API_URL}/api/data/insights`
+          `${NEXT_PUBLIC_API_URL}/api/data/insights/`
         );
         if (response.ok) {
           const data = await response.json();
