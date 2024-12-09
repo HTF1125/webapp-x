@@ -8,14 +8,17 @@ interface SectionProps {
 
 const Section: React.FC<SectionProps> = ({ header, children, className }) => {
   return (
-    <div className="p-2 w-full h-full flex-grow">
-      <section
-        className={`h-full rounded-md shadow-lg p-6 flex flex-col ${className || ""}`}
-      >
-        <header className="border-b border-gray-600 pb-4 mb-4">
-          <h2 className="text-xl font-semibold text-white">{header}</h2>
+    <div className={`w-full p-4 ${className || ""}`}>
+      <section className="bg-gray-800 border border-gray-700 rounded-lg shadow-md p-6">
+        {/* Header */}
+        <header className="mb-6">
+          <h2 className="text-2xl font-bold text-white border-b-2 border-blue-500 pb-2">
+            {header}
+          </h2>
         </header>
-        <div className="flex-1 overflow-auto">{children}</div>
+
+        {/* Content */}
+        <div className="space-y-4">{children}</div>
       </section>
     </div>
   );

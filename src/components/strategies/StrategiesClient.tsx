@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { StrategiesKeyInfo } from "./types";
 import { Input } from "@/components/ui/input";
 import { formatDate, formatPercentage } from "@/lib/fmt";
-import { Search} from "lucide-react";
+import { Search } from "lucide-react";
 import MiniLineChart from "@/components/chart/MiniLineChart";
-import Section from "@/components/Section";
 
 interface StrategiesClientProps {
   initialStrategies: StrategiesKeyInfo[];
@@ -51,7 +50,6 @@ export default function StrategiesClient({
     });
   }, [strategies, searchTerm, sortConfig]);
 
-
   const handleStrategyClick = async (strategyId: string) => {
     setLoading(true);
     await router.push(`/strategies/${strategyId}`);
@@ -59,18 +57,17 @@ export default function StrategiesClient({
   };
 
   return (
-    <Section header="Strategies">
+    <div className="w-full p-4">
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg">
-            <p className="text-lg font-semibold text-white">
-              Loading...
-            </p>
+            <p className="text-lg font-semibold text-white">Loading...</p>
           </div>
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-4">
+      {/* Search Bar */}
+      <div className="flex justify-between items-center mb-6">
         <div className="relative w-full">
           <Input
             type="text"
@@ -86,6 +83,7 @@ export default function StrategiesClient({
         </div>
       </div>
 
+      {/* Strategies Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {filteredAndSortedStrategies.map((strategy) => (
           <div
@@ -97,13 +95,11 @@ export default function StrategiesClient({
               {strategy.code}
             </h3>
             <div className="flex justify-center items-center gap-2 mb-2">
-              {/* Last Updated Tag */}
               <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded-full">
                 Updated: {formatDate(strategy.last_updated)}
               </span>
             </div>
             <div className="flex justify-center items-center gap-2 mb-2">
-              {/* Annual Return Tag */}
               <span
                 className={`text-xs px-2 py-1 rounded-full ${
                   strategy.ann_return > 0
@@ -113,7 +109,6 @@ export default function StrategiesClient({
               >
                 Return: {formatPercentage(strategy.ann_return)}
               </span>
-              {/* Annual Volatility Tag */}
               <span
                 className={`text-xs px-2 py-1 rounded-full ${
                   strategy.ann_volatility > 0
@@ -128,6 +123,6 @@ export default function StrategiesClient({
           </div>
         ))}
       </div>
-    </Section>
+    </div>
   );
 }

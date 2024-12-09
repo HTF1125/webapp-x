@@ -8,17 +8,23 @@ import { fetchAllIndexGroupPerformances } from "@/api/all";
 
 export default function MarketSection() {
   const allIndexGroupPerformances = React.use(fetchAllIndexGroupPerformances());
+
   return (
     <PeriodProvider>
       <Section header="Market">
-        <div className="flex justify-between items-center mb-4">
+        {/* Header and Period Selector */}
+        <div className="flex justify-between items-center mb-6">
           <Suspense fallback={<LoadingSpinner />}>
             <PeriodSelector />
           </Suspense>
         </div>
-        <Suspense fallback={<LoadingSpinner />}>
-          <MarketCharts allIndexGroupPerformances={allIndexGroupPerformances} />
-        </Suspense>
+
+        {/* Market Charts */}
+        <div className="w-full">
+          <Suspense fallback={<LoadingSpinner />}>
+            <MarketCharts allIndexGroupPerformances={allIndexGroupPerformances} />
+          </Suspense>
+        </div>
       </Section>
     </PeriodProvider>
   );

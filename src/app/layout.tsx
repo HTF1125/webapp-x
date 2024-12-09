@@ -27,10 +27,20 @@ export default function RootLayout({
       <body className="bg-gray-900 text-white">
         <ErrorBoundary>
           <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="w-full flex-grow max-w-[1800px] mx-auto">
+            {/* Navbar */}
+            <header className="w-full shadow-lg bg-gray-800">
+              <Navbar />
+            </header>
+
+            {/* Main Content */}
+            <main className="w-full flex-grow max-w-[1980px] mx-auto px-6 sm:px-8 py-8">
               {children}
             </main>
+
+            {/* Footer */}
+            <footer className="w-full bg-gray-800 py-4 text-sm text-gray-400 text-center">
+              © {new Date().getFullYear()} Investment-X. All rights reserved.
+            </footer>
           </div>
         </ErrorBoundary>
         <Analytics />
