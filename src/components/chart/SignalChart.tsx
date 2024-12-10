@@ -33,9 +33,9 @@ ChartJS.register(
   Filler
 );
 
-const POSITIVE_GRADIENT_START = "rgba(128, 0, 128, 0.8)";
-const POSITIVE_GRADIENT_END = "rgba(0, 0, 255, 0.8)";
-const NEGATIVE_GRADIENT_START = "rgba(0, 255, 255, 0.8)";
+const POSITIVE_GRADIENT_START = "rgba(0, 204, 102, 1)";
+const POSITIVE_GRADIENT_END = "rgba(102, 255, 204, 0.5)";
+const NEGATIVE_GRADIENT_END = "rgba(255, 178, 178, 0.5)";
 const GRID_COLOR = "rgba(255, 255, 255, 0.1)";
 const TICK_COLOR = "#CCCCCC";
 
@@ -64,7 +64,7 @@ const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
             0,
             chartArea.top
           );
-          gradient.addColorStop(0, NEGATIVE_GRADIENT_START);
+          gradient.addColorStop(0, NEGATIVE_GRADIENT_END);
           gradient.addColorStop(0.5, "#FFFFFF");
           gradient.addColorStop(1, POSITIVE_GRADIENT_END);
           return gradient;
@@ -72,7 +72,7 @@ const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
         backgroundColor: "transparent",
         tension: 0.4,
         fill: false,
-        pointRadius: 0,
+        pointRadius: 2,
         pointHoverRadius: 6,
         pointHoverBackgroundColor: "#FFFFFF",
         pointHoverBorderColor: "#000000",
@@ -114,9 +114,9 @@ const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
       x: {
         type: "time",
         time: {
-          unit: "year",
+          unit: "month",
           displayFormats: {
-            year: "yyyy",
+            month: "MMM yyyy",
           },
         },
         adapters: {
@@ -129,6 +129,9 @@ const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
           color: TICK_COLOR,
           autoSkip: true,
           maxTicksLimit: 6,
+          font: {
+            size: 10,
+          },
         },
       },
       y: {
@@ -145,19 +148,22 @@ const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
               ? `+${(numericValue * 100).toFixed(0)}%`
               : `${(numericValue * 100).toFixed(0)}%`;
           },
+          font: {
+            size: 10,
+          },
         },
       },
     },
     elements: {
       line: {
-        borderWidth: 3,
+        borderWidth: 2,
       },
     },
   };
 
   return (
-    <div className=" p-4 rounded-lg shadow-md">
-      <h3 className="text-sm font-semibold mb-2 text-center text-gray-200">
+    <div className="p-4 rounded-lg shadow-md bg-gray-800 border border-gray-700">
+      <h3 className="text-sm font-semibold mb-3 text-center text-gray-200">
         {title}
       </h3>
       <div style={{ height: 200, width: "100%", position: "relative" }}>

@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import MarketSection from "../section/Market";
 import SignalSection from "../section/Signal";
-import StrategiesPage from "../components/strategies/page";
+import StrategiesPage from "./strategies/page";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 export default async function App() {

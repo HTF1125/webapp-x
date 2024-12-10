@@ -24,7 +24,7 @@ export default function MarketSection() {
           <Suspense fallback={<LoadingSpinner />}>
             <MarketCharts allIndexGroupPerformances={allIndexGroupPerformances} />
           </Suspense>
-        </div>
+        </div>  
       </Section>
     </PeriodProvider>
   );

@@ -28,12 +28,13 @@ export default function RootLayout({
         <ErrorBoundary>
           <div className="flex flex-col min-h-screen">
             {/* Navbar */}
-            <header className="w-full shadow-lg bg-gray-800">
+            <header className="fixed top-0 left-0 w-full shadow-lg bg-gray-800 z-50">
               <Navbar />
             </header>
 
             {/* Main Content */}
-            <main className="w-full flex-grow max-w-[1980px] mx-auto px-6 sm:px-8 py-8">
+            <main className="w-full flex-grow max-w-[1980px] mx-auto px-6 sm:px-8 py-24">
+              {/* Add `py-24` to give space for the fixed Navbar */}
               {children}
             </main>
 

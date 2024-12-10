@@ -20,18 +20,25 @@ export default async function Page({
   }
 
   return (
-    <div className="w-full flex flex-col space-y-4">
-      <Section header="Insights">
-        {/* Search Bar */}
+    <div className="w-full flex flex-col items-center space-y-4 px-4">
+      <Section header="Insights" className="w-full max-w-3xl">
         <div className="mb-6">
-          <SearchBar searchTerm={searchTerm} />
+          <SearchBar
+            searchTerm={searchTerm}
+            suggestions={insights.map((insight) => ({
+              name: insight.name,
+              issuer: insight.issuer,
+              date: new Date(insight.published_date)
+                .toISOString()
+                .split("T")[0], // Convert to YYYY-MM-DD
+            }))}
+            filterBy={["name", "issuer", "date"]}
+            displayAttributes={["issuer", "name", "date"]}
+          />
         </div>
 
         {/* Insights List */}
-        <div
-          className="flex flex-col space-y-2 overflow-y-auto"
-          style={{ height: "calc(100vh - 250px)" }}
-        >
+        <div className="flex flex-col space-y-2 overflow-y-auto max-h-[70vh] px-4">
           {insights.length === 0 ? (
             <div className="flex items-center justify-center text-center py-4">
               <p className="text-gray-400 text-sm">
@@ -40,7 +47,9 @@ export default async function Page({
             </div>
           ) : (
             insights.map((insight) => (
-              <InsightCard key={insight._id} insight={insight} />
+              <div key={insight._id} className="flex-shrink-0">
+                <InsightCard insight={insight} />
+              </div>
             ))
           )}
         </div>

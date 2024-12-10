@@ -18,33 +18,41 @@ const InsightCard: React.FC<{ insight: Insight }> = ({ insight }) => {
   };
 
   return (
-    <div className="relative p-4 border border-gray-700 rounded-lg shadow-md transition hover:border-blue-500">
-      <div className="flex items-center justify-between">
-        {/* Left Section: Issuer */}
-        <span
-          className="bg-blue-600 text-white text-xs px-3 py-1 rounded-md font-medium shadow text-center truncate flex-shrink-0"
-          style={{ width: "100px" }}
+    <div className="relative w-full p-3 border border-gray-700 bg-gray-800 rounded-lg shadow-md transition hover:shadow-lg overflow-hidden">
+      {/* Flex Container */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-4">
+        {/* Issuer Section */}
+        <div
+          className="bg-gradient-to-r from-blue-500 to-blue-700 text-white text-sm px-5 py-2 rounded-full font-bold shadow-lg truncate flex-shrink-0 text-center hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-800 transition-all duration-200 ease-in-out"
+          style={{ flex: "0 0 20%" }}
         >
           {insight.issuer}
-        </span>
+        </div>
 
-        {/* Middle Section: Title */}
+        {/* Title Section */}
         <div
-          className="flex-grow mx-4 min-w-0"
+          className="flex-grow truncate cursor-pointer min-w-0"
           onClick={toggleSummary}
+          style={{ flex: "1" }}
         >
-          <h2 className="text-white text-sm font-semibold truncate cursor-pointer hover:underline">
+          <h2 className="text-white text-sm font-semibold hover:underline">
             {insight.name}
           </h2>
         </div>
 
-        {/* Right Section: Date and PDF */}
-        <div className="flex items-center space-x-4 flex-shrink-0">
+        {/* Date and Icon Section */}
+        <div
+          className="flex items-center justify-end space-x-2 flex-shrink-0"
+          style={{ flex: "0 0 25%" }}
+        >
+          {/* Date */}
           <div className="text-gray-400 text-xs whitespace-nowrap">
             {new Date(insight.published_date).toLocaleDateString()}
           </div>
+
+          {/* PDF Icon */}
           <button
-            className="flex items-center text-red-500 hover:text-red-400 focus:outline-none"
+            className="text-red-500 hover:text-red-400 focus:outline-none"
             onClick={(e) => {
               e.stopPropagation();
               handlePdfClick();
@@ -57,9 +65,9 @@ const InsightCard: React.FC<{ insight: Insight }> = ({ insight }) => {
 
       {/* Summary Section */}
       {showSummary && insight.summary && (
-        <div className="mt-3 p-3 bg-gray-800 text-white text-sm rounded-md shadow-md">
+        <div className="mt-4 p-3 bg-gray-900 text-white text-sm rounded-md shadow-inner">
           <h3 className="text-blue-400 font-bold mb-2">Summary</h3>
-          <p className="text-gray-300 leading-tight">{insight.summary}</p>
+          <p className="text-gray-300 leading-relaxed">{insight.summary}</p>
         </div>
       )}
     </div>

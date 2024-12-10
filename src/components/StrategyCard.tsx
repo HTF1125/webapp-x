@@ -1,8 +1,7 @@
 import React from "react";
 import { formatDate, formatPercentage } from "@/lib/fmt";
 import MiniLineChart from "@/components/chart/MiniLineChart";
-import { StrategiesKeyInfo } from "./strategies/types";
-
+import { StrategiesKeyInfo } from "../app/strategies/types";
 
 interface StrategyCardProps {
   strategy: StrategiesKeyInfo;

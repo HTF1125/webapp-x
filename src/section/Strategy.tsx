@@ -1,21 +1,21 @@
 // ./src/section/Strategy.tsx
 
-"use client"
-
+"use client";
 
 import React from "react";
-import { fetchStrategies } from "@/components/strategies/api";
+import { fetchStrategies } from "@/app/strategies/api";
 import StrategyCard from "@/components/StrategyCard";
 import Section from "@/components/Section";
-import { StrategiesKeyInfo } from "@/components/strategies/types";
+import { StrategiesKeyInfo } from "@/app/strategies/types";
 
-
-const StrategiesContent = ({ strategies }: { strategies: StrategiesKeyInfo[] }) => {
+const StrategiesContent = ({
+  strategies,
+}: {
+  strategies: StrategiesKeyInfo[];
+}) => {
   if (!strategies || strategies.length === 0) {
     return (
-      <div className="text-center text-gray-400">
-        No strategies available.
-      </div>
+      <div className="text-center text-gray-400">No strategies available.</div>
     );
   }
 

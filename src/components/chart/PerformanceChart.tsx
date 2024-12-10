@@ -34,15 +34,17 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       const ctx = chart.canvas.getContext("2d");
       if (!ctx) return;
 
+      // Create dynamic gradient colors for bars
       const gradientColors = values.map((value) => {
         const gradient = ctx.createLinearGradient(0, 0, 400, 0);
-        if (value > 0) {
-          gradient.addColorStop(0, "rgba(128, 0, 128, 0.8)");
-          gradient.addColorStop(1, "rgba(0, 0, 255, 0.8)");
-        } else {
-          gradient.addColorStop(0, "rgba(0, 255, 255, 0.8)");
-          gradient.addColorStop(1, "rgba(0, 128, 255, 0.8)");
-        }
+        gradient.addColorStop(
+          0,
+          value > 0 ? "rgba(0, 204, 102, 0.8)" : "rgba(204, 0, 0, 0.8)"
+        );
+        gradient.addColorStop(
+          1,
+          value > 0 ? "rgba(0, 102, 204, 0.8)" : "rgba(255, 51, 51, 0.8)"
+        );
         return gradient;
       });
 
@@ -56,38 +58,41 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
     datasets: [
       {
         label: "Performance",
-        data: values,
+        data: values.map((value) => Math.abs(value)), // Use absolute values for bar height
+        backgroundColor: values.map((value) =>
+          value < 0 ? "rgba(255, 99, 132, 0.8)" : "rgba(75, 192, 192, 0.8)"
+        ), // Red for negative, green/blue for positive
         borderColor: values.map((value) =>
-          value > 0 ? "rgba(128, 0, 128, 1)" : "rgba(0, 128, 255, 1)"
+          value < 0 ? "rgba(255, 99, 132, 1)" : "rgba(75, 192, 192, 1)"
         ),
         borderWidth: 1,
       },
     ],
   };
 
-  const minScaleValue = Math.min(...values);
-  const maxScaleValue = Math.max(...values);
-  const padding = (maxScaleValue - minScaleValue) * 0.1;
-
   const options = {
-    indexAxis: "y" as const, // Horizontal bar chart
+    indexAxis: "y" as const,
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       x: {
-        min: minScaleValue - padding,
-        max: maxScaleValue + padding,
         ticks: {
-          display: false,
+          color: "#bbb",
+          font: {
+            size: 12,
+          },
         },
         grid: {
-          display: false,
+          color: "#444",
         },
       },
       y: {
         ticks: {
           color: "#fff",
           autoSkip: false,
+          font: {
+            size: 12,
+          },
         },
         grid: {
           display: false,
@@ -97,44 +102,41 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
     plugins: {
       legend: {
         display: false,
-        labels: {
-          font: {
-            size: 10, // Smaller font for the legend
-          },
-          color: "#fff", // Legend text color
-        },
       },
       tooltip: {
         callbacks: {
-          label: (tooltipItem: TooltipItem<"bar">) => {
-            const value = tooltipItem.raw as number;
-            return `${value > 0 ? "+" : ""}${value}%`;
+          label: function (tooltipItem: TooltipItem<"bar">) {
+            const rawValue = tooltipItem.raw as number; // Safely cast raw to number
+            const originalValue = rawValue ?? 0; // Fallback to 0 if raw is undefined
+            return `${originalValue > 0 ? "+" : ""}${originalValue}%`;
           },
         },
         backgroundColor: "rgba(0, 0, 0, 0.8)",
         titleColor: "#fff",
         bodyColor: "#fff",
+        borderColor: "#666",
+        borderWidth: 1,
       },
       datalabels: {
         display: true,
         align: "end" as const,
         anchor: "end" as const,
-        formatter: (value: number, context: Context) => {
-          const signedValue = context.dataset.data[context.dataIndex] as number;
+        formatter: (_: number, context: Context) => {
+          const signedValue = values[context.dataIndex];
           return `${signedValue > 0 ? "+" : ""}${signedValue}%`;
         },
         font: {
-          size: 10, // Smaller font for data labels
+          size: 12,
         },
         color: "#fff",
-        clip: false, // Prevents cutting off data labels
+        clip: false,
       },
     },
     layout: {
       padding: {
         top: 20,
         bottom: 20,
-        right: 100, // Adjust padding to prevent cutoff
+        right: 50,
         left: 10,
       },
     },
@@ -146,6 +148,8 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       data={chartData}
       options={options}
       plugins={[ChartDataLabels]} // Scoped to this chart
+      aria-label="Performance Chart"
+      role="img"
     />
   );
 };

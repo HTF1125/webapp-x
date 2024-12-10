@@ -4,6 +4,7 @@ import React from "react";
 import { usePeriod } from "@/components/dashboard/PeriodContext";
 import PerformanceChart from "@/components/chart/PerformanceChart";
 import { IndexGroupPeriodPerformances, PeriodPerformance } from "@/api/all";
+
 const MarketCharts: React.FC<{
   allIndexGroupPerformances: IndexGroupPeriodPerformances;
 }> = ({ allIndexGroupPerformances }) => {
@@ -31,7 +32,7 @@ const MarketCharts: React.FC<{
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
       {Object.entries(allIndexGroupPerformances).map(
         ([indexGroup, periodPerformances]) => {
           const chartData = getChartData(
@@ -40,21 +41,27 @@ const MarketCharts: React.FC<{
           return (
             <div
               key={indexGroup}
-              className="bg-transparent p-2 text-center rounded-lg shadow-sm"
+              className="bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700"
             >
               {Object.keys(chartData).length > 0 ? (
                 <>
-                  <h3 className="text-sm font-semibold mb-1 text-white">
-                    {indexGroup}
+      <h3 className="text-sm font-semibold mb-3 text-center text-gray-200">
+      {indexGroup}
                   </h3>
                   <div
-                    style={{ height: 200, width: "100%", position: "relative" }}
+                    style={{
+                      height: 200,
+                      width: "100%",
+                      position: "relative",
+                    }}
                   >
                     <PerformanceChart data={chartData} />
                   </div>
                 </>
               ) : (
-                <p className="text-center text-gray-400">No data available</p>
+                <p className="text-center text-gray-400">
+                  No data available
+                </p>
               )}
             </div>
           );

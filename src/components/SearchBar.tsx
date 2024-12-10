@@ -40,7 +40,7 @@ export default function SearchBar({ tickers }: { tickers: TickerInfo[] }) {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="relative w-full max-w-md mx-auto">
       {/* Search Input */}
       <input
         type="text"
@@ -51,27 +51,32 @@ export default function SearchBar({ tickers }: { tickers: TickerInfo[] }) {
           setSearchQuery(e.target.value); // Update search query
           handleSearch(e.target.value); // Filter results
         }}
-        className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white"
+        className="w-full p-1 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white text-sm"
       />
 
       {/* Dropdown with Ticker Suggestions */}
       {isDropdownVisible && (
-        <div className="absolute top-full mt-1 w-full bg-gray-700 text-white rounded-md shadow-lg z-10 max-h-52 overflow-y-auto">
-
-          {snippets.map((ticker) => (
-            <div
-              key={ticker.code}
-              className="px-3 py-1 hover:bg-gray-600 cursor-pointer"
-              onClick={() => handleSelectTicker(ticker.code)}
-            >
-              <span className="font-small">{ticker.code}</span>
-              {ticker.name && (
-                <span className="text-gray-400 truncate ml-2">
-                  ({ticker.name})
-                </span>
-              )}
+        <div className="absolute top-full mt-1 w-full bg-gray-700 text-white rounded-md shadow-lg z-10 max-h-44 overflow-y-auto">
+          {snippets.length > 0 ? (
+            snippets.map((ticker) => (
+              <div
+                key={ticker.code}
+                className="px-2 py-1 hover:bg-gray-600 cursor-pointer text-sm flex justify-between"
+                onClick={() => handleSelectTicker(ticker.code)}
+              >
+                <span className="truncate">{ticker.code}</span>
+                {ticker.name && (
+                  <span className="text-gray-400 truncate ml-2">
+                    ({ticker.name})
+                  </span>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="px-3 py-2 text-gray-400 text-sm">
+              No results found
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
