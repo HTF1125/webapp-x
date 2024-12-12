@@ -4,6 +4,8 @@ import SignalSection from "../section/Signal";
 import StrategiesPage from "./strategies/page";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
+
+
 export default async function App() {
   return (
     <div className="w-full flex flex-col space-y-4">

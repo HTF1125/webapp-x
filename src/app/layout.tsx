@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import Navbar from "@/components/navbar/Navbar";
+import { LoginProvider } from "@/components/LoginProvider";
 
 const font = Roboto_Condensed({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <div className="flex flex-col min-h-screen">
             {/* Navbar */}
+            <LoginProvider>
             <header className="fixed top-0 left-0 w-full shadow-lg bg-gray-800 z-50">
               <Navbar />
             </header>
@@ -37,6 +39,7 @@ export default function RootLayout({
               {/* Add `py-24` to give space for the fixed Navbar */}
               {children}
             </main>
+            </LoginProvider>
 
             {/* Footer */}
             <footer className="w-full bg-gray-800 py-4 text-sm text-gray-400 text-center">

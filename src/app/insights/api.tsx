@@ -1,5 +1,5 @@
 // utils/fetchInsights.ts
-import { API_URL } from "@/config";
+import { NEXT_PUBLIC_API_URL } from "@/config";
 import Insight from "@/api/all";
 
 export async function fetchInsights(
@@ -7,7 +7,7 @@ export async function fetchInsights(
   skip: number = 0,
   limit: number = 1000
 ): Promise<Insight[]> {
-  const endpoint = new URL("/api/data/insights/", API_URL);
+  const endpoint = new URL("/api/data/insights/", NEXT_PUBLIC_API_URL);
   endpoint.searchParams.append("skip", skip.toString());
   endpoint.searchParams.append("limit", limit.toString());
 

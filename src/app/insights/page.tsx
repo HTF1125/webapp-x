@@ -1,59 +1,155 @@
-import React from "react";
-import Section from "@/components/Section";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import InsightCard from "./InsightCard";
-import Insight from "@/api/all";
 import { fetchInsights } from "./api";
 import SearchBar from "@/components/SearchBar";
+import { useLogin } from "@/components/LoginProvider";
+import Insight from "@/api/all";
+import { fetchAdmin } from "@/api/login";
+import AddInsightModal from "./AddInsightModal";
 
-export default async function Page({
+export default function Page({
   searchParams,
 }: {
   searchParams: { search?: string };
 }) {
-  const searchTerm = searchParams?.search || "";
-  let insights: Insight[] = [];
+  const { isAuthenticated, logout } = useLogin();
+  const router = useRouter();
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [searchTerm, setSearchTerm] = useState(searchParams?.search || "");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  try {
-    insights = await fetchInsights(searchTerm);
-  } catch (error: any) {
-    console.error("Error loading insights:", error.message);
+  useEffect(() => {
+    const initializePage = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        logout();
+        router.push("/sign-in");
+        return;
+      }
+
+      try {
+        const adminStatus = await fetchAdmin(token);
+        setIsAdmin(adminStatus);
+
+        const fetchedInsights = await fetchInsights(searchTerm);
+        setInsights(fetchedInsights);
+      } catch (error) {
+        console.error("Error initializing page:", error);
+        logout();
+        router.push("/sign-in");
+      } finally {
+        setIsCheckingAuth(false);
+        setIsLoading(false);
+      }
+    };
+
+    initializePage();
+  }, [searchTerm, logout, router]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500 text-lg">Checking authentication...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="w-full flex flex-col items-center space-y-4 px-4">
-      <Section title="Insights" className="w-full max-w-3xl">
-        <div className="mb-6">
-          <SearchBar
-            searchTerm={searchTerm}
-            suggestions={insights.map((insight) => ({
-              name: insight.name,
-              issuer: insight.issuer,
-              date: new Date(insight.published_date)
-                .toISOString()
-                .split("T")[0], // Convert to YYYY-MM-DD
-            }))}
-            filterBy={["name", "issuer", "date"]}
-            displayAttributes={["issuer", "name", "date"]}
-          />
-        </div>
+    <div className="flex justify-center p-4">
+      <div className="w-full max-w-5xl space-y-6">
+        {/* Add Insight Button */}
+        {isAdmin && (
+          <div className="flex justify-end">
+            <button
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Add Insight
+            </button>
+          </div>
+        )}
+
+        {/* Search Bar */}
+        <SearchBar
+          searchTerm={searchTerm}
+          suggestions={insights.map((insight) => ({
+            name: insight.name,
+            issuer: insight.issuer,
+            date: new Date(insight.published_date).toISOString().split("T")[0],
+          }))}
+          filterBy={["name", "issuer", "date"]}
+          displayAttributes={["issuer", "name", "date"]}
+          onSearch={(value) => setSearchTerm(value)}
+        />
 
         {/* Insights List */}
-        <div className="flex flex-col space-y-2 overflow-y-auto max-h-[70vh] px-4">
-          {insights.length === 0 ? (
-            <div className="flex items-center justify-center text-center py-4">
+        <div className="bg-gray-800 rounded-lg shadow-md p-4">
+          {isLoading ? (
+            <div className="flex justify-center items-center py-6">
+              <p className="text-gray-400 text-sm">Loading insights...</p>
+            </div>
+          ) : insights.length === 0 ? (
+            <div className="flex justify-center items-center py-6">
               <p className="text-gray-400 text-sm">
                 No insights found matching your search.
               </p>
             </div>
           ) : (
-            insights.map((insight) => (
-              <div key={insight._id} className="flex-shrink-0">
-                <InsightCard insight={insight} />
-              </div>
-            ))
+            <div className="space-y-4">
+              {insights.map((insight) => (
+                <InsightCard key={insight._id} insight={insight} />
+              ))}
+            </div>
           )}
         </div>
-      </Section>
+
+        {/* Add Insight Modal */}
+        {isModalOpen && (
+          <AddInsightModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={async (newInsight, file) => {
+              try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                  throw new Error("You need to log in to perform this action.");
+                }
+
+                const formData = new FormData();
+                formData.append("insight", JSON.stringify(newInsight));
+                if (file) formData.append("file", file);
+
+                const response = await fetch("/api/insights", {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${token}` },
+                  body: formData,
+                });
+
+                if (!response.ok) {
+                  throw new Error("Failed to save the new insight.");
+                }
+
+                const updatedInsights = await fetchInsights(searchTerm);
+                setInsights(updatedInsights);
+                setIsModalOpen(false);
+              } catch (error) {
+                console.error("Error saving insight:", error);
+              }
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }

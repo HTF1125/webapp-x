@@ -366,6 +366,69 @@ export interface Insight {
 
 export default Insight;
 
+
+export interface Ticker {
+  _id : string;
+  code: string; // Unique identifier
+  name?: string; // Optional name
+  exchange?: string; // Optional exchange
+  market?: string; // Optional market
+  source: string; // Default source is "YAHOO"
+  bloomberg?: string; // Optional bloomberg field
+  fred?: string; // Optional fred field
+  yahoo?: string; // Optional yahoo field
+  remark?: string; // Optional remark
+}
+
+
+export async function fetchTickers(): Promise<Ticker[]> {
+  const endpoint = new URL(
+    "/api/data/tickers/",
+    API_URL
+  ).toString();
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error fetching ticker with code ${code}:", errorData);
+      throw new Error(
+        "errorData.error || Failed to fetch ticker with code ${code}."
+      );
+    }
+
+    const tickers: Ticker[] = await response.json();
+    return tickers;
+  } catch (error) {
+    console.error("Failed to fetch ticker with code ${code}:", error);
+    throw error;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export async function fetchInsights(skip = 0, limit = 100): Promise<Insight[]> {
   const endpoint = new URL("/api/data/insights/", API_URL);
   endpoint.searchParams.append("skip", skip.toString());
