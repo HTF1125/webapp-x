@@ -40,7 +40,16 @@ export default function RootLayout({
 
             {/* Footer */}
             <footer className="w-full bg-gray-800 py-4 text-sm text-gray-400 text-center">
-              © {new Date().getFullYear()} Investment-X. All rights reserved.
+              <div>
+                © {new Date().getFullYear()} Investment-X. All rights reserved.
+              </div>
+              <div className="mt-2">
+                Disclaimer: Investment-X does not provide personalized financial
+                advice. All data and insights are for informational purposes
+                only and should not be considered as investment recommendations.
+                Please consult with a licensed financial advisor for
+                professional guidance. Use of this platform is at your own risk.
+              </div>
             </footer>
           </div>
         </ErrorBoundary>

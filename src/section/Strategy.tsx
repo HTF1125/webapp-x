@@ -53,7 +53,7 @@ export default function StrategySection() {
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8">
-      <Section header="Strategies">
+      <Section title="Strategies" subtitle="test">
         {loading ? (
           <div className="text-center text-gray-400">Loading strategies...</div>
         ) : (

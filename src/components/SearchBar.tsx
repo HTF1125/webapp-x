@@ -1,84 +1,145 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { TickerInfo } from "@/api/all";
+import React, { useState, useEffect, useRef } from "react";
+import { FaSearch, FaTimes } from 'react-icons/fa'; // Import icons
 
-export default function SearchBar({ tickers }: { tickers: TickerInfo[] }) {
-  const [searchQuery, setSearchQuery] = useState<string>(""); // User's search input
-  const [snippets, setSnippets] = useState<TickerInfo[]>(tickers); // Initialize with full list
-  const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>(false); // Dropdown visibility
-  const containerRef = useRef<HTMLDivElement>(null);
+interface Suggestion {
+  [key: string]: string;
+}
 
-  const handleSearch = (query: string) => {
-    const filtered = query
-      ? tickers.filter(
-          (ticker) =>
-            ticker.code.toLowerCase().includes(query.toLowerCase()) ||
-            (ticker.name &&
-              ticker.name.toLowerCase().includes(query.toLowerCase()))
+interface SearchBarProps {
+  searchTerm: string;
+  suggestions: Suggestion[];
+  filterBy: string[];
+  displayAttributes: string[];
+}
+
+export default function SearchBar({
+  searchTerm,
+  suggestions,
+  filterBy,
+  displayAttributes,
+}: SearchBarProps) {
+  const [inputValue, setInputValue] = useState(searchTerm);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    setFilteredSuggestions(suggestions);
+  }, [suggestions]);
+
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+
+    if (value) {
+      setShowSuggestions(true);
+      setFilteredSuggestions(
+        suggestions.filter((suggestion) =>
+          filterBy.some((key) =>
+            suggestion[key]?.toLowerCase().includes(value.toLowerCase())
+          )
         )
-      : tickers; // Show full list when query is empty
-    setSnippets(filtered);
-  };
-
-  const handleSelectTicker = (tickerCode: string) => {
-    setSearchQuery(tickerCode); // Set selected ticker in input
-    setIsDropdownVisible(false); // Close dropdown
-  };
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-      setIsDropdownVisible(false); // Close dropdown when clicking outside
+      );
+    } else {
+      setShowSuggestions(false);
+      setFilteredSuggestions(suggestions);
     }
   };
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    const snippet = filterBy
+      .map((key) => `${suggestion[key]}`)
+      .join(" ");
+    setInputValue(snippet);
+
+    const formInput = formRef.current?.querySelector('input[name="search"]');
+    if (formInput) {
+      (formInput as HTMLInputElement).value = snippet;
+    }
+
+    setFilteredSuggestions([]);
+    setShowSuggestions(false);
+    formRef.current?.submit();
+  };
+
+  const handleClearSearch = () => {
+    setInputValue("");
+    setFilteredSuggestions([]);
+    setShowSuggestions(false);
+
+    const formInput = formRef.current?.querySelector('input[name="search"]');
+    if (formInput) {
+      (formInput as HTMLInputElement).value = "";
+    }
+
+    formRef.current?.submit();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      formRef.current?.submit();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setShowSuggestions(false);
+  };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-md mx-auto">
-      {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Search tickers..."
-        value={searchQuery}
-        onFocus={() => setIsDropdownVisible(true)} // Show dropdown on focus
-        onChange={(e) => {
-          setSearchQuery(e.target.value); // Update search query
-          handleSearch(e.target.value); // Filter results
-        }}
-        className="w-full p-1 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white text-sm"
-      />
-
-      {/* Dropdown with Ticker Suggestions */}
-      {isDropdownVisible && (
-        <div className="absolute top-full mt-1 w-full bg-gray-700 text-white rounded-md shadow-lg z-10 max-h-44 overflow-y-auto">
-          {snippets.length > 0 ? (
-            snippets.map((ticker) => (
-              <div
-                key={ticker.code}
-                className="px-2 py-1 hover:bg-gray-600 cursor-pointer text-sm flex justify-between"
-                onClick={() => handleSelectTicker(ticker.code)}
-              >
-                <span className="truncate">{ticker.code}</span>
-                {ticker.name && (
-                  <span className="text-gray-400 truncate ml-2">
-                    ({ticker.name})
-                  </span>
-                )}
-              </div>
-            ))
-          ) : (
-            <div className="px-3 py-2 text-gray-400 text-sm">
-              No results found
-            </div>
+    <div className="flex justify-center items-center w-full">
+      <form
+        ref={formRef}
+        method="GET"
+        action=""
+        className="w-full max-w-2xl relative"
+      >
+        <div className="relative flex-grow" onMouseLeave={handleMouseLeave}>
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
+            value={inputValue}
+            onChange={(e) => handleInputChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full p-4 pr-24 rounded-full border border-gray-700 bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {inputValue && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none"
+            >
+              <FaTimes />
+            </button>
+          )}
+          <button
+            type="submit"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition focus:outline-none"
+          >
+            <FaSearch />
+          </button>
+          {showSuggestions && filteredSuggestions.length > 0 && (
+            <ul
+              className="absolute top-full left-0 w-full bg-gray-900 border border-gray-700 rounded-lg z-10 max-h-48 overflow-y-auto mt-1"
+            >
+              {filteredSuggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className="p-3 hover:bg-gray-800 cursor-pointer"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {displayAttributes
+                    .map((attr) => suggestion[attr])
+                    .filter(Boolean)
+                    .join(" - ")}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
-      )}
+      </form>
     </div>
   );
 }

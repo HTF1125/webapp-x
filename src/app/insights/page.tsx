@@ -1,9 +1,9 @@
 import React from "react";
 import Section from "@/components/Section";
 import InsightCard from "./InsightCard";
-import SearchBar from "./SearchBar";
 import Insight from "@/api/all";
 import { fetchInsights } from "./api";
+import SearchBar from "@/components/SearchBar";
 
 export default async function Page({
   searchParams,
@@ -21,7 +21,7 @@ export default async function Page({
 
   return (
     <div className="w-full flex flex-col items-center space-y-4 px-4">
-      <Section header="Insights" className="w-full max-w-3xl">
+      <Section title="Insights" className="w-full max-w-3xl">
         <div className="mb-6">
           <SearchBar
             searchTerm={searchTerm}

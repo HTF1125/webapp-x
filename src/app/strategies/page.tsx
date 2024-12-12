@@ -9,7 +9,7 @@ export default async function StrategiesPage() {
   const strategies = await fetchStrategies();
 
   return (
-    <Section header="Strategies">
+    <Section title="Strategies" subtitle="test">
       <div className="w-full">
         <Suspense fallback={<div>Loading strategies...</div>}>
           <StrategiesClient initialStrategies={strategies} />

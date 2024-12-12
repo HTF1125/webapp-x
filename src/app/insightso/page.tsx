@@ -9,7 +9,7 @@ export default async function Page() {
       style={{ height: "calc(100vh - 100px)" }}
     >
       <div className="w-full h-full overflow-hidden">
-        <Section header="Insights">
+        <Section title="Insights">
           <ResearchFilesList />
         </Section>
       </div>

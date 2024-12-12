@@ -2,14 +2,13 @@
 
 import React, { useState } from "react";
 import { FaFilePdf } from "react-icons/fa";
-import { NEXT_PUBLIC_API_URL } from "@/config";
 import Insight from "@/api/all";
 
 const InsightCard: React.FC<{ insight: Insight }> = ({ insight }) => {
   const [showSummary, setShowSummary] = useState(false);
 
   const handlePdfClick = () => {
-    const pdfUrl = `${NEXT_PUBLIC_API_URL}/api/data/insights/${insight._id}`;
+    const pdfUrl = `https://files.investment-x.app/${insight._id}.pdf`;
     window.open(pdfUrl, "_blank");
   };
 

@@ -9,7 +9,7 @@ export default async function SignalSection() {
     const signalCodes = await fetchSignalCodes();
     if (!signalCodes?.length) {
       return (
-        <Section header="Signals">
+        <Section title="Signals">
           <div className="text-center text-gray-400">No signals available.</div>
         </Section>
       );
@@ -20,7 +20,7 @@ export default async function SignalSection() {
 
     if (!signals?.length) {
       return (
-        <Section header="Signals">
+        <Section title="Signals">
           <div className="text-center text-gray-400">No signals available.</div>
         </Section>
       );
@@ -30,7 +30,7 @@ export default async function SignalSection() {
     twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
     return (
-      <Section header="Signals">
+      <Section title="Signals">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {signals.map((signal) => {
             const filteredData = Object.entries(signal.data).filter(
@@ -68,7 +68,7 @@ export default async function SignalSection() {
   } catch (error) {
     console.error("Error fetching signals:", error);
     return (
-      <Section header="Signals">
+      <Section title="Signals">
         <div className="text-center text-red-500">
           Failed to load signals. Please try again later.
         </div>

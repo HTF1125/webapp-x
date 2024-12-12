@@ -11,7 +11,7 @@ export default function MarketSection() {
 
   return (
     <PeriodProvider>
-      <Section header="Market">
+      <Section title="Market">
         {/* Header and Period Selector */}
         <div className="flex justify-between items-center mb-6">
           <Suspense fallback={<LoadingSpinner />}>
@@ -24,7 +24,7 @@ export default function MarketSection() {
           <Suspense fallback={<LoadingSpinner />}>
             <MarketCharts allIndexGroupPerformances={allIndexGroupPerformances} />
           </Suspense>
-        </div>  
+        </div>
       </Section>
     </PeriodProvider>
   );

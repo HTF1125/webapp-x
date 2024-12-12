@@ -1,26 +1,23 @@
+"use client";
+
 import React from "react";
 
 interface SectionProps {
-  header: string;
+  title: string;
+  subtitle?: string;
   children: React.ReactNode;
   className?: string;
 }
 
-const Section: React.FC<SectionProps> = ({ header, children, className }) => {
+const Section: React.FC<SectionProps> = ({ title, subtitle, children, className }) => {
   return (
-    <div className={`w-full p-3 ${className || ""}`}>
-      <section className="bg-gray-800 border border-gray-700 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow duration-300">
-        {/* Header */}
-        <header className="mb-4">
-          <h2 className="text-lg font-semibold text-white border-b border-gray-600 pb-2">
-            {header}
-          </h2>
-        </header>
-
-        {/* Content */}
-        <div className="space-y-3 text-gray-300 text-sm">{children}</div>
-      </section>
-    </div>
+    <section className={`py-8 px-4 md:px-8 lg:px-12 ${className || ""}`}>
+      <header className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-100">{title}</h2>
+        {subtitle && <p className="text-gray-200">{subtitle}</p>}
+      </header>
+      <div className="flex flex-col space-y-4">{children}</div>
+    </section>
   );
 };
 
