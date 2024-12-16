@@ -117,7 +117,7 @@ export interface TacticalView {
 }
 
 export async function fetchTacticalView(): Promise<TacticalView> {
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/streetview`;
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/tacticalview`;
 
   try {
     const response = await fetch(endpoint, {
@@ -139,6 +139,33 @@ export async function fetchTacticalView(): Promise<TacticalView> {
     };
   } catch (error) {
     console.error(`Unexpected error in fetchStreetView:`, error);
+    throw error;
+  }
+}
+
+
+export async function deleteInsight(id: string): Promise<void> {
+  if (!id) {
+    throw new Error("An ID must be provided to delete an insight");
+  }
+
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/${id}`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "DELETE",
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Error deleting insight:`, errorData);
+      throw new Error(errorData.detail || "Failed to delete insight");
+    }
+
+    console.log(`Insight with ID ${id} successfully deleted.`);
+  } catch (error) {
+    console.error(`Unexpected error in deleteInsight:`, error);
     throw error;
   }
 }

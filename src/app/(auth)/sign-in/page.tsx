@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // Updated import for app directory
-import { useLogin } from "@/components/LoginProvider";
+import { useAuth } from "@/components/LoginProvider";
 import { fetchLogin } from "@/api/login";
 
 const SignInPage = () => {
-  const { login } = useLogin();
+  const { login } = useAuth();
   const router = useRouter(); // Updated to next/navigation
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

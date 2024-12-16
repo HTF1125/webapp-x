@@ -1,16 +1,24 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
-interface LoginContextProps {
+interface AuthContextProps {
   isAuthenticated: boolean;
   login: (token: string) => void;
   logout: () => void;
 }
 
-const LoginContext = createContext<LoginContextProps | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-export const LoginProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const LoginProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Ensure localStorage is only accessed in the browser
@@ -30,14 +38,14 @@ export const LoginProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   return (
-    <LoginContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
-    </LoginContext.Provider>
+    </AuthContext.Provider>
   );
 };
 
-export const useLogin = () => {
-  const context = useContext(LoginContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useLogin must be used within a LoginProvider");
   }

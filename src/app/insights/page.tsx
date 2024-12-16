@@ -6,12 +6,12 @@ import SearchBar from "@/components/SearchBar";
 import InsightCard from "./InsightCard";
 import UpdateModal from "./UpdateModal";
 import { fetchInsights } from "./api";
-import { useLogin } from "@/components/LoginProvider";
+import { useAuth } from "@/components/LoginProvider";
 import { fetchAdmin } from "@/api/login";
 import Insight from "@/api/all";
 
 export default function Page() {
-  const { logout } = useLogin();
+  const { logout } = useAuth();
   const router = useRouter();
 
   const [allInsights, setAllInsights] = useState<Insight[]>([]);
@@ -22,7 +22,6 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const isInitialized = useRef(false);
 
-  // Memoized handleLogout function
   const handleLogout = useCallback(async () => {
     try {
       localStorage.removeItem("token");
@@ -38,7 +37,6 @@ export default function Page() {
     }
   }, [logout, router]);
 
-  // Initialize Page Data
   useEffect(() => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -53,7 +51,7 @@ export default function Page() {
       try {
         const [adminStatus, fetchedInsights] = await Promise.all([
           fetchAdmin(token),
-          fetchInsights(""),
+          fetchInsights(),
         ]);
 
         setIsAdmin(adminStatus);
@@ -73,13 +71,15 @@ export default function Page() {
     };
   }, [handleLogout]);
 
-  // Handle Search Functionality
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     if (term) {
       const filtered = allInsights.filter((insight) =>
         ["name", "issuer", "published_date"].some((key) =>
-          insight[key as keyof Insight]?.toString()?.toLowerCase().includes(term.toLowerCase())
+          insight[key as keyof Insight]
+            ?.toString()
+            ?.toLowerCase()
+            .includes(term.toLowerCase())
         )
       );
       setInsights(filtered);
@@ -88,13 +88,6 @@ export default function Page() {
     }
   };
 
-  // Handle Modify Insight
-  const handleModify = (insight: Insight) => {
-    setSelectedInsight(insight);
-    setIsModalOpen(true);
-  };
-
-  // Handle Select from SearchBar
   const handleSelect = (selectedSnippet: string) => {
     const filtered = allInsights.filter((insight) => {
       const snippet = `${insight.issuer} - ${insight.name} - ${insight.published_date}`;
@@ -103,10 +96,15 @@ export default function Page() {
     setInsights(filtered);
   };
 
+  const handleModify = (insight: Insight) => {
+    setSelectedInsight(insight);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="flex flex-col items-center p-3 space-y-3 bg-gray-900 text-gray-200 min-h-screen">
+      {/* Search Section */}
       <div className="w-full max-w-4xl space-y-4">
-        {/* Search Bar */}
         <SearchBar
           searchTerm={searchTerm}
           suggestions={allInsights.map((insight) => ({
@@ -120,7 +118,6 @@ export default function Page() {
           onSelect={handleSelect}
         />
 
-        {/* Insights Count and Add Button */}
         <div className="flex justify-between items-center text-xs text-gray-400 mt-3">
           <div>
             Showing {insights.length} out of {allInsights.length} insights
@@ -144,7 +141,6 @@ export default function Page() {
           )}
         </div>
 
-        {/* Insight Cards */}
         <div className="grid grid-cols-1 gap-2">
           {insights.length > 0 ? (
             insights.map((insight) => (
@@ -163,7 +159,6 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Add Insight Modal */}
       {isModalOpen && (
         <UpdateModal
           isOpen={isModalOpen}

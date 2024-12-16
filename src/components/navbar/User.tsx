@@ -4,12 +4,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, ChevronDown, Key, LogOut } from "lucide-react"; // Using Key icon for Sign In
-import { useLogin } from "@/components/LoginProvider";
+import { useAuth } from "@/components/LoginProvider";
 
 const NavbarUser = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { isAuthenticated, logout } = useLogin();
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

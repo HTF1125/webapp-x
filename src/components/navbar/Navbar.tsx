@@ -23,7 +23,7 @@ const NavbarItem = React.memo(
 NavbarItem.displayName = "NavbarItem";
 
 export default function Navbar() {
-  const [navItems] = useState(["Insights", "Strategies"]);
+  const [navItems] = useState(["Insights", "Views", "Strategies"]);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
