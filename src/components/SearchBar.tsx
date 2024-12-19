@@ -115,13 +115,13 @@ export default function SearchBar({
           onChange={(e) => handleInputChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
-          className="w-full p-4 pr-16 rounded-full border border-gray-700 bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full p-4 pr-16 rounded-xl border border-gray-700 bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
         />
         {inputValue && (
           <button
             type="button"
             onClick={handleClearSearch}
-            className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none"
+            className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none transition-colors"
           >
             <FaTimes />
           </button>
@@ -133,8 +133,9 @@ export default function SearchBar({
         >
           <FaSearch />
         </button>
+
         {showSuggestions && filteredSuggestions.length > 0 && (
-          <ul className="absolute top-full left-0 w-full bg-gray-900 border border-gray-700 rounded-lg z-10 max-h-48 overflow-y-auto mt-1 shadow-lg">
+          <ul className="absolute top-full left-0 w-full bg-gray-900 border border-gray-700 rounded-xl z-10 max-h-48 overflow-y-auto mt-2 shadow-lg">
             {filteredSuggestions.map((suggestion, index) => (
               <li
                 key={index}

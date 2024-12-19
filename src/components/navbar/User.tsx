@@ -36,18 +36,18 @@ const NavbarUser = () => {
     <div className="relative inline-block">
       {/* Button to toggle the dropdown */}
       <button
-        className="flex items-center p-2 rounded-full hover:bg-gray-700"
+        className="flex items-center p-2 rounded-full hover:bg-gray-700 focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
         {isAuthenticated ? (
           <>
-            <User className="w-6 h-6 text-gray-400 hover:text-white" />
-            <ChevronDown className="w-5 h-5 ml-1 text-gray-400 hover:text-white" />
+            <User className="w-6 h-6 text-gray-400 hover:text-white transition-colors duration-200" />
+            <ChevronDown className="w-5 h-5 ml-1 text-gray-400 hover:text-white transition-colors duration-200" />
           </>
         ) : (
-          <Key className="w-6 h-6 text-gray-400 hover:text-white" /> // Using Key icon for sign-in
+          <Key className="w-6 h-6 text-gray-400 hover:text-white transition-colors duration-200" /> // Using Key icon for sign-in
         )}
       </button>
 
@@ -59,20 +59,20 @@ const NavbarUser = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute right-0 mt-2 w-56 bg-gray-800 text-white rounded-md shadow-lg py-1 z-50 border border-gray-600"
+            className="absolute right-0 mt-2 w-56 bg-gray-800 text-white rounded-md shadow-xl py-2 z-50 border border-gray-600"
           >
             {isAuthenticated ? (
               <>
                 <Link
                   href="/profile"
-                  className="block px-4 py-2 text-sm hover:bg-gray-700"
+                  className="block px-4 py-2 text-sm hover:bg-gray-700 focus:bg-gray-700 rounded-md transition-all"
                   onClick={handleMenuClose} // Close menu on click
                 >
                   Profile
                 </Link>
                 <Link
                   href="/settings"
-                  className="block px-4 py-2 text-sm hover:bg-gray-700"
+                  className="block px-4 py-2 text-sm hover:bg-gray-700 focus:bg-gray-700 rounded-md transition-all"
                   onClick={handleMenuClose} // Close menu on click
                 >
                   Settings
@@ -82,7 +82,7 @@ const NavbarUser = () => {
                     logout();
                     handleMenuClose(); // Close menu on logout
                   }}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700"
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700 focus:bg-gray-700 rounded-md transition-all"
                 >
                   Sign out
                   <LogOut className="inline ml-2 w-4 h-4 text-gray-400" />
@@ -91,7 +91,7 @@ const NavbarUser = () => {
             ) : (
               <Link
                 href="/sign-in"
-                className="block px-4 py-2 text-sm hover:bg-gray-700"
+                className="block px-4 py-2 text-sm hover:bg-gray-700 focus:bg-gray-700 rounded-md transition-all"
                 onClick={handleMenuClose} // Close menu on click
               >
                 Sign in

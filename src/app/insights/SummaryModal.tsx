@@ -17,21 +17,36 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
   const [speechRate, setSpeechRate] = useState(1.5);
   const [currentCharIndex, setCurrentCharIndex] = useState<number>(0);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      // Prevent scrolling when modal is open
       document.body.style.overflow = "hidden";
     } else {
-      // Restore scrolling when modal is closed
+      handleStop(); // Stop reading when modal is closed
       document.body.style.overflow = "";
     }
 
     return () => {
-      // Clean up overflow style
-      document.body.style.overflow = "";
+      handleStop(); // Cleanup: Ensure reading stops when the component unmounts
+      document.body.style.overflow = ""; // Reset overflow
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (currentCharIndex > 0 && contentRef.current) {
+      const currentTextElement = contentRef.current.querySelector<HTMLElement>(
+        `[data-charindex='${currentCharIndex}']`
+      );
+
+      if (currentTextElement) {
+        currentTextElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, [currentCharIndex]);
 
   const handleReadAloud = () => {
     if (isPaused) {
@@ -45,10 +60,8 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
       utterance.lang = "en-US";
       utterance.rate = speechRate;
 
-      utterance.onboundary = (event) => {
-        if (event.name === "word") {
-          setCurrentCharIndex(event.charIndex);
-        }
+      utterance.onboundary = (event: SpeechSynthesisEvent) => {
+        setCurrentCharIndex(event.charIndex); // Track character position
       };
 
       utterance.onend = () => {
@@ -70,46 +83,64 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
     setCurrentCharIndex(0);
   };
 
+  const updateSpeed = (newRate: number) => {
+    if (isReading) {
+      const currentText = summary.slice(currentCharIndex); // Get the remaining text
+      window.speechSynthesis.cancel(); // Stop the current speech
+
+      const utterance = new SpeechSynthesisUtterance(currentText);
+      utterance.lang = "en-US";
+      utterance.rate = newRate;
+
+      utterance.onboundary = (event: SpeechSynthesisEvent) => {
+        setCurrentCharIndex(currentCharIndex + event.charIndex); // Update the character index
+      };
+
+      utterance.onend = () => {
+        setIsReading(false);
+        setIsPaused(false);
+        setCurrentCharIndex(0);
+      };
+
+      speechSynthesisRef.current = utterance;
+      window.speechSynthesis.speak(utterance); // Restart speech with updated rate
+    }
+  };
+
   const increaseSpeed = () => {
-    setSpeechRate((prevRate) => Math.min(prevRate + 0.25, 2));
+    setSpeechRate((prevRate) => {
+      const newRate = Math.min(prevRate + 0.25, 2);
+      updateSpeed(newRate);
+      return newRate;
+    });
   };
 
   const decreaseSpeed = () => {
-    setSpeechRate((prevRate) => Math.max(prevRate - 0.5, 0.5));
+    setSpeechRate((prevRate) => {
+      const newRate = Math.max(prevRate - 0.25, 0.5);
+      updateSpeed(newRate);
+      return newRate;
+    });
   };
 
-  const renderSummaryWithHighlight = () => {
-    if (!summary) return null;
-
-    const readText = summary.substring(0, currentCharIndex);
-    const unreadText = summary.substring(currentCharIndex);
-
-    return (
-      <span>
-        <span className="text-gray-500">{readText}</span>
-        <span className="text-gray-100">{unreadText}</span>
-      </span>
-    );
-  };
-
-  // Stop speech synthesis when modal is closed
   const handleClose = () => {
-    handleStop();
+    handleStop(); // Stop reading when the modal is closed
     onClose();
   };
 
   if (!isOpen) return null;
 
+  const lines = summary.split("\n");
+
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4"
       onClick={handleClose}
     >
       <div
-        className="relative bg-gray-800 text-white rounded-lg shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-hidden"
+        className="relative bg-gray-800 text-white rounded-lg shadow-lg p-4 md:p-6 w-full max-w-md md:max-w-2xl max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
           className="absolute top-2 right-2 text-gray-400 hover:text-gray-200 transition-colors"
           onClick={handleClose}
@@ -118,12 +149,10 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
           <FaTimes size={20} />
         </button>
 
-        {/* Modal Header */}
-        <h3 className="text-xl font-semibold text-blue-400 mb-4">
+        <h3 className="text-lg md:text-xl font-semibold text-blue-400 mb-4">
           Insight Summary
         </h3>
 
-        {/* Controls Section */}
         <div className="flex flex-wrap items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             <button
@@ -142,14 +171,13 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
               +
             </button>
           </div>
-
           <div className="flex items-center space-x-2">
             <button
               className="text-gray-400 hover:text-white transition-all"
               onClick={handleStop}
               aria-label="Stop"
             >
-              <FaStop size={14} />
+              <FaStop size={16} />
             </button>
             <button
               className="text-gray-400 hover:text-white transition-all"
@@ -158,23 +186,47 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
             >
               {isReading ? (
                 isPaused ? (
-                  <FaPlay size={14} />
+                  <FaPlay size={16} />
                 ) : (
-                  <FaPause size={14} />
+                  <FaPause size={16} />
                 )
               ) : (
-                <FaPlay size={14} />
+                <FaPlay size={16} />
               )}
             </button>
           </div>
         </div>
 
-        {/* Modal Content */}
         <div
-          className="text-gray-300 leading-relaxed mb-6 overflow-y-auto pr-2"
-          style={{ maxHeight: "70vh" }}
+          ref={contentRef}
+          className="text-gray-300 leading-relaxed overflow-y-auto pr-2"
+          style={{ maxHeight: "70vh", whiteSpace: "pre-wrap" }}
         >
-          {renderSummaryWithHighlight()}
+          {lines.map((line, lineIndex) => {
+            const charStart = summary.indexOf(line);
+            const charEnd = charStart + line.length;
+
+            const isHighlighted =
+              isReading &&
+              currentCharIndex >= charStart &&
+              currentCharIndex < charEnd;
+
+            return (
+              <div
+                key={lineIndex}
+                data-charindex={charStart}
+                style={{
+                  color: isHighlighted ? "cyan" : "inherit",
+                  backgroundColor: isHighlighted
+                    ? "rgba(0, 255, 255, 0.1)"
+                    : "transparent",
+                  padding: "0.2rem 0",
+                }}
+              >
+                {line}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -25,20 +25,20 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${font.className} dark`}
     >
-      <body className="bg-gray-900 text-white">
+      <body className="bg-gradient-to-r from-blue-900 to-purple-900 text-white">
         <ErrorBoundary>
           <div className="flex flex-col min-h-screen">
             {/* Navbar */}
             <LoginProvider>
-            <header className="fixed top-0 left-0 w-full shadow-lg bg-gray-800 z-50">
-              <Navbar />
-            </header>
+              <header className="fixed top-0 left-0 w-full shadow-lg bg-gray-800 z-50">
+                <Navbar />
+              </header>
 
-            {/* Main Content */}
-            <main className="w-full flex-grow max-w-[1980px] mx-auto px-6 sm:px-8 py-24">
-              {/* Add `py-24` to give space for the fixed Navbar */}
-              {children}
-            </main>
+              {/* Main Content */}
+              <main className="w-full flex-grow max-w-[1980px] mx-auto px-6 sm:px-8 py-24">
+                {/* Add `py-24` to give space for the fixed Navbar */}
+                {children}
+              </main>
             </LoginProvider>
 
             {/* Footer */}

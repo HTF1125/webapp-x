@@ -13,7 +13,7 @@ const NavbarItem = React.memo(
     <Link
       href={`/${targetPath.toLowerCase()}`}
       onClick={onClick}
-      className="text-gray-400 hover:text-white text-lg font-medium px-4 py-1 transition"
+      className="text-gray-400 hover:text-white text-lg font-semibold px-4 py-2 transition-colors duration-300 ease-in-out"
     >
       {targetPath}
     </Link>
@@ -27,8 +27,8 @@ export default function Navbar() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-gray-900 bg-opacity-95 border-b border-gray-700 shadow-md">
-      <div className="container flex h-16 max-w-screen-2xl items-center justify-between mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-gray-900 bg-opacity-95 border-b border-gray-700 shadow-lg">
+      <div className="container flex h-16 max-w-screen-2xl items-center justify-between mx-auto px-6 sm:px-8 lg:px-10">
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
@@ -43,7 +43,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="sm:hidden flex items-center text-gray-400 hover:text-white"
+          className="sm:hidden flex items-center text-gray-400 hover:text-white focus:outline-none"
           onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? (
@@ -54,7 +54,7 @@ export default function Navbar() {
         </button>
 
         {/* Desktop Navigation */}
-        <div className="hidden sm:flex items-center space-x-4">
+        <div className="hidden sm:flex items-center space-x-6">
           {navItems.map((item) => (
             <NavbarItem key={item} targetPath={item} onClick={() => {}} />
           ))}
@@ -71,14 +71,14 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="sm:hidden bg-gray-800 text-gray-400 shadow-lg"
+            className="sm:hidden bg-gray-800 text-gray-400 shadow-xl rounded-lg mt-2"
           >
-            <div className="flex flex-col space-y-2 p-4">
+            <div className="flex flex-col space-y-3 p-6">
               {navItems.map((item) => (
                 <Link
                   key={item}
                   href={`/${item.toLowerCase()}`}
-                  className="text-lg font-medium px-4 py-2 hover:bg-gray-700 rounded-md"
+                  className="text-lg font-medium px-4 py-3 rounded-md hover:bg-gray-700 transition-all"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item}

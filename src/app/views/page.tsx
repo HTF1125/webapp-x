@@ -1,4 +1,7 @@
+
+import React from "react";
 import { API_URL } from "@/config";
+
 
 interface ViewRationale {
   view: string;
@@ -69,71 +72,57 @@ export default async function TacticalView() {
     );
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 bg-gray-900 p-6 rounded-md shadow-md text-gray-200">
+    <div className="max-w-4xl mx-auto space-y-8 bg-gray-900 p-6 rounded-lg shadow-xl text-gray-200">
       {/* Report Header */}
-      <div className="border-b border-gray-700 pb-4">
-        <h1 className="text-3xl font-bold text-gray-100">
-          Tactical View Report
-        </h1>
+      <div className="border-b border-gray-700 pb-6">
+        <h1 className="text-4xl font-bold text-gray-100">Tactical View Report</h1>
         <p className="text-gray-400">
           <strong>Published Date:</strong> {formatDate(published_date)}
         </p>
       </div>
 
       {/* Global Economic Outlook */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-100">
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold text-gray-100">
           Global Economic Outlook
         </h2>
-        <p className="text-gray-400">{views["Global Economic Outlook"]}</p>
+        <p className="text-lg text-gray-400">{views["Global Economic Outlook"]}</p>
       </section>
 
       {/* Key Investment Themes */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-100">
-          Key Investment Themes
-        </h2>
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold text-gray-100">Key Investment Themes</h2>
         <ul className="list-disc pl-6 space-y-2">
           {views["Key Investment Themes"].map((theme, index) => (
-            <li key={index} className="text-gray-400">
-              {theme}
-            </li>
+            <li key={index} className="text-lg text-gray-400">{theme}</li>
           ))}
         </ul>
       </section>
 
       {/* Asset Class Views */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-100">
-          Asset Class Views
-        </h2>
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold text-gray-100">Asset Class Views</h2>
         {Object.entries(views["Asset Class Views"]).map(([category, data]) => (
-          <div key={category} className="mb-4">
-            <h3 className="text-xl font-medium text-gray-200">{category}</h3>
-            <table className="w-full text-left border-collapse border border-gray-700 mt-2">
-              <thead>
-                <tr className="bg-gray-800 text-gray-300">
-                  <th className="border border-gray-700 px-4 py-2">
-                    Region / Sector
-                  </th>
-                  <th className="border border-gray-700 px-4 py-2">View</th>
-                  <th className="border border-gray-700 px-4 py-2">
-                    Rationale
-                  </th>
+          <div key={category} className="mb-6">
+            <h3 className="text-2xl font-medium text-gray-200">{category}</h3>
+            <table className="w-full text-left border-collapse border border-gray-700 mt-4">
+              <thead className="bg-gray-800 text-gray-300">
+                <tr>
+                  <th className="border border-gray-700 px-6 py-3">Region / Sector</th>
+                  <th className="border border-gray-700 px-6 py-3">View</th>
+                  <th className="border border-gray-700 px-6 py-3">Rationale</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-lg">
                 {Object.entries(data).map(([key, value]) => {
                   const viewRationale = value as ViewRationale | undefined;
                   return (
-                    <tr key={key}>
-                      <td className="border border-gray-700 px-4 py-2 font-medium text-gray-300">
-                        {key}
-                      </td>
-                      <td className="border border-gray-700 px-4 py-2 text-gray-400">
+                    <tr key={key} className="hover:bg-gray-800">
+                      <td className="border border-gray-700 px-6 py-3">{key}</td>
+                      <td className="border border-gray-700 px-6 py-3 text-gray-400">
                         {viewRationale?.view}
                       </td>
-                      <td className="border border-gray-700 px-4 py-2 text-gray-400">
+                      <td className="border border-gray-700 px-6 py-3 text-gray-400">
                         {viewRationale?.rationale}
                       </td>
                     </tr>
@@ -146,28 +135,23 @@ export default async function TacticalView() {
       </section>
 
       {/* Top Tactical Ideas */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-100">
-          Top Tactical Ideas
-        </h2>
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold text-gray-100">Top Tactical Ideas</h2>
         <ul className="list-decimal pl-6 space-y-2">
           {views["Top Tactical Ideas"].map((idea, index) => (
-            <li key={index} className="text-gray-400">
-              <strong className="text-gray-200">{idea.idea}</strong>:{" "}
-              {idea.rationale}
+            <li key={index} className="text-lg text-gray-400">
+              <strong className="text-gray-200">{idea.idea}</strong>: {idea.rationale}
             </li>
           ))}
         </ul>
       </section>
 
       {/* Key Risks */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-100">Key Risks</h2>
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold text-gray-100">Key Risks</h2>
         <ul className="list-disc pl-6 space-y-2">
           {views["Key Risks"].map((risk, index) => (
-            <li key={index} className="text-gray-400">
-              {risk}
-            </li>
+            <li key={index} className="text-lg text-gray-400">{risk}</li>
           ))}
         </ul>
       </section>

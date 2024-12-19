@@ -1,11 +1,9 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import Insight from "@/api/all";
 import { NEXT_PUBLIC_API_URL } from "@/config";
 
 // Utility to convert PDF to Base64
-const convertPdfToBase64 = (file: File): Promise<string> => {
+export const convertPdfToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -97,7 +95,9 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
       const updatedInsight = await response.json();
 
       setSuccessMessage(
-        insightData._id ? "Insight updated successfully." : "Insight added successfully."
+        insightData._id
+          ? "Insight updated successfully."
+          : "Insight added successfully."
       );
       onSaveComplete(updatedInsight); // Notify the parent component to refresh data
     } catch (err) {
@@ -109,25 +109,45 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg max-w-4xl w-full min-h-[400px]">
-        <h3 className="text-white font-bold mb-6 text-xl">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-2">
+      <div className="bg-gray-800 p-4 rounded-lg max-w-3xl w-full">
+        <h3 className="text-white font-bold mb-4 text-lg">
           {insightData?._id ? "Edit Insight" : "Add New Insight"}
         </h3>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
-        <div className="mb-6">
-          <label className="block text-gray-400 text-sm">Issuer</label>
-          <input
-            type="text"
-            value={insightData?.issuer || ""}
-            onChange={(e) =>
-              setInsightData({ ...insightData, issuer: e.target.value })
-            }
-            className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
-          />
+        {error && <p className="text-red-500 mb-2">{error}</p>}
+        {successMessage && <p className="text-green-500 mb-2">{successMessage}</p>}
+
+        {/* Date and Issuer Row */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-400 text-sm">Date</label>
+            <input
+              type="date"
+              value={insightData?.published_date || ""}
+              onChange={(e) =>
+                setInsightData({
+                  ...insightData,
+                  published_date: e.target.value,
+                })
+              }
+              className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 text-sm">Issuer</label>
+            <input
+              type="text"
+              value={insightData?.issuer || ""}
+              onChange={(e) =>
+                setInsightData({ ...insightData, issuer: e.target.value })
+              }
+              className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+            />
+          </div>
         </div>
-        <div className="mb-6">
+
+        {/* Name Field */}
+        <div className="mb-4">
           <label className="block text-gray-400 text-sm">Name</label>
           <input
             type="text"
@@ -135,42 +155,34 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
             onChange={(e) =>
               setInsightData({ ...insightData, name: e.target.value })
             }
-            className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
+            className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
           />
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-400 text-sm">Date</label>
-          <input
-            type="date"
-            value={insightData?.published_date || ""}
-            onChange={(e) =>
-              setInsightData({
-                ...insightData,
-                published_date: e.target.value,
-              })
-            }
-            className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
-          />
-        </div>
-        <div className="mb-6">
+
+        {/* Summary Field */}
+        <div className="mb-4">
           <label className="block text-gray-400 text-sm">Summary</label>
           <textarea
             value={insightData?.summary || ""}
             onChange={(e) =>
               setInsightData({ ...insightData, summary: e.target.value })
             }
-            className="w-full p-4 border border-gray-600 rounded bg-gray-700 text-white text-lg"
+            className="w-full p-2 h-28 border border-gray-600 rounded bg-gray-700 text-white"
           />
         </div>
-        <div className="mb-6">
+
+        {/* PDF File Field */}
+        <div className="mb-4">
           <label className="block text-gray-400 text-sm">PDF File</label>
           <input
             type="file"
             accept=".pdf"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white"
+            className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
           />
         </div>
+
+        {/* Buttons */}
         <div className="flex justify-between">
           <button
             className={`text-green-400 hover:underline ${
