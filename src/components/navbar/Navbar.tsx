@@ -7,29 +7,11 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import LogoLightColor from "@/images/investment-x-logo-light.svg";
 import NavbarUser from "@/components/navbar/NavbarUser";
-import { useAuth } from "@/context/AuthContext"; // Import AuthContext
 import NavLink from "./NavLink";
 
 const Navbar: React.FC = () => {
-  const { loading } = useAuth();
   const navItems = ["Dashboard", "Insights", "Views", "Strategies"];
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  if (loading) {
-    return (
-      <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-gray-900 bg-opacity-95 border-b border-gray-700 shadow-lg">
-        <div className="container flex h-16 items-center justify-between mx-auto px-6">
-          <Image
-            src={LogoLightColor}
-            alt="Investment-X Logo"
-            className="w-auto h-auto"
-            priority
-          />
-          <div className="text-gray-400">Loading...</div>
-        </div>
-      </nav>
-    );
-  }
 
   return (
     <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-gray-900 bg-opacity-95 border-b border-gray-700 shadow-lg">

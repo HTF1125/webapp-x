@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FaPlay, FaPause, FaStop, FaTimes } from "react-icons/fa";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { FaPlay, FaPause, FaStop, FaTimes, FaMinus, FaPlus } from "react-icons/fa";
 
 interface SummaryModalProps {
   isOpen: boolean;
@@ -19,19 +19,39 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
+  const handleStop = useCallback(() => {
+    window.speechSynthesis.cancel();
+    setIsReading(false);
+    setIsPaused(false);
+    setCurrentCharIndex(0);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    handleStop();
+    onClose();
+  }, [onClose, handleStop]);
+
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      handleClose();
+    }
+  }, [handleClose]);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      document.addEventListener('keydown', handleKeyDown);
     } else {
-      handleStop(); // Stop reading when modal is closed
+      handleStop();
       document.body.style.overflow = "";
     }
 
     return () => {
-      handleStop(); // Cleanup: Ensure reading stops when the component unmounts
-      document.body.style.overflow = ""; // Reset overflow
+      handleStop();
+      document.body.style.overflow = "";
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, handleKeyDown, handleStop]);
 
   useEffect(() => {
     if (currentCharIndex > 0 && contentRef.current) {
@@ -48,7 +68,7 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
     }
   }, [currentCharIndex]);
 
-  const handleReadAloud = () => {
+  const handleReadAloud = useCallback(() => {
     if (isPaused) {
       window.speechSynthesis.resume();
       setIsPaused(false);
@@ -61,7 +81,7 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
       utterance.rate = speechRate;
 
       utterance.onboundary = (event: SpeechSynthesisEvent) => {
-        setCurrentCharIndex(event.charIndex); // Track character position
+        setCurrentCharIndex(event.charIndex);
       };
 
       utterance.onend = () => {
@@ -74,26 +94,19 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
       window.speechSynthesis.speak(utterance);
       setIsReading(true);
     }
-  };
+  }, [isPaused, isReading, summary, speechRate]);
 
-  const handleStop = () => {
-    window.speechSynthesis.cancel();
-    setIsReading(false);
-    setIsPaused(false);
-    setCurrentCharIndex(0);
-  };
-
-  const updateSpeed = (newRate: number) => {
+  const updateSpeed = useCallback((newRate: number) => {
     if (isReading) {
-      const currentText = summary.slice(currentCharIndex); // Get the remaining text
-      window.speechSynthesis.cancel(); // Stop the current speech
+      const currentText = summary.slice(currentCharIndex);
+      window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(currentText);
       utterance.lang = "en-US";
       utterance.rate = newRate;
 
       utterance.onboundary = (event: SpeechSynthesisEvent) => {
-        setCurrentCharIndex(currentCharIndex + event.charIndex); // Update the character index
+        setCurrentCharIndex(currentCharIndex + event.charIndex);
       };
 
       utterance.onend = () => {
@@ -103,34 +116,32 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
       };
 
       speechSynthesisRef.current = utterance;
-      window.speechSynthesis.speak(utterance); // Restart speech with updated rate
+      window.speechSynthesis.speak(utterance);
     }
-  };
+  }, [isReading, summary, currentCharIndex]);
 
-  const increaseSpeed = () => {
+  const increaseSpeed = useCallback(() => {
     setSpeechRate((prevRate) => {
       const newRate = Math.min(prevRate + 0.25, 2);
       updateSpeed(newRate);
       return newRate;
     });
-  };
+  }, [updateSpeed]);
 
-  const decreaseSpeed = () => {
+  const decreaseSpeed = useCallback(() => {
     setSpeechRate((prevRate) => {
       const newRate = Math.max(prevRate - 0.25, 0.5);
       updateSpeed(newRate);
       return newRate;
     });
-  };
-
-  const handleClose = () => {
-    handleStop(); // Stop reading when the modal is closed
-    onClose();
-  };
+  }, [updateSpeed]);
 
   if (!isOpen) return null;
 
-  const lines = summary.split("\n");
+  const readTextEndIndex =
+    currentCharIndex > summary.length ? summary.length : currentCharIndex;
+
+  const lines = summary.split('\n');
 
   return (
     <div
@@ -138,49 +149,49 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
       onClick={handleClose}
     >
       <div
-        className="relative bg-gray-800 text-white rounded-lg shadow-lg p-4 md:p-6 w-full max-w-md md:max-w-2xl max-h-[90vh] overflow-hidden"
+        className="relative bg-gradient-to-r from-blue-600 to-slate-700 text-white rounded-lg shadow-lg p-4 md:p-6 w-full max-w-md md:max-w-2xl max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-200 transition-colors"
+          className="absolute top-2 right-2 text-gray-300 hover:text-white transition-colors"
           onClick={handleClose}
           aria-label="Close"
         >
           <FaTimes size={20} />
         </button>
 
-        <h3 className="text-lg md:text-xl font-semibold text-blue-400 mb-4">
+        <h3 className="text-lg md:text-xl font-semibold text-white mb-4">
           Insight Summary
         </h3>
 
-        <div className="flex flex-wrap items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between mb-4 bg-slate-800 p-2 rounded-lg">
           <div className="flex items-center space-x-2">
             <button
-              className="text-xs text-gray-300 hover:text-white transition-all"
+              className="text-gray-300 hover:text-white transition-all"
               onClick={decreaseSpeed}
               aria-label="Decrease Speed"
             >
-              -
+              <FaMinus size={14} />
             </button>
             <span className="text-xs text-gray-300">{speechRate.toFixed(2)}x</span>
             <button
-              className="text-xs text-gray-300 hover:text-white transition-all"
+              className="text-gray-300 hover:text-white transition-all"
               onClick={increaseSpeed}
               aria-label="Increase Speed"
             >
-              +
+              <FaPlus size={14} />
             </button>
           </div>
           <div className="flex items-center space-x-2">
             <button
-              className="text-gray-400 hover:text-white transition-all"
+              className="text-gray-300 hover:text-white transition-all"
               onClick={handleStop}
               aria-label="Stop"
             >
               <FaStop size={16} />
             </button>
             <button
-              className="text-gray-400 hover:text-white transition-all"
+              className="text-gray-300 hover:text-white transition-all"
               onClick={handleReadAloud}
               aria-label={isReading ? (isPaused ? "Resume" : "Pause") : "Play"}
             >
@@ -199,34 +210,25 @@ const SummaryModal: React.FC<SummaryModalProps> = ({
 
         <div
           ref={contentRef}
-          className="text-gray-300 leading-relaxed overflow-y-auto pr-2"
-          style={{ maxHeight: "70vh", whiteSpace: "pre-wrap" }}
+          className="text-gray-200 leading-relaxed overflow-y-auto pr-2"
+          style={{ maxHeight: "70vh" }}
         >
-          {lines.map((line, lineIndex) => {
-            const charStart = summary.indexOf(line);
-            const charEnd = charStart + line.length;
-
-            const isHighlighted =
-              isReading &&
-              currentCharIndex >= charStart &&
-              currentCharIndex < charEnd;
-
-            return (
-              <div
-                key={lineIndex}
-                data-charindex={charStart}
-                style={{
-                  color: isHighlighted ? "cyan" : "inherit",
-                  backgroundColor: isHighlighted
-                    ? "rgba(0, 255, 255, 0.1)"
-                    : "transparent",
-                  padding: "0.2rem 0",
-                }}
-              >
-                {line}
-              </div>
-            );
-          })}
+          {lines.map((line, index) => (
+            <React.Fragment key={index}>
+              {line.split('').map((char, charIndex) => {
+                const globalCharIndex = summary.indexOf(line) + charIndex;
+                return (
+                  <span
+                    key={globalCharIndex}
+                    className={globalCharIndex < readTextEndIndex ? "text-gray-500" : ""}
+                  >
+                    {char}
+                  </span>
+                );
+              })}
+              {index < lines.length - 1 && <br />}
+            </React.Fragment>
+          ))}
         </div>
       </div>
     </div>

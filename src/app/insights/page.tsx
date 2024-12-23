@@ -1,5 +1,3 @@
-// src/pages/InsightPage.tsx
-
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -22,13 +20,17 @@ const InsightPage = () => {
   const [allInsights, setAllInsights] = useState<Insight[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isDragAndDropVisible, setDragAndDropVisible] =
+    useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [selectedSummary, setSelectedSummary] = useState<string | null>(null);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<"success" | "error" | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<"success" | "error" | null>(
+    null
+  );
   const [files, setFiles] = useState<File[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [, setIsLoading] = useState<boolean>(true);
   const insightsFetchedRef = useRef(false);
 
   const { addTask, updateTask, removeTask, setTaskError } = useProgress();
@@ -62,14 +64,16 @@ const InsightPage = () => {
     fetchData();
   }, [isAuthenticated, loading]);
 
-  // Basic search handler
   const handleSearch = useCallback(
     (value: string) => {
       setSearchTerm(value);
       if (value) {
         const filtered = allInsights.filter((insight) =>
           ["name", "issuer"].some((key) =>
-            insight[key as keyof Insight]?.toString().toLowerCase().includes(value.toLowerCase())
+            insight[key as keyof Insight]
+              ?.toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
           )
         );
         setInsights(filtered);
@@ -167,14 +171,13 @@ const InsightPage = () => {
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center px-5 py-8 gap-8">
-      {/* 1. Uploading overlay/spinner */}
+      {/* Uploading overlay/spinner */}
       {isUploading && (
         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-[999]">
           <LoadingSpinner message={`Uploading files... ${uploadProgress}%`} />
         </div>
       )}
 
-      {/* 2. Successful upload */}
       {uploadStatus === "success" && (
         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-[999]">
           <LoadingSpinner
@@ -185,7 +188,6 @@ const InsightPage = () => {
         </div>
       )}
 
-      {/* 3. Error during upload */}
       {uploadStatus === "error" && (
         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-[999]">
           <LoadingSpinner
@@ -196,21 +198,22 @@ const InsightPage = () => {
         </div>
       )}
 
-      {/* 4. Insights loading overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-[999]">
-          <LoadingSpinner message="Loading insights..." />
-        </div>
-      )}
-
-      {/* Search Bar */}
-      <div className="w-full max-w-2xl">
+      {/* Search Bar and Add Button */}
+      <div className="w-full gap-10 max-w-3xl flex items-center justify-between">
         <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
+        {isAdmin && (
+          <button
+            onClick={() => setDragAndDropVisible((prev) => !prev)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500"
+          >
+            {isDragAndDropVisible ? "Close Upload" : "Add Insights"}
+          </button>
+        )}
       </div>
 
-      {/* Drag and Drop for Admin users */}
-      {isAdmin && (
-        <div className="w-full max-w-2xl">
+      {/* Drag and Drop for Admin */}
+      {isAdmin && isDragAndDropVisible && (
+        <div className="w-full max-w-3xl">
           <DragAndDrop
             message="Upload PDF Insights"
             onFilesAdded={handleFilesAdded}
@@ -221,32 +224,24 @@ const InsightPage = () => {
         </div>
       )}
 
-      {/* Insights Grid */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          sm:grid-cols-2
-          md:grid-cols-3
-          lg:grid-cols-4
-          gap-4
-          w-full
-          max-w-7xl
-        "
-      >
+      {/* Insights List */}
+      <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto py-2 relative">
         {insights.length > 0 ? (
           insights.map((insight) => (
-            <SummaryCard
-              key={insight._id}
-              insight={insight}
-              isAdmin={isAdmin}
-              onOpenSummaryModal={setSelectedSummary}
-              onOpenUpdateModal={setSelectedInsight}
-              onDelete={() => handleDelete(insight._id, insight.name)}
-            />
+            <div key={insight._id} className="relative">
+              <SummaryCard
+                insight={insight}
+                isAdmin={isAdmin}
+                onOpenSummaryModal={setSelectedSummary}
+                onOpenUpdateModal={setSelectedInsight}
+                onDelete={() => handleDelete(insight._id, insight.name)}
+              />
+            </div>
           ))
         ) : (
-          <p className="text-gray-600 text-base">No insights found.</p>
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">No insights found.</p>
+          </div>
         )}
       </div>
 

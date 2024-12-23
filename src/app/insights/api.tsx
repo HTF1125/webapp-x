@@ -201,3 +201,31 @@ export async function createInsightWithPDF(pdfBase64: string): Promise<Insight> 
     throw error;
   }
 }
+
+
+export async function updateInsightSummary(id: string): Promise<string> {
+  if (!id) {
+    throw new Error("An ID must be provided to update an insight summary.");
+  }
+
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/${id}/update_summary`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Error updating insight summary:`, errorData);
+      throw new Error(errorData.detail || "Failed to update the insight summary.");
+    }
+
+    console.log(`Insight summary with ID ${id} successfully updated.`);
+    return `Insight summary with ID ${id} successfully updated.`;
+  } catch (error) {
+    console.error(`Unexpected error in updateInsightSummary:`, error);
+    throw new Error(`Failed to update the insight summary: ${error}`);
+  }
+}
