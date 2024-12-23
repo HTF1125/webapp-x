@@ -6,7 +6,7 @@ import Insight from "@/api/all";
 export async function fetchInsights(
   search: string = "",
   skip: number = 0,
-  limit: number = 1000
+  limit: number = 100
 ): Promise<Insight[]> {
   const endpoint = new URL("/api/data/insights/", NEXT_PUBLIC_API_URL);
   endpoint.searchParams.append("skip", skip.toString());
@@ -166,6 +166,38 @@ export async function deleteInsight(id: string): Promise<void> {
     console.log(`Insight with ID ${id} successfully deleted.`);
   } catch (error) {
     console.error(`Unexpected error in deleteInsight:`, error);
+    throw error;
+  }
+}
+
+
+
+
+export async function createInsightWithPDF(pdfBase64: string): Promise<Insight> {
+
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/`;
+
+  try {
+    // Construct the payload with the Base64-encoded PDF content
+    const payload = {
+      content: pdfBase64,
+    };
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload), // Send the content in the body
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Error creating insight with PDF:`, errorData);
+      throw new Error(errorData.detail || "Failed to create insight with PDF");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error(`Unexpected error in createInsightWithPDF:`, error);
     throw error;
   }
 }

@@ -1,11 +1,12 @@
+// app/sign-in/page.tsx
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation"; // Updated import for app directory
-import { useAuth } from "@/components/LoginProvider";
-import { fetchLogin } from "@/api/login";
+import { useAuth } from "@/context/AuthContext"; // Updated import
 
-const SignInPage = () => {
+const SignInPage: React.FC = () => {
   const { login } = useAuth();
   const router = useRouter(); // Updated to next/navigation
   const [username, setUsername] = useState("");
@@ -19,11 +20,10 @@ const SignInPage = () => {
     setError(null);
 
     try {
-      const { access_token } = await fetchLogin(username, password);
-      login(access_token); // Save the access token using the login provider
-      router.back(); // Use the router from next/navigation
+      await login(username, password); // Pass username and password to AuthContext's login
+      router.push("/"); // Redirect to home page after login
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to login.");
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,9 @@ const SignInPage = () => {
               required
             />
           </div>
-          {error && <p className="text-red-500 text-center text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-center text-sm">{error}</p>
+          )}
           <button
             type="submit"
             className={`w-full py-3 px-6 rounded-lg font-semibold focus:outline-none ${
@@ -86,12 +88,12 @@ const SignInPage = () => {
         </form>
         <p className="mt-4 text-center text-sm text-gray-400">
           Do not have an account?
-          <a
+          <Link
             href="/sign-up"
             className="text-indigo-400 hover:underline font-medium"
           >
             Sign up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

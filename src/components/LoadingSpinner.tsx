@@ -1,91 +1,126 @@
-import React, { useEffect } from "react";
+// src/components/LoadingSpinner.tsx
+import React from "react";
 
 interface LoadingSpinnerProps {
   message?: string;
-  progress?: number;
   isComplete?: boolean;
-  isError?: boolean;
-  onClose?: () => void;
   completeMessage?: string;
+  isError?: boolean;
   errorMessage?: string;
+  progress?: number;
+  onClose?: () => void;
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  message = "Loading...",
-  progress,
+  message,
   isComplete = false,
+  completeMessage,
   isError = false,
+  errorMessage,
+  progress,
   onClose,
-  completeMessage = "Completed!",
-  errorMessage = "An error occurred!",
 }) => {
-  // Add key press event listener to handle 'Enter' key for the OK button
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
-        onClose && onClose(); // Trigger the same action as clicking OK
-      }
-    };
+  // Determine the content based on props
+  let content;
 
-    // Only add the listener when the "Completed" or "Error" message is shown
-    if (isComplete || isError) {
-      document.addEventListener("keydown", handleKeyDown);
-    }
-
-    // Cleanup event listener on component unmount or when modal closes
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isComplete, isError, onClose]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex justify-center items-center">
-      <div className="bg-gray-900 text-white p-8 rounded-lg shadow-xl w-96 max-w-sm mx-4 transition-all">
-        {/* Loading State */}
-        {!isComplete && !isError ? (
-          <>
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-24 w-24 border-t-4 border-blue-500"></div>
-              <p className="mt-6 text-xl font-semibold">{message}</p>
-            </div>
-            {progress !== undefined && (
-              <>
-                <div className="w-full bg-gray-800 rounded-full h-2 mt-6">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-                <p className="text-center text-xs text-gray-300 mt-2">
-                  Upload Progress: {progress}%
-                </p>
-              </>
-            )}
-          </>
-        ) : isComplete ? (
-          <>
-            <h2 className="text-xl font-semibold text-green-300 text-center">{completeMessage}</h2>
-            <button
-              className="mt-6 bg-green-500 text-white px-6 py-3 rounded-full hover:bg-green-600 transition-all duration-200 mx-auto block"
-              onClick={onClose}
-            >
+  if (isComplete) {
+    content = (
+      <div style={overlayStyle}>
+        <div style={spinnerContainerStyle}>
+          <div style={iconStyle(isComplete)}>&#10004;</div>
+          <p>{completeMessage}</p>
+          {onClose && (
+            <button style={buttonStyle} onClick={onClose}>
               OK
             </button>
-          </>
-        ) : isError ? (
-          <>
-            <h2 className="text-xl font-semibold text-red-400 text-center">{errorMessage}</h2>
-            <button
-              className="mt-6 bg-red-500 text-white px-6 py-3 rounded-full hover:bg-red-600 transition-all duration-200 mx-auto block"
-              onClick={onClose}
-            >
+          )}
+        </div>
+      </div>
+    );
+  } else if (isError) {
+    content = (
+      <div style={overlayStyle}>
+        <div style={spinnerContainerStyle}>
+          <div style={iconStyle(isError)}>&#10060;</div>
+          <p>{errorMessage}</p>
+          {onClose && (
+            <button style={buttonStyle} onClick={onClose}>
               Close
             </button>
-          </>
-        ) : null}
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    content = (
+      <div style={overlayStyle}>
+        <div style={spinnerContainerStyle}>
+          <style>
+            {`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}
+          </style>
+          <div style={spinnerStyle}></div>
+          <p>{message}</p>
+          {progress !== undefined && (
+            <p style={{ marginTop: "10px" }}>{progress}%</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return <>{content}</>;
+};
+
+// Inline styles
+const overlayStyle: React.CSSProperties = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(26, 32, 44, 0.8)", // Semi-transparent dark overlay
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1001, // Above other elements
+};
+
+const spinnerContainerStyle: React.CSSProperties = {
+  backgroundColor: "#2D3748", // Dark background
+  padding: "20px",
+  borderRadius: "8px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "15px",
+};
+
+const spinnerStyle: React.CSSProperties = {
+  border: "8px solid #f3f3f3",
+  borderTop: "8px solid #3182ce",
+  borderRadius: "50%",
+  width: "60px",
+  height: "60px",
+  animation: "spin 2s linear infinite",
+};
+
+const iconStyle = (isSuccessOrError: boolean) => ({
+  fontSize: "40px",
+  color: isSuccessOrError ? "#38a169" : "#e53e3e", // Green for success, red for error
+});
+
+const buttonStyle: React.CSSProperties = {
+  padding: "8px 16px",
+  backgroundColor: "#3182ce",
+  color: "white",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
 };
 
 export default LoadingSpinner;
