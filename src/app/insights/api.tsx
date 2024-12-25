@@ -20,13 +20,13 @@ export async function fetchInsights({
   limit?: number;
 }): Promise<Insight[]> {
   // Construct the endpoint with query parameters
-  const endpoint = new URL(`/api/insights?skip=${skip}&limit=${limit}`, NEXT_PUBLIC_API_URL);
-
+  const endpoint = new URL("/api/data/insights/", NEXT_PUBLIC_API_URL);
+  endpoint.searchParams.append("skip", skip.toString());
+  endpoint.searchParams.append("limit", limit.toString());
   // Append the search query parameter if provided
   if (search) {
     endpoint.searchParams.append("search", search);
   }
-
   try {
     // Fetch the data from the API
     const response = await fetch(endpoint.toString(), {
