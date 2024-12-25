@@ -1,4 +1,3 @@
-// src/components/FloatingTask.tsx
 import React from "react";
 import { Task } from "./ProgressContext";
 
@@ -38,31 +37,6 @@ const FloatingTask: React.FC<FloatingTaskProps> = ({ task, removeTask }) => {
   const taskNameStyle: React.CSSProperties = {
     fontWeight: "bold",
     fontSize: "16px",
-  };
-
-  const taskProgressStyle: React.CSSProperties = {
-    fontSize: "14px",
-    color: "#CBD5E0",
-  };
-
-  const progressBarStyle: React.CSSProperties = {
-    width: "100%",
-    height: "10px",
-    borderRadius: "5px",
-    backgroundColor: "#4a5568",
-    overflow: "hidden",
-  };
-
-  const progressFillStyle: React.CSSProperties = {
-    height: "100%",
-    borderRadius: "5px",
-    backgroundColor: task.error
-      ? "#e53e3e"
-      : task.completed
-      ? "#4caf50"
-      : "#3182ce",
-    width: `${task.progress}%`,
-    transition: "width 0.5s ease",
   };
 
   const completedStyle: React.CSSProperties = {
@@ -106,13 +80,30 @@ const FloatingTask: React.FC<FloatingTaskProps> = ({ task, removeTask }) => {
     <div style={taskStyle}>
       <div style={headerStyle}>
         <span style={taskNameStyle}>{task.name}</span>
-        {!task.completed && !task.error && (
-          <span style={taskProgressStyle}>{task.progress}%</span>
-        )}
       </div>
       {!task.completed && !task.error ? (
-        <div style={progressBarStyle}>
-          <div style={progressFillStyle}></div>
+        <div
+          style={{
+            width: "100%",
+            height: "20px",
+            borderRadius: "5px",
+            backgroundColor: "#4a5568",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {/* Loading Spinner */}
+          <div
+            style={{
+              width: "20px",
+              height: "20px",
+              border: "3px solid #3182ce",
+              borderTop: "3px solid transparent",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+            }}
+          ></div>
         </div>
       ) : task.error ? (
         <div style={errorStyle}>{task.error}</div>

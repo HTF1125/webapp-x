@@ -1,4 +1,3 @@
-// src/context/Progress/ProgressContext.tsx
 import React, {
   createContext,
   useReducer,
@@ -16,7 +15,6 @@ export interface Task {
   id: string;
   name: string;
   completed: boolean;
-  progress: number;
   createdAt: Date;
   error?: string; // Optional error message
 }
@@ -24,7 +22,7 @@ export interface Task {
 // Define the actions for the reducer
 type Action =
   | { type: "ADD_TASK"; payload: { id: string; name: string } }
-  | { type: "UPDATE_TASK"; payload: { id: string; newProgress: number } }
+  | { type: "UPDATE_TASK"; payload: { id: string; completed: boolean } }
   | { type: "SET_TASK_ERROR"; payload: { id: string; error: string } }
   | { type: "REMOVE_TASK"; payload: { id: string } }
   | { type: "SET_TASKS"; payload: { tasks: Task[] } };
@@ -33,7 +31,7 @@ type Action =
 interface ProgressContextValue {
   tasks: Task[];
   addTask: (name: string) => string;
-  updateTask: (id: string, newProgress: number) => void;
+  updateTask: (id: string, completed: boolean) => void;
   setTaskError: (id: string, error: string) => void;
   removeTask: (id: string) => void;
 }
@@ -52,7 +50,6 @@ const taskReducer = (state: Task[], action: Action): Task[] => {
         id: action.payload.id,
         name: action.payload.name,
         completed: false,
-        progress: 0,
         createdAt: new Date(),
       };
       return [...state, newTask];
@@ -62,8 +59,7 @@ const taskReducer = (state: Task[], action: Action): Task[] => {
         task.id === action.payload.id
           ? {
               ...task,
-              progress: Math.min(Math.max(action.payload.newProgress, 0), 100),
-              completed: action.payload.newProgress >= 100,
+              completed: action.payload.completed,
               error: undefined, // Reset error on progress update
             }
           : task
@@ -72,7 +68,7 @@ const taskReducer = (state: Task[], action: Action): Task[] => {
     case "SET_TASK_ERROR":
       return state.map((task) =>
         task.id === action.payload.id
-          ? { ...task, error: action.payload.error, progress: 100, completed: true }
+          ? { ...task, error: action.payload.error, completed: true }
           : task
       );
 
@@ -135,8 +131,8 @@ export const ProgressProvider: React.FC<ProgressProviderProps> = ({
   }, []);
 
   const updateTask = useCallback(
-    (id: string, newProgress: number): void => {
-      dispatch({ type: "UPDATE_TASK", payload: { id, newProgress } });
+    (id: string, completed: boolean): void => {
+      dispatch({ type: "UPDATE_TASK", payload: { id, completed } });
     },
     []
   );

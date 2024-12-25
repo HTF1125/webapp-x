@@ -11,7 +11,7 @@ import {
   Settings,
   Crown,
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/Auth/AuthContext";
 
 const NavbarUser: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,10 +20,7 @@ const NavbarUser: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };

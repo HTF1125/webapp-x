@@ -1,8 +1,13 @@
 // utils/fetchInsights.ts
 
 import { NEXT_PUBLIC_API_URL } from "@/config";
-import Insight from "@/api/all";
-
+export interface Insight {
+  _id: string;
+  issuer: string;
+  name: string;
+  published_date: string; // ISO format date (e.g., "2024-12-06")
+  summary?: string | null;
+}
 export async function fetchInsights(
   search: string = "",
   skip: number = 0,
@@ -143,7 +148,6 @@ export async function fetchTacticalView(): Promise<TacticalView> {
   }
 }
 
-
 export async function deleteInsight(id: string): Promise<void> {
   if (!id) {
     throw new Error("An ID must be provided to delete an insight");
@@ -170,12 +174,10 @@ export async function deleteInsight(id: string): Promise<void> {
   }
 }
 
-
-
-
-export async function createInsightWithPDF(pdfBase64: string): Promise<Insight> {
-
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/`;
+export async function createInsightWithPDF(
+  pdfBase64: string
+): Promise<Insight> {
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/frompdf`;
 
   try {
     // Construct the payload with the Base64-encoded PDF content
@@ -202,7 +204,6 @@ export async function createInsightWithPDF(pdfBase64: string): Promise<Insight> 
   }
 }
 
-
 export async function updateInsightSummary(id: string): Promise<string> {
   if (!id) {
     throw new Error("An ID must be provided to update an insight summary.");
@@ -218,14 +219,13 @@ export async function updateInsightSummary(id: string): Promise<string> {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error(`Error updating insight summary:`, errorData);
-      throw new Error(errorData.detail || "Failed to update the insight summary.");
+      throw new Error(
+        errorData.detail || "Failed to update the insight summary."
+      );
     }
 
-    console.log(`Insight summary with ID ${id} successfully updated.`);
-    return `Insight summary with ID ${id} successfully updated.`;
+    return response.json();
   } catch (error) {
-    console.error(`Unexpected error in updateInsightSummary:`, error);
     throw new Error(`Failed to update the insight summary: ${error}`);
   }
 }

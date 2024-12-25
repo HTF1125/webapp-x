@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Updated import for app directory
-import { useAuth } from "@/context/AuthContext"; // Updated import
+import { useAuth } from "@/context/Auth/AuthContext"; // Updated import
 
 const SignInPage: React.FC = () => {
   const { login } = useAuth();

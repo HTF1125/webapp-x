@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFilePdf, FaEdit, FaTrash, FaEllipsisV, FaSync } from "react-icons/fa";
-import { Insight } from "@/api/all";
-import { updateInsightSummary } from "./api";
+import { Insight } from "./api";
 
 interface SummaryCardProps {
   insight: Insight;
@@ -9,6 +8,7 @@ interface SummaryCardProps {
   onOpenSummaryModal: (summary: string) => void;
   onOpenUpdateModal: (insight: Insight) => void;
   onDelete: () => void;
+  onUpdateSummary: (updatedInsight: Insight) => void; // New prop to handle summary update
 }
 
 const SummaryCard: React.FC<SummaryCardProps> = ({
@@ -17,6 +17,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   onOpenSummaryModal,
   onOpenUpdateModal,
   onDelete,
+  onUpdateSummary, // Add the onUpdateSummary prop
 }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -30,7 +31,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setDropdownOpen(false);
+        setDropdownOpen(false); // Close dropdown if clicked outside
       }
     };
 
@@ -41,20 +42,16 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   }, []);
 
   const handleDropdownToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setDropdownOpen((prev) => !prev);
+    e.stopPropagation(); // Prevent event bubbling
+    setDropdownOpen((prev) => !prev); // Toggle the dropdown visibility
   };
 
   const handleUpdateSummary = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      setDropdownOpen(false);
-      const result = await updateInsightSummary(insight._id);
-      alert(result);
-    } catch (error) {
-      console.error("Error updating summary:", error);
-      alert("Failed to update the insight summary. Please try again.");
-    }
+
+    // Call the passed down onUpdateSummary function to update the summary
+    onUpdateSummary(insight);
+    setDropdownOpen(false); // Close dropdown after updating summary
   };
 
   const handlePdfClick = (e: React.MouseEvent) => {
@@ -136,7 +133,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
             Edit
           </button>
           <button
-            onClick={handleUpdateSummary}
+            onClick={handleUpdateSummary} // Update summary button calls onUpdateSummary
             className="block w-full text-left px-4 py-2 hover:bg-slate-700"
           >
             <FaSync className="inline-block mr-2 text-green-400" />

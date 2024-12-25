@@ -2,7 +2,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider } from "@/context/Auth/AuthContext";
 import { ProgressProvider } from "@/context/Progress/ProgressContext";
 interface ProvidersProps {
   children: ReactNode;

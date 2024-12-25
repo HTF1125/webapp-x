@@ -356,17 +356,6 @@ export async function fetchResearchFileByCode(
   return new Uint8Array(buffer); // Convert ArrayBuffer to Uint8Array
 }
 
-export interface Insight {
-  _id: string;
-  issuer: string;
-  name: string;
-  published_date: string; // ISO format date (e.g., "2024-12-06")
-  summary?: string | null;
-}
-
-export default Insight;
-
-
 export interface Ticker {
   _id : string;
   code: string; // Unique identifier
@@ -413,41 +402,3 @@ export async function fetchTickers(): Promise<Ticker[]> {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export async function fetchInsights(skip = 0, limit = 100): Promise<Insight[]> {
-  const endpoint = new URL("/api/data/insights/", API_URL);
-  endpoint.searchParams.append("skip", skip.toString());
-  endpoint.searchParams.append("limit", limit.toString());
-
-  const response = await fetch(endpoint.toString(), {
-    method: "GET", // Explicitly specifying the GET method
-    headers: {
-      Accept: "application/json",
-    },
-    next: { revalidate: 60 },
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error(`Error fetching insights:`, errorData);
-    throw new Error(errorData.error || "Failed to fetch insights");
-  }
-
-  const data: Insight[] = await response.json();
-  return data;
-}

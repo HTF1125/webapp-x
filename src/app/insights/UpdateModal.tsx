@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Insight from "@/api/all";
+import { Insight } from "./api";
 import { NEXT_PUBLIC_API_URL } from "@/config";
 
 // Utility to convert PDF to Base64

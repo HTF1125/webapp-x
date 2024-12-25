@@ -2,16 +2,22 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { fetchInsights, createInsightWithPDF, deleteInsight } from "./api";
+import {
+  Insight,
+  fetchInsights,
+  createInsightWithPDF,
+  deleteInsight,
+  updateInsightSummary,
+} from "./api";
 import DragAndDrop from "@/components/DragAndDrop";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SearchBar from "@/components/SearchBar";
 import SummaryModal from "./SummaryModal";
 import UpdateModal from "./UpdateModal";
-import { Insight } from "@/api/all";
 import SummaryCard from "./SummaryCard";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/Auth/AuthContext";
 import { useProgress } from "@/context/Progress/ProgressContext";
+import InsightSourceList from "./InsightSource/SourceList";
 
 const InsightPage = () => {
   const router = useRouter();
@@ -146,17 +152,42 @@ const InsightPage = () => {
     const taskId = addTask(taskName);
 
     try {
-      updateTask(taskId, 50);
+      updateTask(taskId, false);
       await deleteInsight(id);
 
       setAllInsights((prev) => prev.filter((item) => item._id !== id));
       setInsights((prev) => prev.filter((item) => item._id !== id));
 
-      updateTask(taskId, 100);
+      updateTask(taskId, true);
       setTimeout(() => removeTask(taskId), 2000);
     } catch (error) {
       console.error("Error deleting insight:", error);
       setTaskError(taskId, "Failed to delete insight. Please try again.");
+      setTimeout(() => removeTask(taskId), 4000);
+    }
+  };
+
+  const handleUpdateSummary = async (updatedInsight: Insight) => {
+    const taskName = `Updating Summary for ${updatedInsight.name}`;
+    const taskId = addTask(taskName);
+
+    try {
+      updateTask(taskId, false);
+      const summary = await updateInsightSummary(updatedInsight._id);
+
+      // Use the result from the API to update the summary in the state
+      const updatedInsights = insights.map((insight) =>
+        insight._id === updatedInsight._id
+          ? { ...insight, summary: summary } // Use the updated summary from the API response
+          : insight
+      );
+      setInsights(updatedInsights);
+
+      updateTask(taskId, true);
+      setTimeout(() => removeTask(taskId), 2000);
+    } catch (error) {
+      console.error("Error updating summary:", error);
+      setTaskError(taskId, "Failed to update summary. Please try again.");
       setTimeout(() => removeTask(taskId), 4000);
     }
   };
@@ -172,6 +203,7 @@ const InsightPage = () => {
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center px-5 py-8 gap-8">
       {/* Uploading overlay/spinner */}
+
       {isUploading && (
         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-[999]">
           <LoadingSpinner message={`Uploading files... ${uploadProgress}%`} />
@@ -226,6 +258,7 @@ const InsightPage = () => {
 
       {/* Insights List */}
       <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto py-2 relative">
+        <InsightSourceList />
         {insights.length > 0 ? (
           insights.map((insight) => (
             <div key={insight._id} className="relative">
@@ -235,6 +268,7 @@ const InsightPage = () => {
                 onOpenSummaryModal={setSelectedSummary}
                 onOpenUpdateModal={setSelectedInsight}
                 onDelete={() => handleDelete(insight._id, insight.name)}
+                onUpdateSummary={handleUpdateSummary} // Pass the update handler here
               />
             </div>
           ))
