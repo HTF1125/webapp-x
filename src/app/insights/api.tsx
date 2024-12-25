@@ -8,24 +8,31 @@ export interface Insight {
   published_date: string; // ISO format date (e.g., "2024-12-06")
   summary?: string | null;
 }
-export async function fetchInsights(
-  search: string = "",
-  skip: number = 0,
-  limit: number = 100
-): Promise<Insight[]> {
-  const endpoint = new URL("/api/data/insights/", NEXT_PUBLIC_API_URL);
-  endpoint.searchParams.append("skip", skip.toString());
-  endpoint.searchParams.append("limit", limit.toString());
 
+
+export async function fetchInsights({
+  search = "",
+  skip = 0,
+  limit = 100,
+}: {
+  search?: string;
+  skip?: number;
+  limit?: number;
+}): Promise<Insight[]> {
+  // Construct the endpoint with query parameters
+  const endpoint = new URL(`/api/insights?skip=${skip}&limit=${limit}`, NEXT_PUBLIC_API_URL);
+
+  // Append the search query parameter if provided
   if (search) {
     endpoint.searchParams.append("search", search);
   }
 
   try {
+    // Fetch the data from the API
     const response = await fetch(endpoint.toString(), {
       method: "GET",
       headers: { Accept: "application/json" },
-      cache: "no-store",
+      cache: "no-store", // Avoid cache for fresh data
     });
 
     if (!response.ok) {
@@ -36,10 +43,11 @@ export async function fetchInsights(
 
     const data: Insight[] = await response.json();
 
+    // Sort the data by `published_date` in descending order
     return data.sort((a, b) => {
       const dateA = new Date(a.published_date).getTime();
       const dateB = new Date(b.published_date).getTime();
-      return dateB - dateA;
+      return dateB - dateA; // Sort by most recent first
     });
   } catch (error) {
     console.error(`Unexpected error in fetchInsights:`, error);

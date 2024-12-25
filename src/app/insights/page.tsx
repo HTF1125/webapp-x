@@ -18,6 +18,7 @@ import SummaryCard from "./SummaryCard";
 import { useAuth } from "@/context/Auth/AuthContext";
 import { useProgress } from "@/context/Progress/ProgressContext";
 import InsightSourceList from "./InsightSource/SourceList";
+import Switch from "@/components/ui/swtich"; // Import the Switch component
 
 const InsightPage = () => {
   const router = useRouter();
@@ -26,17 +27,18 @@ const InsightPage = () => {
   const [allInsights, setAllInsights] = useState<Insight[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [isDragAndDropVisible, setDragAndDropVisible] =
-    useState<boolean>(false);
+  const [isDragAndDropVisible, setDragAndDropVisible] = useState<boolean>(false); // Switch state for Drag and Drop
+  const [isInsightSourceVisible, setInsightSourceVisible] = useState<boolean>(false); // Switch state for Insight Source List
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [selectedSummary, setSelectedSummary] = useState<string | null>(null);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<"success" | "error" | null>(
-    null
-  );
+  const [uploadStatus, setUploadStatus] = useState<"success" | "error" | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [, setIsLoading] = useState<boolean>(true);
+  const [insightsLoadedCount, setInsightsLoadedCount] = useState<number>(0); // Track number of insights loaded
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false); // Loading state for load more insights
+  const [skip, setSkip] = useState<number>(0); // Track the number of insights already loaded
   const insightsFetchedRef = useRef(false);
 
   const { addTask, updateTask, removeTask, setTaskError } = useProgress();
@@ -54,10 +56,13 @@ const InsightPage = () => {
 
       try {
         setIsLoading(true);
-        const fetchedInsights = await fetchInsights();
+        // Fetch the first batch of insights
+        const fetchedInsights = await fetchInsights({ skip: 0, limit: 100 });
         if (Array.isArray(fetchedInsights)) {
           setAllInsights(fetchedInsights);
           setInsights(fetchedInsights);
+          setInsightsLoadedCount(fetchedInsights.length); // Set the number of insights loaded
+          setSkip(100); // Set skip to 10 after initial load
           insightsFetchedRef.current = true;
         }
       } catch (error) {
@@ -84,11 +89,33 @@ const InsightPage = () => {
         );
         setInsights(filtered);
       } else {
-        setInsights(allInsights);
+        // Reset search, show the number of insights loaded
+        setInsights(allInsights.slice(0, insightsLoadedCount)); // Show the number of insights currently loaded
       }
     },
-    [allInsights]
+    [allInsights, insightsLoadedCount]
   );
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+
+    try {
+      // Fetch the next set of insights using skip and limit
+      const nextInsights = await fetchInsights({ skip: skip, limit: 100 });
+
+      if (Array.isArray(nextInsights)) {
+        setInsights((prev) => [...prev, ...nextInsights]);
+
+        // Update the insightsLoadedCount and skip
+        setInsightsLoadedCount((prev) => prev + nextInsights.length);
+        setSkip((prev) => prev + 100); // Increment skip by the limit value (10)
+      }
+    } catch (error) {
+      console.error("Error fetching more insights:", error);
+    }
+
+    setIsLoadingMore(false);
+  };
 
   const handleFilesAdded = (addedFiles: File[]) => {
     setFiles(addedFiles);
@@ -201,9 +228,8 @@ const InsightPage = () => {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center px-5 py-8 gap-8">
+    <div className="relative min-h-screen w-full flex flex-col items-center px-5 py-8 gap-4">
       {/* Uploading overlay/spinner */}
-
       {isUploading && (
         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-[999]">
           <LoadingSpinner message={`Uploading files... ${uploadProgress}%`} />
@@ -230,18 +256,26 @@ const InsightPage = () => {
         </div>
       )}
 
-      {/* Search Bar and Add Button */}
+      {/* Search Bar and Switch for Drag and Drop and Insight Source */}
       <div className="w-full gap-10 max-w-3xl flex items-center justify-between">
         <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
-        {isAdmin && (
-          <button
-            onClick={() => setDragAndDropVisible((prev) => !prev)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500"
-          >
-            {isDragAndDropVisible ? "Close Upload" : "Add Insights"}
-          </button>
-        )}
       </div>
+
+      {/* Switch for Drag and Drop and Insight Source List */}
+      {isAdmin && (
+        <div className="flex items-center gap-10 mt-2">
+            <Switch
+              label="Enable PDF Upload"
+              defaultChecked={isDragAndDropVisible}
+              onChange={(checked) => setDragAndDropVisible(checked)}
+            />
+            <Switch
+              label="Show Insight Sources"
+              defaultChecked={isInsightSourceVisible}
+              onChange={(checked) => setInsightSourceVisible(checked)}
+            />
+        </div>
+      )}
 
       {/* Drag and Drop for Admin */}
       {isAdmin && isDragAndDropVisible && (
@@ -257,8 +291,27 @@ const InsightPage = () => {
       )}
 
       {/* Insights List */}
+      {isInsightSourceVisible && (
+        <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto py-2 relative">
+          <InsightSourceList />
+        </div>
+      )}
+
       <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto py-2 relative">
-        <InsightSourceList />
+        <p className="text-center text-lg font-semibold">
+          {insightsLoadedCount} Insights Loaded
+        </p>
+
+
+        <div className="w-full flex justify-center mt-4">
+            <button
+              onClick={handleLoadMore}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500"
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? "Loading..." : "Load More Insights"}
+            </button>
+          </div>
         {insights.length > 0 ? (
           insights.map((insight) => (
             <div key={insight._id} className="relative">
@@ -268,7 +321,7 @@ const InsightPage = () => {
                 onOpenSummaryModal={setSelectedSummary}
                 onOpenUpdateModal={setSelectedInsight}
                 onDelete={() => handleDelete(insight._id, insight.name)}
-                onUpdateSummary={handleUpdateSummary} // Pass the update handler here
+                onUpdateSummary={handleUpdateSummary}
               />
             </div>
           ))
@@ -277,7 +330,11 @@ const InsightPage = () => {
             <p className="text-gray-600 text-lg">No insights found.</p>
           </div>
         )}
+
+
       </div>
+
+
 
       {/* Update Modal */}
       {selectedInsight && (

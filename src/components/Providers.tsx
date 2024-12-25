@@ -4,6 +4,8 @@
 import React, { ReactNode } from "react";
 import { AuthProvider } from "@/context/Auth/AuthContext";
 import { ProgressProvider } from "@/context/Progress/ProgressContext";
+import { TaskProvider } from "@/context/Task/TaskContext";
+
 interface ProvidersProps {
   children: ReactNode;
 }
@@ -11,7 +13,9 @@ interface ProvidersProps {
 const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
     <AuthProvider>
-      <ProgressProvider>{children}</ProgressProvider>
+      <ProgressProvider>
+        <TaskProvider>{children}</TaskProvider>
+      </ProgressProvider>
     </AuthProvider>
   );
 };

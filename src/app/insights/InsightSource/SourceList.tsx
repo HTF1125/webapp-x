@@ -8,6 +8,7 @@ import {
   UrlData,
 } from "./api"; // Adjust path as needed
 import { FaTimes } from "react-icons/fa"; // Import the "X" icon for the delete button
+import Image from "next/image";  // Import Image from next/image for optimization
 
 const InsightSourceList: React.FC = () => {
   const [sources, setSources] = useState<InsightSource[]>([]);
@@ -46,26 +47,26 @@ const InsightSourceList: React.FC = () => {
     return <p style={{ color: "#f44336" }}>Error: {error}</p>;
   }
 
-// Format the last visited date to show date (YYYY-MM-DD) and time (HH:mm)
-const formatLastVisited = (date: string) => {
-  const lastVisitedDate = new Date(date);
+  // Format the last visited date to show date (YYYY-MM-DD) and time (HH:mm)
+  const formatLastVisited = (date: string) => {
+    const lastVisitedDate = new Date(date);
 
-  // Format the date part (YYYY-MM-DD)
-  const formattedDate = lastVisitedDate.toLocaleDateString([], {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+    // Format the date part (YYYY-MM-DD)
+    const formattedDate = lastVisitedDate.toLocaleDateString([], {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
 
-  // Format the time part (HH:mm)
-  const formattedTime = lastVisitedDate.toLocaleString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false, // Optional: to use 24-hour format
-  });
+    // Format the time part (HH:mm)
+    const formattedTime = lastVisitedDate.toLocaleString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // Optional: to use 24-hour format
+    });
 
-  return `${formattedDate} ${formattedTime}`;
-};
+    return `${formattedDate} ${formattedTime}`;
+  };
 
   const handleOpenLink = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -246,7 +247,6 @@ const formatLastVisited = (date: string) => {
             style={{
               border: "1px solid #444",
               borderRadius: "8px",
-              // backgroundColor: "#1e1e1e",
               padding: "10px",
               cursor: "pointer",
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
@@ -259,7 +259,7 @@ const formatLastVisited = (date: string) => {
             }
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
           >
-            {/* Favicon - Smaller and positioned to the left */}
+            {/* Favicon - Using Next.js Image component */}
             <div
               style={{
                 display: "flex",
@@ -267,19 +267,19 @@ const formatLastVisited = (date: string) => {
                 marginBottom: "8px", // Reduced margin
               }}
             >
-              <img
+              <Image
                 src={`https://www.google.com/s2/favicons?domain=${source.url}`}
                 alt={source.name || "No name"}
+                width={20}  // Set width for the favicon
+                height={20} // Set height for the favicon
                 style={{
-                  width: "20px", // Reduced size of the favicon
-                  height: "20px",
                   borderRadius: "50%",
                   objectFit: "cover",
                 }}
               />
             </div>
 
-            {/* Display source name */}
+            {/* Other content remains unchanged */}
             <h3
               style={{
                 color: "#fff",

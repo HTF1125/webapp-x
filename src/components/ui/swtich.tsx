@@ -1,31 +1,48 @@
-"use client";
+import { useState } from 'react';
 
-import * as React from "react";
-import * as SwitchPrimitives from "@radix-ui/react-switch";
+interface SwitchProps {
+  label?: string;
+  defaultChecked?: boolean;
+  onChange?: (checked: boolean) => void;
+}
 
-// Define the Switch component
-const Switch = React.forwardRef<
-  React.ElementRef<typeof SwitchPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
->(({ className, ...props }, ref) => (
-  <SwitchPrimitives.Root
-    className={[
-      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
-      "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
-      className, // This allows custom wclassName to be passed as well
-    ].join(" ")}
-    {...props}
-    ref={ref}
-  >
-    <SwitchPrimitives.Thumb
-      className={[
-        "pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform",
-        "data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0",
-      ].join(" ")}
-    />
-  </SwitchPrimitives.Root>
-));
+const Switch: React.FC<SwitchProps> = ({ label, defaultChecked = false, onChange }) => {
+  const [isChecked, setIsChecked] = useState<boolean>(defaultChecked);
 
-Switch.displayName = SwitchPrimitives.Root.displayName;
+  const handleChange = () => {
+    setIsChecked((prevChecked) => !prevChecked);
+    if (onChange) onChange(!isChecked);
+  };
 
-export { Switch };
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {label && <label style={{ marginRight: 8 }}>{label}</label>}
+      <div
+        onClick={handleChange}
+        style={{
+          cursor: 'pointer',
+          width: '50px',
+          height: '24px',
+          borderRadius: '50px',
+          backgroundColor: isChecked ? '#4CAF50' : '#ccc',
+          position: 'relative',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: '2px',
+            left: isChecked ? '26px' : '2px',
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            backgroundColor: 'white',
+            transition: 'left 0.2s',
+          }}
+        ></div>
+      </div>
+    </div>
+  );
+};
+
+export default Switch;

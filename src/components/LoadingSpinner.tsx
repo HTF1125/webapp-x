@@ -1,4 +1,3 @@
-// src/components/LoadingSpinner.tsx
 import React from "react";
 
 interface LoadingSpinnerProps {
@@ -25,12 +24,15 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   if (isComplete) {
     content = (
-      <div style={overlayStyle}>
-        <div style={spinnerContainerStyle}>
-          <div style={iconStyle(isComplete)}>&#10004;</div>
-          <p>{completeMessage}</p>
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center gap-6 w-72">
+          <div className="text-green-500 text-4xl">&#10004;</div>
+          <p className="text-white text-lg text-center">{completeMessage}</p>
           {onClose && (
-            <button style={buttonStyle} onClick={onClose}>
+            <button
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
+              onClick={onClose}
+            >
               OK
             </button>
           )}
@@ -39,12 +41,15 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     );
   } else if (isError) {
     content = (
-      <div style={overlayStyle}>
-        <div style={spinnerContainerStyle}>
-          <div style={iconStyle(isError)}>&#10060;</div>
-          <p>{errorMessage}</p>
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center gap-6 w-72">
+          <div className="text-red-500 text-4xl">&#10060;</div>
+          <p className="text-white text-lg text-center">{errorMessage}</p>
           {onClose && (
-            <button style={buttonStyle} onClick={onClose}>
+            <button
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+              onClick={onClose}
+            >
               Close
             </button>
           )}
@@ -53,20 +58,12 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     );
   } else {
     content = (
-      <div style={overlayStyle}>
-        <div style={spinnerContainerStyle}>
-          <style>
-            {`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}
-          </style>
-          <div style={spinnerStyle}></div>
-          <p>{message}</p>
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center gap-6 w-72">
+          <div className="border-8 border-t-8 border-gray-300 border-t-blue-500 rounded-full w-16 h-16 animate-spin"></div>
+          <p className="text-white text-lg text-center">{message}</p>
           {progress !== undefined && (
-            <p style={{ marginTop: "10px" }}>{progress}%</p>
+            <p className="text-white text-md">{progress}%</p>
           )}
         </div>
       </div>
@@ -74,53 +71,6 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   }
 
   return <>{content}</>;
-};
-
-// Inline styles
-const overlayStyle: React.CSSProperties = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "rgba(26, 32, 44, 0.8)", // Semi-transparent dark overlay
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 1001, // Above other elements
-};
-
-const spinnerContainerStyle: React.CSSProperties = {
-  backgroundColor: "#2D3748", // Dark background
-  padding: "20px",
-  borderRadius: "8px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: "15px",
-};
-
-const spinnerStyle: React.CSSProperties = {
-  border: "8px solid #f3f3f3",
-  borderTop: "8px solid #3182ce",
-  borderRadius: "50%",
-  width: "60px",
-  height: "60px",
-  animation: "spin 2s linear infinite",
-};
-
-const iconStyle = (isSuccessOrError: boolean) => ({
-  fontSize: "40px",
-  color: isSuccessOrError ? "#38a169" : "#e53e3e", // Green for success, red for error
-});
-
-const buttonStyle: React.CSSProperties = {
-  padding: "8px 16px",
-  backgroundColor: "#3182ce",
-  color: "white",
-  border: "none",
-  borderRadius: "4px",
-  cursor: "pointer",
 };
 
 export default LoadingSpinner;
