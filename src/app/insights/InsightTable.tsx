@@ -15,6 +15,7 @@ import DragAndDrop from "@/components/DragAndDrop";
 import SummarySheet from "./SummarySheet";
 import EditInsight from "./EditInsight";
 import { useInsights } from "./InsightHook";
+import SourceList from "./SourceList"; // Import SourceList
 
 // Helper function to convert a file (PDF) to base64
 const convertFileToBase64 = (file: File): Promise<string> => {
@@ -80,6 +81,7 @@ const InsightTable = () => {
   const [, setUploadStatus] = useState<"success" | "error" | null>(null);
   const [isDragAndDropVisible, setIsDragAndDropVisible] = useState<boolean>(false);
   const [isHandlingFiles, setIsHandlingFiles] = useState<boolean>(false);
+  const [isSourceListVisible, setIsSourceListVisible] = useState<boolean>(false); // Add state for SourceList visibility
 
   const handleFilesAdded = async (files: File[]) => {
     if (isHandlingFiles || files.length === 0) return;
@@ -185,17 +187,23 @@ const InsightTable = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-6">
+    <div className="min-h-screen max-w-5xl bg-black text-white flex flex-col items-center px-4 py-6">
       {/* Header, Search, and Actions */}
       <div className="w-full flex items-center justify-between px-4 py-2 mb-6">
-        <div className="flex items-center space-x-4 w-full max-w-5xl">
+        <div className="flex items-center space-x-4 w-full">
           <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
           <div className="flex space-x-4">
             <Button
               onClick={() => setIsDragAndDropVisible((prev) => !prev)}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 z-10"
             >
-              {isDragAndDropVisible ? "Hide Upload Area" : "Show Upload Area"}
+              {isDragAndDropVisible ? "Upload Complete" : "Upload PDF"}
+            </Button>
+            <Button
+              onClick={() => setIsSourceListVisible((prev) => !prev)} // Toggle SourceList visibility
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              {isSourceListVisible ? "Hide Source List" : "Show Source List"}
             </Button>
           </div>
         </div>
@@ -207,6 +215,9 @@ const InsightTable = () => {
           <DragAndDrop message="Upload PDF Insights" onFilesAdded={handleFilesAdded} />
         </div>
       )}
+
+      {/* SourceList visibility toggled here */}
+      {isSourceListVisible && <SourceList />}
 
       {/* Table Container */}
       <div className="w-full max-w-5xl bg-black border border-gray-700 rounded shadow-lg overflow-hidden z-0">

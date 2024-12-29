@@ -26,20 +26,16 @@ export const useInsights = () => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
-    const taskId = addTask("Fetching insights");
     try {
       const data = await fetchInsights({ skip: 0, limit: 100 });
       setAllInsights(data);
       setInsights(data);
-      updateTask(taskId, true);
     } catch (error) {
       console.error("Error fetching insights:", error);
-      setTaskError(taskId, "Failed to fetch insights");
     } finally {
       isFetchingRef.current = false;
-      removeTask(taskId);
     }
-  }, [addTask, updateTask, setTaskError]); // Removed removeTask from dependencies
+  }, [addTask, updateTask, setTaskError]);
 
   const handleSearch = useCallback(
     (term: string) => {

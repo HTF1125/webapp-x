@@ -1,13 +1,17 @@
+"use client";
+
 import { NEXT_PUBLIC_API_URL } from "@/config";
 
-// Define the TypeScript type for an InsightSource
-export interface InsightSource {
-  _id?: string;
+export interface CreateInsightSource {
   url: string;
-  name: string | null;
-  frequency: string | null;
-  last_visited: string | null;
+  name: string;
+  frequency: string;
+  last_visited: string;
   remark: string | null;
+}
+
+export interface InsightSource extends CreateInsightSource {
+  _id: string;
 }
 
 // Fetch all insight sources
@@ -70,7 +74,7 @@ export async function updateInsightSource(
     throw new Error("_id must be provided when updating an insight source.");
   }
 
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/insightsources/${insightSource._id}`;
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/insightsources`;
   try {
     const response = await fetch(endpoint, {
       method: "PUT",
