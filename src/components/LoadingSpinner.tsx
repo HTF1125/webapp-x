@@ -24,13 +24,13 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   if (isComplete) {
     content = (
-      <div className="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center gap-6 w-72">
-          <div className="text-green-500 text-4xl">&#10004;</div>
+      <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+        <div className="bg-gray-900 p-8 rounded-lg shadow-xl flex flex-col items-center gap-6 w-80 max-w-md">
+          <div className="text-green-500 text-5xl">&#10004;</div>
           <p className="text-white text-lg text-center">{completeMessage}</p>
           {onClose && (
             <button
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-all"
               onClick={onClose}
             >
               OK
@@ -41,13 +41,13 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     );
   } else if (isError) {
     content = (
-      <div className="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center gap-6 w-72">
-          <div className="text-red-500 text-4xl">&#10060;</div>
+      <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+        <div className="bg-gray-900 p-8 rounded-lg shadow-xl flex flex-col items-center gap-6 w-80 max-w-md">
+          <div className="text-red-500 text-5xl">&#10060;</div>
           <p className="text-white text-lg text-center">{errorMessage}</p>
           {onClose && (
             <button
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-all"
               onClick={onClose}
             >
               Close
@@ -58,12 +58,12 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     );
   } else {
     content = (
-      <div className="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center gap-6 w-72">
-          <div className="border-8 border-t-8 border-gray-300 border-t-blue-500 rounded-full w-16 h-16 animate-spin"></div>
+      <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+        <div className="bg-gray-900 p-8 rounded-lg shadow-xl flex flex-col items-center gap-6 w-80 max-w-md">
+          <div className="border-8 border-t-8 border-gray-600 border-t-blue-500 rounded-full w-20 h-20 animate-spin"></div>
           <p className="text-white text-lg text-center">{message}</p>
           {progress !== undefined && (
-            <p className="text-white text-md">{progress}%</p>
+            <p className="text-white text-lg">{progress}%</p>
           )}
         </div>
       </div>

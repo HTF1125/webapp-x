@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-gray-900 bg-opacity-95 border-b border-gray-700 shadow-lg">
+    <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-black bg-opacity-95 border-b border-gray-700 shadow-lg">
       <div className="container flex h-16 items-center justify-between mx-auto px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center">

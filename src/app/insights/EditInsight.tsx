@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Insight } from "./api";
+"use client";
+
+import React, { useState } from "react";
+import { Insight } from "./InsightApi";
 import { NEXT_PUBLIC_API_URL } from "@/config";
 
 // Utility to convert PDF to Base64
@@ -18,18 +20,16 @@ export const convertPdfToBase64 = (file: File): Promise<string> => {
   });
 };
 
-interface UpdateModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface EditInsightProps {
   currentInsight?: Partial<Insight>; // The insight to edit (if editing)
   onSaveComplete: (updatedInsight: Insight) => void; // Callback to refresh insights
+  onClose: () => void; // Callback to close the modal
 }
 
-const UpdateModal: React.FC<UpdateModalProps> = ({
-  isOpen,
-  onClose,
+const EditInsight: React.FC<EditInsightProps> = ({
   currentInsight = {}, // Default to an empty object for adding a new insight
   onSaveComplete,
+  onClose,
 }) => {
   const [insightData, setInsightData] = useState<Partial<Insight>>(
     currentInsight
@@ -38,18 +38,6 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(null);
-        onClose();
-      }, 2000); // Close the modal after 2 seconds of showing the success message
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage, onClose]);
-
-  if (!isOpen) return null;
 
   const handleSave = async () => {
     setLoading(true);
@@ -100,6 +88,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
           : "Insight added successfully."
       );
       onSaveComplete(updatedInsight); // Notify the parent component to refresh data
+      onClose(); // Close the modal after saving
     } catch (err) {
       console.error("Error saving insight:", err);
       setError("Failed to save insight. Please try again.");
@@ -109,7 +98,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-2">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-4 rounded-lg max-w-3xl w-full">
         <h3 className="text-white font-bold mb-4 text-lg">
           {insightData?._id ? "Edit Insight" : "Add New Insight"}
@@ -195,7 +184,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
           </button>
           <button
             className="text-red-400 hover:underline"
-            onClick={onClose}
+            onClick={() => onClose()}
             disabled={loading}
           >
             Cancel
@@ -206,4 +195,4 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
   );
 };
 
-export default UpdateModal;
+export default EditInsight;
