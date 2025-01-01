@@ -121,5 +121,4 @@ export async function deleteInsightSource(
 
 
 
-import React, { useState, useEffect } from "react";
 

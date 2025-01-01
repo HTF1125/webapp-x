@@ -1,24 +1,14 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect, createContext, useContext, ReactNode } from "react";
-import { useAuth } from "@/context/Auth/AuthContext";
 import { useProgress } from "@/context/Progress/ProgressContext";
 import {
   Insight,
   fetchInsights,
   deleteInsight,
-  updateInsight,
   updateSummary,
   createInsightWithPDF,
 } from "./InsightApi";
-import { FileText, Edit2, RefreshCcw, Trash } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import LoadingSpinner from "@/components/LoadingSpinner";
-import SearchBar from "@/components/SearchBar";
-import DragAndDrop from "@/components/DragAndDrop";
-import SummarySheet from "./SummarySheet";
-import EditInsight from "./EditInsight";
-import SourceList from "./SourceList"; // Ensure this component exists
 
 // Create context to share state across components
 interface InsightsContextType {
@@ -72,9 +62,7 @@ interface InsightsProviderProps {
 }
 
 const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
-  const { isAdmin } = useAuth();
   const { addTask, updateTask, removeTask, setTaskError } = useProgress();
-
   const [allInsights, setAllInsights] = useState<Insight[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -86,7 +74,7 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
 
   const isFetchingRef = useRef<boolean>(false);
   const [skip, setSkip] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(100);
+  const [limit, ] = useState<number>(100);
 
   const initialized = useRef(false);
 

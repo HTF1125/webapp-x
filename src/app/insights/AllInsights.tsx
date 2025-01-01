@@ -172,7 +172,7 @@ const AllInsights = () => {
       {selectedInsight && (
         <EditInsight
           currentInsight={selectedInsight}
-          onSaveComplete={(updatedInsight) => {
+          onSaveComplete={() => {
             setSelectedInsight(null);
           }}
           onClose={() => setSelectedInsight(null)}
