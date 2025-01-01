@@ -1,3 +1,5 @@
+
+// SignalChart Component
 "use client";
 
 import React, { useMemo } from "react";
@@ -40,11 +42,10 @@ const GRID_COLOR = "rgba(255, 255, 255, 0.1)";
 const TICK_COLOR = "#CCCCCC";
 
 interface SignalChartProps {
-  title: string;
   data: ChartData<"line", { x: number; y: number }[]>;
 }
 
-const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
+const SignalChart: React.FC<SignalChartProps> = ({ data }) => {
   const formattedData = useMemo(() => {
     return {
       ...data,
@@ -162,13 +163,8 @@ const SignalChart: React.FC<SignalChartProps> = ({ title, data }) => {
   };
 
   return (
-    <div className="p-4 rounded-lg shadow-md border border-gray-700">
-      <h3 className="text-sm font-semibold mb-3 text-center text-gray-200">
-        {title}
-      </h3>
-      <div style={{ height: 200, width: "100%", position: "relative" }}>
-        <Line data={formattedData} options={options} />
-      </div>
+    <div style={{ height: 200, width: "100%", position: "relative" }}>
+      <Line data={formattedData} options={options} />
     </div>
   );
 };

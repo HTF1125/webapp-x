@@ -33,7 +33,7 @@ export default function RootLayout({
               <header className="fixed top-0 left-0 w-full shadow-lg bg-gray-800 z-50">
                 <Navbar />
               </header>
-              <main className="flex-grow w-full max-w-[1980px] mx-auto px-6 sm:px-8 lg:px-10 py-24">
+              <main className="flex-grow w-full max-w-[1080px] mx-auto px-6 sm:px-8 lg:px-10 py-24">
                 {children}
               </main>
             </Providers>

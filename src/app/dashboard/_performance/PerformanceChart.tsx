@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -13,17 +13,17 @@ import {
 } from "chart.js";
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
 
-// Register core Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 type PerformanceChartProps = {
-  data: Record<string, number>; // A dictionary of { label: value }
+  data: Record<string, number>;
 };
 
 const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
   const chartRef = useRef<ChartJS<"bar"> | null>(null);
+  const [yAxisFontSize, setYAxisFontSize] = useState(12);
+  const [dataLabelFontSize, setDataLabelFontSize] = useState(12);
 
-  // Sort the data by value descending
   const sortedEntries = Object.entries(data).sort(([, a], [, b]) => b - a);
   const labels = sortedEntries.map(([label]) => label);
   const values = sortedEntries.map(([, value]) => value);
@@ -34,7 +34,6 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       const ctx = chart.canvas.getContext("2d");
       if (!ctx) return;
 
-      // Create dynamic gradient colors for bars
       const gradientColors = values.map((value) => {
         const gradient = ctx.createLinearGradient(0, 0, 400, 0);
         gradient.addColorStop(
@@ -50,6 +49,13 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
 
       chart.data.datasets[0].backgroundColor = gradientColors;
       chart.update();
+
+      // Calculate and set font sizes based on chart height
+      const chartHeight = chart.height;
+      const newYAxisFontSize = Math.max(8, Math.min(14, Math.floor(chartHeight / 20)));
+      const newDataLabelFontSize = Math.max(8, Math.min(12, Math.floor(chartHeight / 25)));
+      setYAxisFontSize(newYAxisFontSize);
+      setDataLabelFontSize(newDataLabelFontSize);
     }
   }, [values]);
 
@@ -58,10 +64,10 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
     datasets: [
       {
         label: "Performance",
-        data: values.map((value) => Math.abs(value)), // Use absolute values for bar height
+        data: values.map((value) => Math.abs(value)),
         backgroundColor: values.map((value) =>
           value < 0 ? "rgba(255, 99, 132, 0.8)" : "rgba(75, 192, 192, 0.8)"
-        ), // Red for negative, green/blue for positive
+        ),
         borderColor: values.map((value) =>
           value < 0 ? "rgba(255, 99, 132, 1)" : "rgba(75, 192, 192, 1)"
         ),
@@ -79,7 +85,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
         ticks: {
           color: "#bbb",
           font: {
-            size: 12,
+            size: yAxisFontSize,
           },
         },
         grid: {
@@ -91,7 +97,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
           color: "#fff",
           autoSkip: false,
           font: {
-            size: 12,
+            size: yAxisFontSize,
           },
         },
         grid: {
@@ -106,8 +112,8 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       tooltip: {
         callbacks: {
           label: function (tooltipItem: TooltipItem<"bar">) {
-            const rawValue = tooltipItem.raw as number; // Safely cast raw to number
-            const originalValue = rawValue ?? 0; // Fallback to 0 if raw is undefined
+            const rawValue = tooltipItem.raw as number;
+            const originalValue = rawValue ?? 0;
             return `${originalValue > 0 ? "+" : ""}${originalValue}%`;
           },
         },
@@ -126,7 +132,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
           return `${signedValue > 0 ? "+" : ""}${signedValue}%`;
         },
         font: {
-          size: 12,
+          size: dataLabelFontSize,
         },
         color: "#fff",
         clip: false,
@@ -134,9 +140,9 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
     },
     layout: {
       padding: {
-        top: 20,
-        bottom: 20,
-        right: 50,
+        top: 10,
+        bottom: 10,
+        right: 40,
         left: 10,
       },
     },
@@ -147,7 +153,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       ref={chartRef}
       data={chartData}
       options={options}
-      plugins={[ChartDataLabels]} // Scoped to this chart
+      plugins={[ChartDataLabels]}
       aria-label="Performance Chart"
       role="img"
     />

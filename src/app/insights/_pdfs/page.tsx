@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SearchBar from "@/components/SearchBar";
 import DragAndDrop from "@/components/DragAndDrop";
-import SummarySheet from "./SummarySheet";
-import EditInsight from "./EditInsight";
-import SourceList from "./SourceList"; // Ensure this component exists
+import SummarySheet from "./SummaryModal";
+import EditInsight from "./EditModal";
 import { ScrollShadow } from "@nextui-org/react"; // Assuming NextUI's ScrollShadow component
 
 const AllInsights = () => {
@@ -47,9 +46,6 @@ const AllInsights = () => {
       <div className="w-full my-2 z-0">
         <DragAndDrop message="Upload PDF Insights" onFilesAdded={handleFilesAdded} />
       </div>
-
-      {/* SourceList visibility toggled here */}
-      {isSourceListVisible && <SourceList />}
 
       {/* Insights Cards in a table-like structure */}
       <ScrollShadow className="w-full bg-black border border-gray-700 rounded shadow-lg p-4 max-h-[800px] overflow-y-auto">

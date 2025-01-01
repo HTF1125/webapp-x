@@ -12,15 +12,15 @@ const CompactSelector: React.FC<CompactSelectorProps> = ({
   onSelect,
 }) => {
   return (
-    <div className="flex flex-wrap gap-1 bg-gray-900 p-1 rounded-lg shadow-md overflow-auto">
+    <div className="inline-flex flex-wrap items-left gap-2  p-2 rounded-lg shadow-lg">
       {options.map((option) => (
         <button
           key={option}
           onClick={() => onSelect(option)}
-          className={`px-2 py-1 text-sm font-medium rounded-md transition-all duration-150 ease-in-out ${
+          className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-sm transition-all duration-200 ease-in-out ${
             current === option
-              ? "bg-blue-600 text-white shadow-md"
-              : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+              ? " text-white shadow-md ring-2 ring-blue-400 ring-opacity-50"
+              : " text-white hover:bg-white hover:text-white"
           }`}
         >
           {option.toUpperCase()}

@@ -16,6 +16,7 @@ async function fetchPerformanceGrouped(): Promise<PerformanceGrouped[]> {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      cache: "no-store", // Ensure the data is not cached
     });
 
     if (!response.ok) {
