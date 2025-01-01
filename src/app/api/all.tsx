@@ -66,7 +66,7 @@ const fetchOptions: RequestInit = {
 
 export async function fetchAllIndexGroupPerformances(): Promise<IndexGroupPeriodPerformances> {
   try {
-    const endpoint = new URL("/api/data/index_groups/all", API_URL).toString();
+    const endpoint = new URL("/api/data/index_groups/all", NEXT_PUBLIC_API_URL).toString();
 
     const response = await fetch(endpoint, fetchOptions);
 

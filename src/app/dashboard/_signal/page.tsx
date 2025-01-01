@@ -3,7 +3,13 @@ import Section from "@/components/Section";
 import SignalChart from "@/components/chart/SignalChart";
 import { fetchSignalCodes, fetchSignalByCode } from "@/app/api/all";
 
+// Helper function to delay execution
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export default async function SignalSection() {
+  // Introduce a 10-second delay
+  await delay(10000);
+
   try {
     // Fetch signal codes and their data
     const signalCodes = await fetchSignalCodes();

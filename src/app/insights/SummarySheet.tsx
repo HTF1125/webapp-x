@@ -1,23 +1,27 @@
+// SummaryModal Component
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FaPlay, FaPause, FaStop, FaMinus, FaPlus } from "react-icons/fa";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  ScrollShadow,
+} from "@nextui-org/react";
 
-interface SummarySheetProps {
+
+
+interface SummaryModalProps {
   isOpen: boolean;
   onClose: () => void;
   summary: string;
 }
 
-const SummarySheet: React.FC<SummarySheetProps> = ({ isOpen, onClose, summary }) => {
+const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary }) => {
   const [isReading, setIsReading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [speechRate, setSpeechRate] = useState(1.5);
@@ -25,7 +29,6 @@ const SummarySheet: React.FC<SummarySheetProps> = ({ isOpen, onClose, summary })
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
-  // Stop TTS
   const handleStop = useCallback(() => {
     window.speechSynthesis.cancel();
     setIsReading(false);
@@ -33,32 +36,6 @@ const SummarySheet: React.FC<SummarySheetProps> = ({ isOpen, onClose, summary })
     setCurrentCharIndex(0);
   }, []);
 
-  // Close and stop TTS
-  const handleClose = useCallback(() => {
-    handleStop();
-    onClose();
-  }, [handleStop, onClose]);
-
-  // If the sheet is closed externally, stop TTS
-  useEffect(() => {
-    if (!isOpen) {
-      handleStop();
-    }
-  }, [isOpen, handleStop]);
-
-  // Scroll to current reading position
-  useEffect(() => {
-    if (currentCharIndex > 0 && contentRef.current) {
-      const currentTextElement = contentRef.current.querySelector<HTMLElement>(
-        `[data-charindex='${currentCharIndex}']`
-      );
-      if (currentTextElement) {
-        currentTextElement.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }
-  }, [currentCharIndex]);
-
-  // Start reading or pause/resume
   const handleReadAloud = useCallback(() => {
     if (isPaused) {
       window.speechSynthesis.resume();
@@ -86,7 +63,6 @@ const SummarySheet: React.FC<SummarySheetProps> = ({ isOpen, onClose, summary })
     }
   }, [isPaused, isReading, summary, speechRate]);
 
-  // Update speech rate on the fly
   const updateSpeed = useCallback(
     (newRate: number) => {
       if (isReading) {
@@ -113,7 +89,6 @@ const SummarySheet: React.FC<SummarySheetProps> = ({ isOpen, onClose, summary })
     [isReading, summary, currentCharIndex]
   );
 
-  // Increase / decrease TTS rate
   const increaseSpeed = useCallback(() => {
     setSpeechRate((prevRate) => {
       const newRate = Math.min(prevRate + 0.25, 2);
@@ -130,103 +105,124 @@ const SummarySheet: React.FC<SummarySheetProps> = ({ isOpen, onClose, summary })
     });
   }, [updateSpeed]);
 
-  // Break summary into lines
   const lines = summary.split("\n");
   const readTextEndIndex =
     currentCharIndex > summary.length ? summary.length : currentCharIndex;
 
+  useEffect(() => {
+    if (!isOpen) {
+      handleStop();
+    }
+  }, [isOpen, handleStop]);
+
+  useEffect(() => {
+    if (currentCharIndex > 0 && contentRef.current) {
+      const currentTextElement = contentRef.current.querySelector<HTMLElement>(
+        `[data-charindex='${currentCharIndex}']`
+      );
+      if (currentTextElement) {
+        currentTextElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [currentCharIndex]);
+
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <SheetContent
-        side="right"
-        className="bg-black border border-gray-700 text-white md:w-[50vw] w-[90vw] flex flex-col h-full"
+    <Modal
+      isOpen={isOpen}
+      size="lg"
+      onOpenChange={(open) => {
+        if (!open) {
+          handleStop();
+          onClose();
+        }
+      }}
+      className="max-h-[90vh] overflow-hidden"
+      style={{ transition: 'none' }}
       >
-        {/* Header */}
-        <SheetHeader>
-          <SheetTitle>Summary</SheetTitle>
-          <SheetDescription className="text-gray-400">
-            Use the controls below to read the summary aloud.
-          </SheetDescription>
-        </SheetHeader>
-
-        {/* TTS Controls */}
-        <div className="mt-4 bg-gray-900 p-2 rounded-lg">
-          <div className="flex flex-wrap items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <button
-                className="text-gray-300 hover:text-white transition-all"
-                onClick={decreaseSpeed}
-                aria-label="Decrease Speed"
-              >
-                <FaMinus size={14} />
-              </button>
-              <span className="text-xs text-gray-300">{speechRate.toFixed(2)}x</span>
-              <button
-                className="text-gray-300 hover:text-white transition-all"
-                onClick={increaseSpeed}
-                aria-label="Increase Speed"
-              >
-                <FaPlus size={14} />
-              </button>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                className="text-gray-300 hover:text-white transition-all"
-                onClick={handleStop}
-                aria-label="Stop"
-              >
-                <FaStop size={16} />
-              </button>
-              <button
-                className="text-gray-300 hover:text-white transition-all"
-                onClick={handleReadAloud}
-                aria-label={
-                  isReading ? (isPaused ? "Resume" : "Pause") : "Play"
-                }
-              >
-                {isReading ? (
-                  isPaused ? (
-                    <FaPlay size={16} />
-                  ) : (
-                    <FaPause size={16} />
-                  )
-                ) : (
-                  <FaPlay size={16} />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* The content itself */}
-        <div className="flex-1 mt-4 overflow-hidden">
-          <ScrollArea className="w-full h-full">
-            <div ref={contentRef} className="px-2 text-gray-200 leading-relaxed">
-              {lines.map((line, index) => (
-                <React.Fragment key={index}>
-                  {line.split("").map((char, charIndex) => {
-                    const globalCharIndex = summary.indexOf(line) + charIndex;
-                    return (
-                      <span
-                        key={globalCharIndex}
-                        data-charindex={globalCharIndex}
-                        className={
-                          globalCharIndex < readTextEndIndex ? "text-gray-500" : ""
-                        }
-                      >
-                        {char}
-                      </span>
-                    );
-                  })}
-                  {index < lines.length - 1 && <br />}
-                </React.Fragment>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      </SheetContent>
-    </Sheet>
+      <ModalContent>
+        {(onCloseInternal) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">Summary</ModalHeader>
+            <ModalBody className="max-h-[70vh] overflow-hidden">
+              <div className="mb-4 bg-gray-900 p-2 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      className="text-gray-300 hover:text-white transition-all"
+                      onClick={decreaseSpeed}
+                      aria-label="Decrease Speed"
+                    >
+                      <FaMinus size={14} />
+                    </button>
+                    <span className="text-xs text-gray-300">{speechRate.toFixed(2)}x</span>
+                    <button
+                      className="text-gray-300 hover:text-white transition-all"
+                      onClick={increaseSpeed}
+                      aria-label="Increase Speed"
+                    >
+                      <FaPlus size={14} />
+                    </button>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      className="text-gray-300 hover:text-white transition-all"
+                      onClick={handleStop}
+                      aria-label="Stop"
+                    >
+                      <FaStop size={16} />
+                    </button>
+                    <button
+                      className="text-gray-300 hover:text-white transition-all"
+                      onClick={handleReadAloud}
+                      aria-label={isReading ? (isPaused ? "Resume" : "Pause") : "Play"}
+                    >
+                      {isReading ? (
+                        isPaused ? (
+                          <FaPlay size={16} />
+                        ) : (
+                          <FaPause size={16} />
+                        )
+                      ) : (
+                        <FaPlay size={16} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <ScrollShadow className="max-h-[65vh] overflow-y-auto">
+                <div ref={contentRef} className="text-gray-200 leading-relaxed">
+                  {lines.map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line.split("").map((char, charIndex) => {
+                        const globalCharIndex = summary.indexOf(line) + charIndex;
+                        return (
+                          <span
+                            key={globalCharIndex}
+                            data-charindex={globalCharIndex}
+                            className={
+                              globalCharIndex < readTextEndIndex ? "text-gray-500" : ""
+                            }
+                          >
+                            {char}
+                          </span>
+                        );
+                      })}
+                      {index < lines.length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </ScrollShadow>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={onCloseInternal}>
+                Close
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 };
 
-export default SummarySheet;
+export default SummaryModal;

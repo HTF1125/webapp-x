@@ -1,15 +1,18 @@
 "use client";
 
 import React from "react";
-import { usePeriod } from "@/components/dashboard/PeriodContext";
 import PerformanceChart from "@/components/chart/PerformanceChart";
-import { IndexGroupPeriodPerformances, PeriodPerformance } from "@/api/all";
+import { IndexGroupPeriodPerformances, Period, PeriodPerformance } from "@/app/api/all";
 
-const MarketCharts: React.FC<{
+interface MarketChartsProps {
   allIndexGroupPerformances: IndexGroupPeriodPerformances;
-}> = ({ allIndexGroupPerformances }) => {
-  const { currentPeriod } = usePeriod();
+  currentPeriod: Period; // Accept currentPeriod as a prop
+}
 
+const MarketCharts: React.FC<MarketChartsProps> = ({
+  allIndexGroupPerformances,
+  currentPeriod,
+}) => {
   // Helper function to process chart data for a single group
   const getChartData = (performances: PeriodPerformance[]) => {
     const chartArray = performances
@@ -45,8 +48,8 @@ const MarketCharts: React.FC<{
             >
               {Object.keys(chartData).length > 0 ? (
                 <>
-      <h3 className="text-sm font-semibold mb-3 text-center text-gray-200">
-      {indexGroup}
+                  <h3 className="text-sm font-semibold mb-3 text-center text-gray-200">
+                    {indexGroup}
                   </h3>
                   <div
                     style={{
@@ -59,9 +62,7 @@ const MarketCharts: React.FC<{
                   </div>
                 </>
               ) : (
-                <p className="text-center text-gray-400">
-                  No data available
-                </p>
+                <p className="text-center text-gray-400">No data available</p>
               )}
             </div>
           );
