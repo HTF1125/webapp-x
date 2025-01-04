@@ -1,12 +1,25 @@
-"use server";
+export type Period = "1d" | "1w" | "1m" | "3m" | "6m" | "1y" | "3y" | "mtd" | "ytd";
 
-import React from "react";
-import { PerformanceGrouped } from "./types";
-import ClientPerformancePage from "./ClientPerformance";
+export interface PerformanceGrouped {
+  group: string;
+  name: string;
+  code: string;
+  pct_chg_1d?: number;
+  pct_chg_1w?: number;
+  pct_chg_1m?: number;
+  pct_chg_3m?: number;
+  pct_chg_6m?: number;
+  pct_chg_1y?: number;
+  pct_chg_3y?: number;
+  pct_chg_mtd?: number;
+  pct_chg_ytd?: number;
+}
+
+
 import { NEXT_PUBLIC_API_URL } from "@/config";
 
 // Function to fetch performance data
-async function fetchPerformanceGrouped(): Promise<PerformanceGrouped[]> {
+export async function fetchPerformanceGrouped(): Promise<PerformanceGrouped[]> {
   const endpoint = new URL("/api/performances-grouped", NEXT_PUBLIC_API_URL);
 
   try {
@@ -31,20 +44,3 @@ async function fetchPerformanceGrouped(): Promise<PerformanceGrouped[]> {
     throw error;
   }
 }
-
-const PerformancePage = async () => {
-  try {
-    const performanceGrouped = await fetchPerformanceGrouped();
-    return <ClientPerformancePage performanceGrouped={performanceGrouped} />;
-  } catch (error) {
-    // Render error state or fallback UI
-    console.error("Error rendering PerformancePage:", error);
-    return (
-      <div className="error-message">
-        <p>Failed to load performance data. Please try again later.</p>
-      </div>
-    );
-  }
-};
-
-export default PerformancePage;

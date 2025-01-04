@@ -1,9 +1,9 @@
 // /dashboard/page.tsx
 
 import React from "react";
-import SignalSection from "./_signal/page";
-import PerformancePage from "./_performance/page";
-
+import PerformancePage from "./performance/PerformancePage";
+import { PeriodProvider } from "./performance/PeriodProvider";
+import PredictionPage from "./prediction/page";
 
 export default async function DashboardPage() {
   // Fetch data on the server side
@@ -11,11 +11,13 @@ export default async function DashboardPage() {
   return (
     <div className="w-full flex flex-col space-y-4">
       <div className="w-full box-border">
-        <PerformancePage />
+        <PeriodProvider>
+          <PerformancePage />
+        </PeriodProvider>
       </div>
 
       <div className="w-full box-border">
-        <SignalSection />
+        <PredictionPage />
       </div>
     </div>
   );
