@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -24,33 +24,34 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
   const [yAxisFontSize, setYAxisFontSize] = useState(12);
   const [dataLabelFontSize, setDataLabelFontSize] = useState(12);
 
-  const sortedEntries = Object.entries(data).sort(([, a], [, b]) => b - a);
+  // Sort the data entries
+  const sortedEntries = useMemo(() => {
+    return Object.entries(data).sort(([, a], [, b]) => b - a);
+  }, [data]);
+
   const labels = sortedEntries.map(([label]) => label);
   const values = sortedEntries.map(([, value]) => value);
+
+  // Memoize gradient colors to avoid recalculating on every render
+  const gradientColors = useMemo(() => {
+    if (chartRef.current) {
+      const chart = chartRef.current;
+      const ctx = chart.canvas.getContext("2d");
+      if (!ctx) return [];
+
+      return values.map((value) => {
+        const gradient = ctx.createLinearGradient(0, 0, 400, 0);
+        gradient.addColorStop(0, value > 0 ? "rgba(0, 204, 102, 0.8)" : "rgba(204, 0, 0, 0.8)");
+        gradient.addColorStop(1, value > 0 ? "rgba(0, 102, 204, 0.8)" : "rgba(255, 51, 51, 0.8)");
+        return gradient;
+      });
+    }
+    return [];
+  }, [values]);
 
   useEffect(() => {
     if (chartRef.current) {
       const chart = chartRef.current;
-      const ctx = chart.canvas.getContext("2d");
-      if (!ctx) return;
-
-      const gradientColors = values.map((value) => {
-        const gradient = ctx.createLinearGradient(0, 0, 400, 0);
-        gradient.addColorStop(
-          0,
-          value > 0 ? "rgba(0, 204, 102, 0.8)" : "rgba(204, 0, 0, 0.8)"
-        );
-        gradient.addColorStop(
-          1,
-          value > 0 ? "rgba(0, 102, 204, 0.8)" : "rgba(255, 51, 51, 0.8)"
-        );
-        return gradient;
-      });
-
-      chart.data.datasets[0].backgroundColor = gradientColors;
-      chart.update();
-
-      // Calculate and set font sizes based on chart height
       const chartHeight = chart.height;
       const newYAxisFontSize = Math.max(8, Math.min(14, Math.floor(chartHeight / 20)));
       const newDataLabelFontSize = Math.max(8, Math.min(12, Math.floor(chartHeight / 25)));
@@ -59,24 +60,8 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
     }
   }, [values]);
 
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: "Performance",
-        data: values.map((value) => Math.abs(value)),
-        backgroundColor: values.map((value) =>
-          value < 0 ? "rgba(255, 99, 132, 0.8)" : "rgba(75, 192, 192, 0.8)"
-        ),
-        borderColor: values.map((value) =>
-          value < 0 ? "rgba(255, 99, 132, 1)" : "rgba(75, 192, 192, 1)"
-        ),
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const options = {
+  // Memoize chart options to avoid recalculating on every render
+  const options = useMemo(() => ({
     indexAxis: "y" as const,
     responsive: true,
     maintainAspectRatio: false,
@@ -112,9 +97,8 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       tooltip: {
         callbacks: {
           label: function (tooltipItem: TooltipItem<"bar">) {
-            const rawValue = tooltipItem.raw as number;
-            const originalValue = rawValue ?? 0;
-            return `${originalValue > 0 ? "+" : ""}${originalValue}%`;
+            const value = tooltipItem.raw as number;
+            return `${value > 0 ? "+" : ""}${value}%`;
           },
         },
         backgroundColor: "rgba(0, 0, 0, 0.8)",
@@ -146,6 +130,21 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
         left: 10,
       },
     },
+  }), [yAxisFontSize, dataLabelFontSize, values]);
+
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: "Performance",
+        data: values.map((value) => Math.abs(value)),
+        backgroundColor: gradientColors,
+        borderColor: values.map((value) =>
+          value < 0 ? "rgba(255, 99, 132, 1)" : "rgba(75, 192, 192, 1)"
+        ),
+        borderWidth: 1,
+      },
+    ],
   };
 
   return (

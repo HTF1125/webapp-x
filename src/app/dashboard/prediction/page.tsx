@@ -66,70 +66,81 @@ const PredictionPage = () => {
       legend: {
         position: 'top' as const,
         labels: {
-          boxWidth: 15,
-          usePointStyle: true,
-          pointStyle: 'circle',
+          boxWidth: 10,
+          font: {
+            size: 10, // Smaller legend font
+          },
           color: '#ffffff',
-        }
+        },
       },
       tooltip: {
         mode: 'index' as const,
         intersect: false,
-      }
+      },
     },
     scales: {
       x: {
         ticks: {
-          callback: function(value, index) {
+          callback: function (value, index) {
             const date = allDates[index];
             return formatDate(date);
           },
           maxRotation: 0,
           autoSkip: true,
           maxTicksLimit: 6,
+          font: {
+            size: 10, // Smaller x-axis font
+          },
           color: '#ffffff',
         },
         grid: {
-          display: false
-        }
+          display: false,
+        },
       },
       y: {
-        beginAtZero: false,
         ticks: {
           maxTicksLimit: 5,
+          font: {
+            size: 10, // Smaller y-axis font
+          },
           color: '#ffffff',
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.2)',
-        }
+        },
       },
       y1: {
-        type: 'linear' as const,
-        position: 'left' as const,
         ticks: {
-          color: "#ffffff",
+          font: {
+            size: 10, // Smaller y-axis font for secondary axis
+          },
+          color: '#ffffff',
         },
       },
       y2: {
-        type: 'linear' as const,
-        position: 'right' as const,
         ticks: {
-          color: "#ffffff",
+          font: {
+            size: 10, // Smaller y-axis font for secondary axis
+          },
+          color: '#ffffff',
         },
-      }
+      },
     },
     interaction: {
       mode: 'nearest' as const,
       axis: 'x' as const,
-      intersect: false
-    }
+      intersect: false,
+    },
   };
 
-  if (loading) return <div className="flex items-center justify-center h-screen">
-    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-  </div>;
-  if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
-  if (!predictionData) return <div className="text-gray-500 text-center mt-10">No data found</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  if (error) return <div className="text-red-500 text-center mt-4">{error}</div>;
+  if (!predictionData) return <div className="text-gray-500 text-center mt-4">No data found</div>;
 
   const targetPredictionData = {
     labels: allDates,
@@ -156,23 +167,22 @@ const PredictionPage = () => {
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen p-6">
-      <div className="max-w-7xl mx-auto bg-gray-800 rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-6 text-white">Predictions and Features</h1>
+    <div className="bg-gray-900 min-h-screen p-4">
+      <div className="max-w-6xl mx-auto bg-gray-800 rounded-lg shadow-lg p-4">
+        <h1 className="text-2xl font-semibold mb-4 text-white">Predictions and Features</h1>
 
-        <div className="mb-10 bg-gray-700 rounded-lg shadow p-4">
-          <h2 className="text-xl font-semibold mb-4 text-white">Target vs Prediction</h2>
-          <div className="h-80">
+        <div className="mb-6 bg-gray-700 rounded-lg shadow p-3">
+          <div className="h-48">
             <Line data={targetPredictionData} options={chartOptions} />
           </div>
         </div>
 
-        <h2 className="text-2xl font-semibold mb-4 text-white">Feature Comparisons</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <h2 className="text-xl font-medium mb-2 text-white">Feature Comparisons</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(predictionData.features).map(([featureKey, featureData]) => (
-            <div key={featureKey} className="bg-gray-700 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2 text-white">{featureKey} vs Target</h3>
-              <div className="h-48">
+            <div key={featureKey} className="bg-gray-700 rounded-lg shadow p-3">
+              <h3 className="text-sm font-medium mb-1 text-white">{featureKey} vs Target</h3>
+              <div className="h-40">
                 <Line
                   data={{
                     labels: allDates,

@@ -62,14 +62,14 @@
     @apply border-border;
   }
 
-    html {
-      @apply h-full;
-      font-family: 'Roboto', sans-serif; /* Use the new font here */
-    }
+  html {
+    @apply h-full;
+    font-family: 'Roboto', sans-serif; /* Use the new font here */
+  }
 
-    body {
-      @apply h-full bg-background text-foreground;
-    }
+  body {
+    @apply h-full bg-background text-foreground;
+  }
 }
 
 @layer components {
@@ -87,6 +87,7 @@
 }
 
 @layer utilities {
+  /* Animation utilities */
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
   }
@@ -99,6 +100,7 @@
     animation: slideInLeft 0.3s ease-in-out;
   }
 
+  /* Custom Scrollbars */
   .custom-scrollbar::-webkit-scrollbar {
     @apply w-2 h-2;
   }
@@ -117,6 +119,7 @@
   }
 }
 
+/* Keyframe Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -132,6 +135,7 @@
   to { transform: translateX(0); }
 }
 
+/* Print Styles */
 @media print {
   body {
     @apply text-black bg-white;
@@ -142,6 +146,7 @@
   }
 }
 
+/* Mobile Styles */
 @media (max-width: 768px) {
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
@@ -151,14 +156,5 @@
 
   .overflow-x-auto::-webkit-scrollbar {
     @apply w-0 h-0;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }
