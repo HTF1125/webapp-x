@@ -136,7 +136,7 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
           onClose();
         }
       }}
-      className="max-h-[90vh] overflow-hidden"
+      className="bg-black max-h-[90vh] overflow-hidden"
       style={{ transition: 'none' }}
       >
       <ModalContent>

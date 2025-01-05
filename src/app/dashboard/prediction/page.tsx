@@ -117,14 +117,6 @@ const PredictionPage = () => {
           color: '#ffffff',
         },
       },
-      y2: {
-        ticks: {
-          font: {
-            size: 10, // Smaller y-axis font for secondary axis
-          },
-          color: '#ffffff',
-        },
-      },
     },
     interaction: {
       mode: 'nearest' as const,
@@ -152,7 +144,7 @@ const PredictionPage = () => {
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         fill: true,
         tension: 0.4,
-        yAxisID: "y1",
+        yAxisID: "y", // Use primary y-axis
       },
       {
         label: "Prediction",
@@ -161,14 +153,14 @@ const PredictionPage = () => {
         backgroundColor: "rgba(153, 102, 255, 0.2)",
         fill: true,
         tension: 0.4,
-        yAxisID: "y1",
+        yAxisID: "y", // Use primary y-axis
       },
     ],
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen p-4">
-      <div className="max-w-6xl mx-auto bg-gray-800 rounded-lg shadow-lg p-4">
+    <div className=" p-4">
+      <div className="max-w-5xl mx-auto rounded-lg shadow-lg p-4">
         <h1 className="text-2xl font-semibold mb-4 text-white">Predictions and Features</h1>
 
         <div className="mb-6 bg-gray-700 rounded-lg shadow p-3">
@@ -178,7 +170,7 @@ const PredictionPage = () => {
         </div>
 
         <h2 className="text-xl font-medium mb-2 text-white">Feature Comparisons</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-2">
           {Object.entries(predictionData.features).map(([featureKey, featureData]) => (
             <div key={featureKey} className="bg-gray-700 rounded-lg shadow p-3">
               <h3 className="text-sm font-medium mb-1 text-white">{featureKey} vs Target</h3>
@@ -194,7 +186,7 @@ const PredictionPage = () => {
                         backgroundColor: "rgba(255, 159, 64, 0.2)",
                         fill: true,
                         tension: 0.4,
-                        yAxisID: "y2",
+                        yAxisID: "y1", // Use secondary y-axis
                       },
                       {
                         label: "Target",
@@ -203,7 +195,7 @@ const PredictionPage = () => {
                         backgroundColor: "rgba(75, 192, 192, 0.2)",
                         fill: true,
                         tension: 0.4,
-                        yAxisID: "y1",
+                        yAxisID: "y", // Use primary y-axis
                       },
                     ],
                   }}

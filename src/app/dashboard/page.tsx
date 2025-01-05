@@ -4,7 +4,7 @@ import React from "react";
 import PerformancePage from "./performance/PerformancePage";
 import { PeriodProvider } from "./performance/PeriodProvider";
 import PredictionPage from "./prediction/page";
-
+import MarketCommentaryComponent from "./_commentary/page";
 export default async function DashboardPage() {
   // Fetch data on the server side
 
@@ -19,6 +19,8 @@ export default async function DashboardPage() {
       <div className="w-full box-border">
         <PredictionPage />
       </div>
+
+      <MarketCommentaryComponent></MarketCommentaryComponent>
     </div>
   );
 }
