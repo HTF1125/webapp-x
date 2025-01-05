@@ -19,7 +19,7 @@ const MarketCommentaryComponent: React.FC = () => {
         setCommentary(data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("Failed to fetch market commentary");
         setLoading(false);
       });
