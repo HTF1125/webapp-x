@@ -15,7 +15,7 @@ import {
   ChartOptions,
 } from "chart.js";
 import { Strategy } from "./types";
-import { formatDate, formatPercentage } from "@/lib/fmt";
+import { formatDate, formatPercentage } from "@/lib/helper";
 
 ChartJS.register(
   CategoryScale,

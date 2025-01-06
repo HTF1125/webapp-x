@@ -1,7 +1,6 @@
 "use client";
 
 import { NEXT_PUBLIC_API_URL } from "@/config";
-
 // Define the Insight interface for type safety
 export interface Insight {
   _id: string | null | undefined;
@@ -21,7 +20,7 @@ export async function fetchInsights({
   skip?: number;
   limit?: number;
 }): Promise<Insight[]> {
-  const endpoint = new URL("/api/data/insights/", NEXT_PUBLIC_API_URL);
+  const endpoint = new URL("/api/insights", NEXT_PUBLIC_API_URL);
   endpoint.searchParams.append("skip", skip.toString());
   endpoint.searchParams.append("limit", limit.toString());
 
@@ -63,8 +62,8 @@ export async function updateInsight(insight: Insight): Promise<Insight> {
     throw new Error("Insight _id is undefined.");
   }
 
-  const { _id, ...insightData } = insight;
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/update/${_id}`;
+  const { ...insightData } = insight;
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/insight`;
 
   try {
     const response = await fetch(endpoint, {
@@ -92,7 +91,7 @@ export async function deleteInsight(id: string): Promise<void> {
     throw new Error("An ID must be provided to delete an insight");
   }
 
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/${id}`;
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/insight/${id}`;
 
   try {
     const response = await fetch(endpoint, {
@@ -114,16 +113,16 @@ export async function deleteInsight(id: string): Promise<void> {
 }
 
 // Function to create an insight from a PDF (Base64 encoded content)
-export async function createInsightWithPDF(pdfBase64: string): Promise<Insight> {
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/frompdf`;
+export async function createInsightWithPDF(
+  pdfBase64: string
+): Promise<Insight> {
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/insight/frompdf`;
 
   try {
-    const payload = { content: pdfBase64 };
-
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ content: pdfBase64 }),
     });
 
     if (!response.ok) {
@@ -145,7 +144,7 @@ export async function updateSummary(id: string): Promise<string> {
     throw new Error("An ID must be provided to update an insight summary.");
   }
 
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/${id}/update_summary`;
+  const endpoint = `${NEXT_PUBLIC_API_URL}/api/insight/summarize/${id}`;
 
   try {
     const response = await fetch(endpoint, {
@@ -156,7 +155,9 @@ export async function updateSummary(id: string): Promise<string> {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error updating summary for insight:", errorData);
-      throw new Error(errorData.detail || "Failed to update the insight summary.");
+      throw new Error(
+        errorData.detail || "Failed to update the insight summary."
+      );
     }
 
     return response.json();

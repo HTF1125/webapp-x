@@ -1,11 +1,20 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect, createContext, useContext, ReactNode } from "react";
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  createContext,
+  useContext,
+  ReactNode,
+} from "react";
 import { useProgress } from "@/context/Progress/ProgressContext";
 import {
   Insight,
   fetchInsights,
   deleteInsight,
+  updateInsight,
   updateSummary,
   createInsightWithPDF,
 } from "./InsightApi";
@@ -24,6 +33,7 @@ interface InsightsContextType {
   handleLoadMore: () => Promise<void>;
   handleDelete: (insight: Insight) => Promise<void>;
   handleUpdateSummary: (insight: Insight) => Promise<void>;
+  handleUpdateInsight: (insight: Insight) => Promise<void>;
   handleFilesAdded: (files: File[]) => Promise<void>;
   setIsSourceListVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedSummary: React.Dispatch<React.SetStateAction<string | null>>;
@@ -70,11 +80,12 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
   const [selectedSummary, setSelectedSummary] = useState<string | null>(null);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
   const [isHandlingFiles, setIsHandlingFiles] = useState<boolean>(false);
-  const [isSourceListVisible, setIsSourceListVisible] = useState<boolean>(false);
+  const [isSourceListVisible, setIsSourceListVisible] =
+    useState<boolean>(false);
 
   const isFetchingRef = useRef<boolean>(false);
   const [skip, setSkip] = useState<number>(0);
-  const [limit, ] = useState<number>(100);
+  const [limit] = useState<number>(100);
 
   const initialized = useRef(false);
 
@@ -225,24 +236,65 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
     [addTask, updateTask, setTaskError]
   );
 
-  const handleFilesAdded = async (files: File[]) => {
-    if (isHandlingFiles || files.length === 0) return;
+  const handleFilesAdded = useCallback(
+    async (files: File[]) => {
+      if (!files.length) return;
+  
+      const taskId = addTask(`Uploading Files...`);
+      setIsHandlingFiles(true);
 
-    setIsHandlingFiles(true);
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const base64Content = await convertFileToBase64(file);
-
-        await createInsightWithPDF(base64Content);
+      try {
+        for (const file of files) {
+          const base64Content = await convertFileToBase64(file);
+          const updatedInsight = await createInsightWithPDF(base64Content);
+  
+          setAllInsights((prev) => [updatedInsight, ...prev]);
+          setInsights((prev) => [updatedInsight, ...prev]);
+        }
+        updateTask(taskId, true);
+      } catch (error) {
+        console.error("Error uploading files:", error);
+        setTaskError(taskId, "Failed to upload files");
+      } finally {
+        setIsHandlingFiles(false);
       }
-    } catch (error) {
-      console.error("Error uploading files:", error);
-    } finally {
-      setIsHandlingFiles(false);
-    }
-  };
+    },
+    [addTask, updateTask, setTaskError]
+  );
+  
 
+  // Add the handleUpdateInsight function
+  const handleUpdateInsight = useCallback(
+    async (updatedInsight: Insight) => {
+      if (!updatedInsight._id) {
+        console.error("Insight _id is undefined.");
+        return;
+      }
+
+      const taskId = addTask(`Updating ${updatedInsight.name}`);
+      try {
+        await updateInsight(updatedInsight);
+        const updateInsightState = (prev: Insight[]) =>
+          prev.map((item) =>
+            item._id === updatedInsight._id
+              ? { ...item, ...updatedInsight }
+              : item
+          );
+
+        setAllInsights(updateInsightState);
+        setInsights(updateInsightState);
+        updateTask(taskId, true);
+      } catch (error) {
+        console.error("Error updating insight:", error);
+        setTaskError(taskId, "Failed to update insight");
+      } finally {
+        removeTask(taskId);
+      }
+    },
+    [addTask, updateTask, setTaskError]
+  );
+
+  // Update the context provider
   return (
     <InsightsContext.Provider
       value={{
@@ -258,6 +310,7 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
         handleLoadMore,
         handleDelete,
         handleUpdateSummary,
+        handleUpdateInsight,
         handleFilesAdded,
         setIsSourceListVisible,
         setSelectedSummary,
@@ -268,5 +321,4 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
     </InsightsContext.Provider>
   );
 };
-
 export default InsightsProvider;

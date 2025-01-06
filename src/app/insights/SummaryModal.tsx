@@ -1,4 +1,3 @@
-// SummaryModal Component
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -12,8 +11,6 @@ import {
   Button,
   ScrollShadow,
 } from "@nextui-org/react";
-
-
 
 interface SummaryModalProps {
   isOpen: boolean;
@@ -137,8 +134,8 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
         }
       }}
       className="bg-black max-h-[90vh] overflow-hidden"
-      style={{ transition: 'none' }}
-      >
+      style={{ transition: "none" }}
+    >
       <ModalContent>
         {(onCloseInternal) => (
           <>

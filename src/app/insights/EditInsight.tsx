@@ -2,39 +2,21 @@
 
 import React, { useState } from "react";
 import { Insight } from "./InsightApi";
-import { NEXT_PUBLIC_API_URL } from "@/config";
-
-// Utility to convert PDF to Base64
-export const convertPdfToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (reader.result && typeof reader.result === "string") {
-        resolve(reader.result.split(",")[1]); // Extract Base64 content
-      } else {
-        reject("Failed to convert file to Base64");
-      }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
+import { useInsights } from "./provider"; // Import the context hook
 
 interface EditInsightProps {
-  currentInsight?: Partial<Insight>; // The insight to edit (if editing)
+  currentInsight?: Partial<Insight>; // The insight to edit
   onSaveComplete: (updatedInsight: Insight) => void; // Callback to refresh insights
   onClose: () => void; // Callback to close the modal
 }
 
 const EditInsight: React.FC<EditInsightProps> = ({
-  currentInsight = {}, // Default to an empty object for adding a new insight
+  currentInsight = {},
   onSaveComplete,
   onClose,
 }) => {
-  const [insightData, setInsightData] = useState<Partial<Insight>>(
-    currentInsight
-  );
-  const [file, setFile] = useState<File | null>(null);
+  const { handleUpdateInsight } = useInsights(); // Use context to access update function
+  const [insightData, setInsightData] = useState<Partial<Insight>>(currentInsight);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -45,49 +27,21 @@ const EditInsight: React.FC<EditInsightProps> = ({
     setSuccessMessage(null);
 
     try {
-      let serializedPdf = null;
-
-      if (file) {
-        serializedPdf = await convertPdfToBase64(file); // Convert PDF to Base64
+      if (!insightData._id) {
+        throw new Error("Invalid insight ID");
       }
 
-      const payload = {
-        issuer: insightData?.issuer || "",
-        name: insightData?.name || "",
-        published_date: insightData?.published_date
+      const updatedInsight = {
+        ...insightData,
+        published_date: insightData.published_date
           ? new Date(insightData.published_date).toISOString().split("T")[0]
           : "",
-        summary: insightData?.summary || "",
-        content: serializedPdf, // Add Base64 PDF content
       };
 
-      const endpoint = insightData?._id
-        ? `${NEXT_PUBLIC_API_URL}/api/data/insights/update/${insightData._id}`
-        : `${NEXT_PUBLIC_API_URL}/api/data/insights/new`;
+      await handleUpdateInsight(updatedInsight as Insight); // Use context update function
 
-      const method = insightData?._id ? "PUT" : "POST";
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to save insight");
-      }
-
-      const updatedInsight = await response.json();
-
-      setSuccessMessage(
-        insightData._id
-          ? "Insight updated successfully."
-          : "Insight added successfully."
-      );
-      onSaveComplete(updatedInsight); // Notify the parent component to refresh data
+      setSuccessMessage("Insight updated successfully.");
+      onSaveComplete(updatedInsight as Insight); // Notify the parent component to refresh data
       onClose(); // Close the modal after saving
     } catch (err) {
       console.error("Error saving insight:", err);
@@ -101,7 +55,7 @@ const EditInsight: React.FC<EditInsightProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-4 rounded-lg max-w-3xl w-full">
         <h3 className="text-white font-bold mb-4 text-lg">
-          {insightData?._id ? "Edit Insight" : "Add New Insight"}
+          Edit Insight
         </h3>
         {error && <p className="text-red-500 mb-2">{error}</p>}
         {successMessage && <p className="text-green-500 mb-2">{successMessage}</p>}
@@ -157,17 +111,6 @@ const EditInsight: React.FC<EditInsightProps> = ({
               setInsightData({ ...insightData, summary: e.target.value })
             }
             className="w-full p-2 h-28 border border-gray-600 rounded bg-gray-700 text-white"
-          />
-        </div>
-
-        {/* PDF File Field */}
-        <div className="mb-4">
-          <label className="block text-gray-400 text-sm">PDF File</label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
           />
         </div>
 

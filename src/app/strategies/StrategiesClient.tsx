@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { StrategiesKeyInfo } from "./types";
 import { Input } from "@/components/ui/input";
-import { formatDate, formatPercentage } from "@/lib/fmt";
+import { formatDate, formatPercentage } from "@/lib/helper";
 import { Search } from "lucide-react";
 import MiniLineChart from "@/components/chart/MiniLineChart";
 
