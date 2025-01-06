@@ -1,5 +1,5 @@
 import React from "react";
-import { formatDate, formatPercentage } from "@/lib/fmt";
+import { formatDate, formatPercentage } from "@/lib/helper";
 import MiniLineChart from "@/components/chart/MiniLineChart";
 import { StrategiesKeyInfo } from "../app/strategies/types";
 
