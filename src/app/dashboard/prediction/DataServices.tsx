@@ -6,6 +6,7 @@ export interface TimeSeriesPredictionResponse {
     [key: string]: { [date: string]: number };
   };
   target: { [date: string]: number };
+  validation: { [date: string]: number };
   prediction: { [date: string]: number };
 }
 

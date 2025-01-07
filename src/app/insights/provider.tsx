@@ -239,29 +239,45 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
   const handleFilesAdded = useCallback(
     async (files: File[]) => {
       if (!files.length) return;
-  
-      const taskId = addTask(`Uploading Files...`);
+
       setIsHandlingFiles(true);
 
       try {
         for (const file of files) {
-          const base64Content = await convertFileToBase64(file);
-          const updatedInsight = await createInsightWithPDF(base64Content);
-  
-          setAllInsights((prev) => [updatedInsight, ...prev]);
-          setInsights((prev) => [updatedInsight, ...prev]);
+          // Create a unique task for each file
+          const taskId = addTask(`Uploading ${file.name}...`);
+
+          try {
+            // Convert file to Base64
+            const base64Content = await convertFileToBase64(file);
+
+            // Pass the filename to createInsightWithPDF
+            const updatedInsight = await createInsightWithPDF(
+              base64Content,
+              file.name
+            );
+
+            // Update insights
+            setAllInsights((prev) => [updatedInsight, ...prev]);
+            setInsights((prev) => [updatedInsight, ...prev]);
+
+            // Mark task as completed
+            updateTask(taskId, true);
+
+            handleUpdateSummary(updatedInsight);
+          } catch (error) {
+            console.error(`Error uploading file ${file.name}:`, error);
+
+            // Mark task as failed
+            setTaskError(taskId, `Failed to upload ${file.name}`);
+          }
         }
-        updateTask(taskId, true);
-      } catch (error) {
-        console.error("Error uploading files:", error);
-        setTaskError(taskId, "Failed to upload files");
       } finally {
         setIsHandlingFiles(false);
       }
     },
     [addTask, updateTask, setTaskError]
   );
-  
 
   // Add the handleUpdateInsight function
   const handleUpdateInsight = useCallback(

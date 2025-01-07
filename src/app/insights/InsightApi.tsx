@@ -114,29 +114,54 @@ export async function deleteInsight(id: string): Promise<void> {
 
 // Function to create an insight from a PDF (Base64 encoded content)
 export async function createInsightWithPDF(
-  pdfBase64: string
+  pdfBase64: string,
+  filename: string | null = null
 ): Promise<Insight> {
+  if (!pdfBase64) {
+    throw new Error("PDF content (Base64) is required.");
+  }
+
   const endpoint = `${NEXT_PUBLIC_API_URL}/api/insight/frompdf`;
 
   try {
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: pdfBase64 }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: pdfBase64, filename }),
     });
 
+    // Check if the response is OK
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error creating insight with PDF:", errorData);
-      throw new Error(errorData.detail || "Failed to create insight with PDF");
+      const contentType = response.headers.get("Content-Type");
+      let errorDetail = "Failed to create insight with PDF.";
+
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await response.json();
+        errorDetail = errorData.detail || errorDetail;
+      } else {
+        const errorText = await response.text();
+        errorDetail = errorText || errorDetail;
+      }
+
+      console.error("Error creating insight with PDF:", errorDetail);
+      throw new Error(errorDetail);
     }
 
-    return response.json();
+    // Parse and return the response
+    const insight: Insight = await response.json();
+    return insight;
   } catch (error) {
     console.error("Unexpected error in createInsightWithPDF:", error);
-    throw error;
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "An unexpected error occurred while creating an insight with PDF."
+    );
   }
 }
+
 
 // Function to update the summary of an insight
 export async function updateSummary(id: string): Promise<string> {

@@ -142,8 +142,17 @@ const PredictionPage = () => {
         data: getAlignedData(predictionData.target),
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
-        fill: true,
+        // fill: true,
         tension: 0.4,
+        yAxisID: "y", // Use primary y-axis
+      },
+      {
+        label: "Validation",
+        data: getAlignedData(predictionData.validation),
+        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        fill: true,
+        tension: 0.2,
         yAxisID: "y", // Use primary y-axis
       },
       {
@@ -173,7 +182,7 @@ const PredictionPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-2">
           {Object.entries(predictionData.features).map(([featureKey, featureData]) => (
             <div key={featureKey} className="bg-gray-700 rounded-lg shadow p-3">
-              <h3 className="text-sm font-medium mb-1 text-white">{featureKey} vs Target</h3>
+              <h3 className="text-sm font-medium mb-1 text-white">{featureKey}</h3>
               <div className="h-40">
                 <Line
                   data={{
