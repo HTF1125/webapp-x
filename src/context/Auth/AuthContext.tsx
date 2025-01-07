@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchCurrentUser, fetchLogin, User } from "@/services/authApi";
 import {
   createContext,
   useCallback,
@@ -7,64 +8,6 @@ import {
   useEffect,
   useState,
 } from "react";
-
-const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-export interface LoginResponse {
-  access_token: string;
-}
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  is_admin: boolean;
-}
-
-export const fetchLogin = async (
-  username: string,
-  password: string
-): Promise<LoginResponse> => {
-  const endpoint = new URL("/api/login/token", NEXT_PUBLIC_API_URL).toString();
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData?.message || "Login failed. Please try again.");
-  }
-
-  return response.json();
-};
-
-export const fetchCurrentUser = async (token: string): Promise<User> => {
-  const endpoint = new URL(
-    "/api/login/users/me",
-    NEXT_PUBLIC_API_URL
-  ).toString();
-
-  const response = await fetch(endpoint, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  console.log(response);
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(
-      errorData?.message || "Failed to fetch user details. Please try again."
-    );
-  }
-
-  return response.json();
-};
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
@@ -95,8 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (username: string, password: string) => {
     setLoading(true);
     try {
-      const { access_token } = await fetchLogin(username, password);
-      localStorage.setItem("access_token", access_token);
+      await fetchLogin(username, password);
       await verifyToken();
     } catch (error) {
       resetAuthState();
@@ -120,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     try {
-      const user = await fetchCurrentUser(token);
+      const user = await fetchCurrentUser();
       // const adminStatus = await fetchAdmin(token);
       setUser(user);
       setIsAuthenticated(true);
