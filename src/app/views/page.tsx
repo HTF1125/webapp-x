@@ -35,7 +35,7 @@ interface TacticalViewData {
 }
 
 async function fetchTacticalView(): Promise<TacticalViewData> {
-  const endpoint = `${NEXT_PUBLIC_API_URL}/api/data/insights/tacticalview`;
+  const endpoint = `${NEXT_PUBLIC_API_URL}api/data/insights/tacticalview`;
 
   const response = await fetch(endpoint, {
     method: "GET",

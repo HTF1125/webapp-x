@@ -6,7 +6,7 @@ import InsightsProvider from "./provider";
 
 
 
-const Page = () => {
+const InsightPage = () => {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-6">
       <InsightsProvider>
@@ -16,4 +16,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default InsightPage;
