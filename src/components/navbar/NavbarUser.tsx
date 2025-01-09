@@ -70,7 +70,7 @@ const NavbarUser: React.FC = () => {
       return (
         <Link href="/sign-in" className="flex items-center space-x-1">
           <User className="w-6 h-6 text-gray-400" />
-          <span className="text-gray-400">Sign In</span>
+          <span className="text-gray-400 text-nowrap">Sign In</span>
         </Link>
       );
     }

@@ -70,7 +70,7 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({ performan
   const chartDataByGroup = transformChartData(data, currentPeriod);
 
   return (
-    <div className="w-full max-h-[600px] flex flex-col">
+    <div className="w-full max-h-[600px] flex flex-col overflow-auto">
       <CompactSelector />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-2">
         {chartDataByGroup.map(({ group, data }) => (

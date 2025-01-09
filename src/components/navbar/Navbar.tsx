@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import LogoLightColor from "@/images/investment-x-logo-light.svg";
-import NavbarUser from "@/components/navbar/NavbarUser";
 import NavLink from "./NavLink";
+import NavbarUser from "@/components/navbar/NavbarUser";
 
 const Navbar: React.FC = () => {
   const navItems = ["Dashboard", "Insights", "Views", "Strategies"];
@@ -15,17 +15,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-black bg-opacity-95 border-b border-gray-700 shadow-lg">
-      <div className="container flex h-16 items-center justify-between mx-auto px-6">
-        {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <Image
-            src={LogoLightColor}
-            alt="Investment-X Logo"
-            className="w-auto h-auto min-w-[20px] max-w-[200px]"
-            priority
-          />
-        </Link>
-
+      <div className="container flex h-16 items-center justify-between mx-auto px-6 gap-3">
         {/* Mobile Menu Button */}
         <button
           className="sm:hidden text-gray-400 hover:text-white focus:outline-none"
@@ -39,17 +29,18 @@ const Navbar: React.FC = () => {
           )}
         </button>
 
+        {/* Logo */}
+        <Link href="/" className="sm:hidden items-center">
+          <Image
+            src={LogoLightColor}
+            alt="Investment-X Logo"
+            className="w-auto h-auto min-w-[20px] max-w-[200px]"
+            priority
+          />
+        </Link>
+
         {/* Desktop Navigation */}
-        <div className="hidden sm:flex items-center space-x-6">
-          {navItems.map((item) => (
-            <NavLink
-              key={item}
-              href={`/${item.toLowerCase()}`}
-              onClick={() => {}}
-            >
-              {item}
-            </NavLink>
-          ))}
+        <div className="sm:flex items-center space-x-6">
         </div>
 
         {/* User Menu */}
