@@ -6,8 +6,6 @@ import { PeriodProvider } from "./performance/PeriodProvider";
 import PredictionPage from "./prediction/page";
 import MarketCommentaryComponent from "./_commentary/page";
 import StrategiesPage from "../strategies/page";
-import InsightPage from "../insights/page";
-import TacticalView from "../views/page";
 export default async function DashboardPage() {
   // Fetch data on the server side
 
@@ -24,10 +22,10 @@ export default async function DashboardPage() {
           <MarketCommentaryComponent />
         </div>
         <div className="flex-1 w-36 overflow-auto min-w-56">
-          <InsightPage />
+          Insights
         </div>
         <div className="flex-1 w-36 overflow-auto min-w-56">
-          <TacticalView />
+          Views
         </div>
       </div>
 
