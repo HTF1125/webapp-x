@@ -162,7 +162,7 @@ const SourceList: React.FC = () => {
       </div>
 
       {/* Scrollable Area for sources */}
-      <ScrollArea className="h-[16rem]">
+      <ScrollArea className="h-[50rem]">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredSources.map((source) => (
             <div

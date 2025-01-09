@@ -2,110 +2,90 @@
 
 import React, { useState } from "react";
 import { useInsights } from "./provider";
-import {
-  FileText,
-  Edit3,
-  RotateCcw,
-  Trash2,
-  MoreVertical,
-  Info,
-} from "lucide-react";
+import { FileText, Edit3, RotateCcw, Trash2 } from "lucide-react";
 import { Insight } from "./InsightApi";
 import SummaryModal from "./SummaryModal";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-} from "@nextui-org/react";
 
 const InsightCard: React.FC<{
   insight: Insight;
-}> = ({ insight }) => {
+  isAdmin: boolean;
+}> = ({ insight, isAdmin }) => {
   const { setSelectedInsight, handleUpdateSummary, handleDelete } =
     useInsights();
-
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
 
   return (
-    <div className="grid grid-cols-12 items-center gap-4 bg-black text-white border-b border-gray-700 py-2 hover:bg-gray-900 transition-colors duration-200">
-      {/* Insight Name */}
-      <div className="col-span-5 flex items-center gap-2 text-sm font-semibold truncate">
-        <button
-          className="text-white hover:text-cyan-400"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsSummaryModalOpen(true);
-          }}
-        >
-          <Info size={16} />
-        </button>
-        <span>{insight.name}</span>
-      </div>
-
-      {/* Issuer */}
-      <div className="col-span-3 text-xs text-gray-500 truncate">
-        {insight.issuer || "Unknown"}
-      </div>
-
-      {/* Publication Date */}
-      <div className="col-span-2 text-xs text-gray-500 text-right">
-        {new Date(insight.published_date).toLocaleDateString()}
-      </div>
-
-      {/* Dropdown Menu for Actions */}
-      <div className="col-span-2 flex justify-end">
-        <Dropdown>
-          <DropdownTrigger>
-            <button className="text-white hover:text-cyan-400">
-              <MoreVertical size={16} />
-            </button>
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label="Insight Actions"
-            className="bg-black text-white"
-            onAction={(key) => {
-              switch (key) {
-                case "pdf":
-                  window.open(
-                    `https://files.investment-x.app/${insight._id}.pdf`,
-                    "pdfWindow",
-                    "width=800,height=600,resizable,scrollbars"
-                  );
-                  break;
-                case "edit":
-                  setSelectedInsight(insight);
-                  break;
-                case "update":
-                  handleUpdateSummary(insight);
-                  break;
-                case "delete":
-                  handleDelete(insight);
-                  break;
-                default:
-                  break;
-              }
-            }}
+    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 py-4 px-6 border-b border-gray-700 bg-gray-900 text-sm hover:bg-gray-800 transition-colors">
+      <div className="flex-grow space-y-2 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 w-full">
+        <div className="md:col-span-3">
+          <h3
+            className="font-semibold text-white cursor-pointer hover:text-cyan-400 truncate"
+            onClick={() => setIsSummaryModalOpen(true)}
           >
-            <DropdownItem key="pdf" startContent={<FileText size={14} />}>
-              PDF
-            </DropdownItem>
-            <DropdownItem key="edit" startContent={<Edit3 size={14} />}>
-              Edit
-            </DropdownItem>
-            <DropdownItem key="update" startContent={<RotateCcw size={14} />}>
-              Update
-            </DropdownItem>
-            <DropdownItem
-              key="delete"
-              startContent={<Trash2 size={14} />}
-              color="danger"
-            >
-              Delete
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+            {insight.name}
+          </h3>
+        </div>
+        <div className="md:col-span-2">
+          <p
+            className="text-gray-400 truncate"
+            title={insight.issuer || "Unknown"}
+          >
+            {insight.issuer || "Unknown"}
+          </p>
+        </div>
+        <div className="md:col-span-2">
+          <p className="text-gray-400">
+            {new Date(insight.published_date).toLocaleDateString()}
+          </p>
+        </div>
+        <div className="md:col-span-5">
+          <p
+            className="text-gray-400 truncate"
+            title={insight.summary || "No summary available."}
+          >
+            {insight.summary
+              ? insight.summary.substring(0, 100) + "..."
+              : "No summary available"}
+          </p>
+        </div>
       </div>
+      {isAdmin && (
+        <div className="flex justify-end gap-3 mt-3 md:mt-0">
+          <button
+            className="text-gray-400 hover:text-cyan-400 transition-colors"
+            onClick={() => handleUpdateSummary(insight)}
+            title="Update Summary"
+          >
+            <RotateCcw size={18} />
+          </button>
+          <button
+            className="text-gray-400 hover:text-cyan-400 transition-colors"
+            onClick={() => {
+              window.open(
+                `https://files.investment-x.app/${insight._id}.pdf`,
+                "_blank"
+              );
+            }}
+            title="View PDF"
+          >
+            <FileText size={18} />
+          </button>
+          <button
+            className="text-gray-400 hover:text-cyan-400 transition-colors"
+            onClick={() => setSelectedInsight(insight)}
+            title="Edit"
+          >
+            <Edit3 size={18} />
+          </button>
+          <button
+            className="text-gray-400 hover:text-red-500 transition-colors"
+            onClick={() => handleDelete(insight)}
+            title="Delete"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      )}
 
       {/* Summary Modal */}
       {isSummaryModalOpen && (

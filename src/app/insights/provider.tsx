@@ -276,7 +276,7 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
         setIsHandlingFiles(false);
       }
     },
-    [addTask, updateTask, setTaskError]
+    [addTask, updateTask, setTaskError, handleUpdateSummary]
   );
 
   // Add the handleUpdateInsight function
@@ -307,7 +307,7 @@ const InsightsProvider: React.FC<InsightsProviderProps> = ({ children }) => {
         removeTask(taskId);
       }
     },
-    [addTask, updateTask, setTaskError]
+    [addTask, updateTask, setTaskError, removeTask]
   );
 
   // Update the context provider

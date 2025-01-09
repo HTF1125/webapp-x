@@ -9,8 +9,15 @@ import DragAndDrop from "./DragAndDrop";
 import SummarySheet from "./SummaryModal";
 import EditInsight from "./EditInsight";
 import SourceList from "./SourceList"; // Ensure this component exists
-import { ScrollShadow } from "@nextui-org/react"; // Assuming NextUI's ScrollShadow component
 import InsightCard from "./InsightCard";
+import { useAuth } from "@/context/Auth/AuthContext";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@nextui-org/react";
 
 const AllInsights = () => {
   const {
@@ -27,16 +34,18 @@ const AllInsights = () => {
     setSelectedInsight,
   } = useInsights();
 
+  const { isAdmin } = useAuth();
+
   return (
-    <div className="w-full max-w-5xl bg-black text-white flex flex-col items-center px-4 py-4">
+    <div className="w-full bg-black text-white flex flex-col items-center px-4 py-4">
       {/* Header, Search, and Actions */}
       <div className="w-full flex items-center justify-between px-4 py-2 mb-4">
         <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
         <Button
-          onClick={() => setIsSourceListVisible((prev) => !prev)}
+          onClick={() => setIsSourceListVisible(true)}
           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
         >
-          {isSourceListVisible ? "Hide Source List" : "Show Source List"}
+          Show Source List
         </Button>
       </div>
 
@@ -45,24 +54,30 @@ const AllInsights = () => {
         <DragAndDrop message="Upload PDF Insights" />
       </div>
 
-      {/* SourceList visibility toggled here */}
-      {isSourceListVisible && <SourceList />}
-
       {/* Insights Cards in a table-like structure */}
-      <ScrollShadow className="w-full bg-black border border-gray-700 rounded shadow-lg p-4 max-h-[400px] overflow-y-auto">
+      <div className="w-full bg-black border border-gray-700 rounded p-4 max-h-[600px] overflow-y-auto">
         <div className="w-full space-y-4">
           {insights.length > 0 ? (
             insights.map((insight) => (
-              <InsightCard key={insight._id} insight={insight} />
+              <InsightCard
+                key={insight._id}
+                insight={insight}
+                isAdmin={isAdmin}
+              />
             ))
           ) : (
-            <div className="text-center text-gray-500 py-3">No insights found.</div>
+            <div className="text-center text-gray-500 py-3">
+              No insights found.
+            </div>
           )}
         </div>
 
         {/* Load More Button */}
         {!isLoadingMore && insights.length > 0 && (
-          <Button onClick={handleLoadMore} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
+          <Button
+            onClick={handleLoadMore}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+          >
             Load More
           </Button>
         )}
@@ -73,7 +88,44 @@ const AllInsights = () => {
             <LoadingSpinner message="Loading more..." />
           </div>
         )}
-      </ScrollShadow>
+      </div>
+
+      {/* SourceList Modal */}
+      {/* SourceList Modal */}
+      <Modal
+        isOpen={isSourceListVisible}
+        size="5xl" // Make the modal fullscreen
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsSourceListVisible(false);
+          }
+        }}
+        className="bg-black overflow-hidden"
+      >
+        <ModalContent>
+          {() => (
+            <>
+              <ModalHeader className="text-white text-2xl font-bold">
+                Source List
+              </ModalHeader>
+              <ModalBody className="h-[80vh] overflow-y-auto p-4">
+                <SourceList />
+              </ModalBody>
+              <ModalFooter className="flex justify-end">
+                <Button
+                  color="danger"
+                  variant="default"
+                  onClick={() => {
+                    setIsSourceListVisible(false);
+                  }}
+                >
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
 
       {/* SummarySheet Modal */}
       {selectedSummary && (

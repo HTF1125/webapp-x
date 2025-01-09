@@ -7,34 +7,41 @@ import LogoLightColor from "@/images/investment-x-logo-light.svg";
 import NavLink from "./NavLink";
 
 const MenuNav: React.FC = () => {
-  const navItems = ["Dashboard", "Insights", "Views", "Strategies"];
+  const navItems = [
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Insights", path: "/insights" },
+    { label: "Views", path: "/views" },
+    { label: "Strategies", path: "/strategies" },
+  ];
 
   return (
-    <nav className="hidden sm:block sticky top-0 z-50 backdrop-blur-md bg-black bg-opacity-95 border-r border-gray-700 shadow-lg">
-      <div className="container flex flex-col h-full items-center justify-start mx-auto p-6 gap-6">
+    <nav className="hidden sm:flex sticky top-0 z-50 flex-col h-screen backdrop-blur-lg bg-gradient-to-b from-black via-gray-900 to-gray-800 bg-opacity-95 border-r border-gray-700 shadow-xl">
+      <div className="flex flex-col h-full items-center justify-between p-6 gap-6">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
             src={LogoLightColor}
             alt="Investment-X Logo"
-            className="w-auto h-auto min-w-[20px] max-w-[200px]"
+            className="w-auto h-auto min-w-[40px] max-w-[150px]"
             priority
           />
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden sm:flex flex-col items-start">
+        {/* Navigation Links */}
+        <ul className="flex flex-col items-center gap-4 w-full">
           {navItems.map((item) => (
-            <NavLink
-              key={item}
-              href={`/${item.toLowerCase()}`}
-              onClick={() => {}}
-            >
-              {item}
-            </NavLink>
+            <li key={item.path} className="w-full">
+              <NavLink href={item.path}>
+                {item.label}
+              </NavLink>
+            </li>
           ))}
-        </div>
+        </ul>
 
+        {/* Footer or Additional Actions */}
+        <div className="mt-auto text-center text-gray-500 text-sm">
+          <p>&copy; 2025 Investment-X</p>
+        </div>
       </div>
     </nav>
   );

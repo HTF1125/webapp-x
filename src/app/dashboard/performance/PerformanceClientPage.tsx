@@ -70,23 +70,24 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({ performan
   const chartDataByGroup = transformChartData(data, currentPeriod);
 
   return (
-    <div className="w-full max-h-[600px] flex flex-col overflow-auto">
+    <div className="w-full max-h-[600px] flex flex-col overflow-auto space-y-4">
       <CompactSelector />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
         {chartDataByGroup.map(({ group, data }) => (
-          <div key={group} className="rounded p-2 text-center bg-gray-800">
-            <h3 className="text-white text-xs font-bold mb-1 truncate">{group}</h3>
+          <div key={group} className="rounded-lg p-4 bg-gray-800 shadow-md">
+            <h3 className="text-white text-sm font-semibold mb-2 truncate" title={group}>{group}</h3>
             {Object.keys(data).length > 0 ? (
-              <div style={{ height: "150px", width: "100%" }}>
+              <div className="h-[120px] w-full">
                 <PerformanceChart data={data} />
               </div>
             ) : (
-              <p className="text-gray-400 text-xs">No data available</p>
+              <p className="text-gray-400 text-sm italic">No data available</p>
             )}
           </div>
         ))}
       </div>
     </div>
+
   );
 };
 

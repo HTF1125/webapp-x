@@ -126,47 +126,49 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
   return (
     <Modal
       isOpen={isOpen}
-      size="lg"
+      size="5xl"
       onOpenChange={(open) => {
         if (!open) {
           handleStop();
           onClose();
         }
       }}
-      className="bg-black max-h-[90vh] overflow-hidden"
+      className="bg-gray-900 max-h-[95vh] overflow-hidden"
       style={{ transition: "none" }}
     >
       <ModalContent>
         {(onCloseInternal) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">Summary</ModalHeader>
-            <ModalBody className="max-h-[70vh] overflow-hidden">
-              <div className="mb-4 bg-gray-900 p-2 rounded-lg">
+            <ModalHeader className="flex flex-col gap-1 text-2xl text-white">
+              Summary
+            </ModalHeader>
+            <ModalBody className="max-h-[80vh] overflow-hidden">
+              <div className="mb-6 bg-gray-800 p-4 rounded-lg shadow-lg">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-4">
                     <button
                       className="text-gray-300 hover:text-white transition-all"
                       onClick={decreaseSpeed}
                       aria-label="Decrease Speed"
                     >
-                      <FaMinus size={14} />
+                      <FaMinus size={18} />
                     </button>
-                    <span className="text-xs text-gray-300">{speechRate.toFixed(2)}x</span>
+                    <span className="text-sm text-gray-300">{speechRate.toFixed(2)}x</span>
                     <button
                       className="text-gray-300 hover:text-white transition-all"
                       onClick={increaseSpeed}
                       aria-label="Increase Speed"
                     >
-                      <FaPlus size={14} />
+                      <FaPlus size={18} />
                     </button>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-4">
                     <button
                       className="text-gray-300 hover:text-white transition-all"
                       onClick={handleStop}
                       aria-label="Stop"
                     >
-                      <FaStop size={16} />
+                      <FaStop size={24} />
                     </button>
                     <button
                       className="text-gray-300 hover:text-white transition-all"
@@ -175,19 +177,19 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
                     >
                       {isReading ? (
                         isPaused ? (
-                          <FaPlay size={16} />
+                          <FaPlay size={24} />
                         ) : (
-                          <FaPause size={16} />
+                          <FaPause size={24} />
                         )
                       ) : (
-                        <FaPlay size={16} />
+                        <FaPlay size={24} />
                       )}
                     </button>
                   </div>
                 </div>
               </div>
-              <ScrollShadow className="max-h-[65vh] overflow-y-auto">
-                <div ref={contentRef} className="text-gray-200 leading-relaxed">
+              <ScrollShadow className="max-h-[65vh] overflow-y-auto px-4">
+                <div ref={contentRef} className="text-gray-200 leading-relaxed text-lg">
                   {lines.map((line, index) => (
                     <React.Fragment key={index}>
                       {line.split("").map((char, charIndex) => {
@@ -211,7 +213,7 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
               </ScrollShadow>
             </ModalBody>
             <ModalFooter>
-              <Button color="danger" variant="light" onPress={onCloseInternal}>
+              <Button color="danger" variant="light" onPress={onCloseInternal} size="lg">
                 Close
               </Button>
             </ModalFooter>
