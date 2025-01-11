@@ -1,9 +1,6 @@
-// src/components/SearchBar.tsx
-
-"use client";
-
 import React, { useState } from "react";
-import { FaSearch, FaTimes } from "react-icons/fa";
+import { Input, Button } from "@nextui-org/react";
+import { SearchIcon, CloseIcon } from "@nextui-org/shared-icons";
 
 interface SearchBarProps {
   searchTerm?: string;
@@ -39,32 +36,37 @@ export default function SearchBar({
   return (
     <div className="flex justify-center items-center w-full">
       <div className="w-full max-w-2xl relative">
-        <input
+        <Input
           type="text"
           placeholder="Search..."
           value={inputValue}
-          onChange={(e) => handleInputChange(e.target.value)}
+          onValueChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          className="w-full p-4 pr-16 rounded-xl border border-gray-700 bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
+          className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+          size="lg"
+          endContent={
+            inputValue && (
+              <Button
+                isIconOnly
+                variant="light"
+                onPress={handleClearSearch}
+                aria-label="Clear search"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              >
+                <CloseIcon />
+              </Button>
+            )
+          }
         />
-        {inputValue && (
-          <button
-            type="button"
-            onClick={handleClearSearch}
-            aria-label="Clear search"
-            className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none transition-colors"
-          >
-            <FaTimes />
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={handleSearchButtonClick}
+        <Button
+          isIconOnly
+          color="primary"
+          onPress={handleSearchButtonClick}
           aria-label="Search"
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition focus:outline-none"
+          className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600"
         >
-          <FaSearch />
-        </button>
+          <SearchIcon />
+        </Button>
       </div>
     </div>
   );

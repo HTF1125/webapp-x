@@ -16,8 +16,8 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
   onError,
   accept,
   message = "Drag and drop files here",
-  draggingClassName = "border-blue-500 bg-gray-800 text-blue-200",
-  defaultClassName = "border-gray-600 bg-gray-900 text-gray-300",
+  draggingClassName = "border-blue-500 bg-background text-blue-200",
+  defaultClassName = "border-divider bg-background text-muted",
   containerClassName = "",
 }) => {
   const { handleFilesAdded } = useInsights(); // Use context to upload files

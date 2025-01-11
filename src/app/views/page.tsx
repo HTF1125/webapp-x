@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { NEXT_PUBLIC_API_URL } from "@/config";
@@ -79,7 +79,7 @@ export default function TacticalView() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -91,7 +91,7 @@ export default function TacticalView() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-red-500">
+      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-red-500">
         <h1>Error: {error}</h1>
       </div>
     );
@@ -108,18 +108,16 @@ export default function TacticalView() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 p-6">
+    <div className="p-6 text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-gray-800 rounded-lg shadow-xl p-6 mb-8"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8"
         >
-          <h1 className="text-4xl font-bold text-blue-400">Tactical View Report</h1>
-          <p className="text-gray-400 mt-2">
-            Published: {formatDate(published_date)}
-          </p>
+          <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400">Tactical View Report</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Published: {formatDate(published_date)}</p>
         </motion.div>
 
         <div className="flex flex-col md:flex-row gap-8">
@@ -137,7 +135,7 @@ export default function TacticalView() {
                     className={`w-full text-left px-4 py-2 rounded-lg flex items-center space-x-2 ${
                       activeSection === section.title
                         ? "bg-blue-600 text-white"
-                        : "hover:bg-gray-800"
+                        : "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
                     }`}
                   >
                     <section.icon className="w-5 h-5" />
@@ -156,16 +154,16 @@ export default function TacticalView() {
             className="md:w-3/4"
           >
             {activeSection === "Global Economic Outlook" && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-4">Global Economic Outlook</h2>
-                <p className="text-lg">{views["Global Economic Outlook"]}</p>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Global Economic Outlook</h2>
+                <p className="text-lg text-gray-700 dark:text-gray-300">{views["Global Economic Outlook"]}</p>
               </div>
             )}
 
             {activeSection === "Key Investment Themes" && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-4">Key Investment Themes</h2>
-                <ul className="list-disc pl-6 space-y-2">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Investment Themes</h2>
+                <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
                   {views["Key Investment Themes"].map((theme, index) => (
                     <li key={index} className="text-lg">{theme}</li>
                   ))}
@@ -174,28 +172,28 @@ export default function TacticalView() {
             )}
 
             {activeSection === "Asset Class Views" && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-4">Asset Class Views</h2>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Asset Class Views</h2>
                 {Object.entries(views["Asset Class Views"]).map(([category, data]) => (
                   <div key={category} className="mb-6">
-                    <h3 className="text-2xl font-medium mb-2">{category}</h3>
+                    <h3 className="text-2xl font-medium mb-2 text-gray-800 dark:text-gray-200">{category}</h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-800">
+                        <thead className="bg-gray-100 dark:bg-gray-700">
                           <tr>
-                            <th className="px-4 py-2">Region / Sector</th>
-                            <th className="px-4 py-2">View</th>
-                            <th className="px-4 py-2">Rationale</th>
+                            <th className="px-4 py-2 text-gray-800 dark:text-gray-200">Region / Sector</th>
+                            <th className="px-4 py-2 text-gray-800 dark:text-gray-200">View</th>
+                            <th className="px-4 py-2 text-gray-800 dark:text-gray-200">Rationale</th>
                           </tr>
                         </thead>
                         <tbody>
                           {Object.entries(data).map(([key, value]) => {
                             const viewRationale = value as ViewRationale | undefined;
                             return (
-                              <tr key={key} className="hover:bg-gray-800">
-                                <td className="border-t border-gray-700 px-4 py-2">{key}</td>
-                                <td className="border-t border-gray-700 px-4 py-2">{viewRationale?.view}</td>
-                                <td className="border-t border-gray-700 px-4 py-2">{viewRationale?.rationale}</td>
+                              <tr key={key} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{key}</td>
+                                <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{viewRationale?.view}</td>
+                                <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{viewRationale?.rationale}</td>
                               </tr>
                             );
                           })}
@@ -208,13 +206,13 @@ export default function TacticalView() {
             )}
 
             {activeSection === "Top Tactical Ideas" && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-4">Top Tactical Ideas</h2>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Top Tactical Ideas</h2>
                 <ul className="space-y-4">
                   {views["Top Tactical Ideas"].map((idea, index) => (
-                    <li key={index} className="bg-gray-800 rounded-lg p-4">
-                      <h3 className="text-xl font-semibold mb-2">{idea.idea}</h3>
-                      <p>{idea.rationale}</p>
+                    <li key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{idea.idea}</h3>
+                      <p className="text-gray-700 dark:text-gray-300">{idea.rationale}</p>
                     </li>
                   ))}
                 </ul>
@@ -222,9 +220,9 @@ export default function TacticalView() {
             )}
 
             {activeSection === "Key Risks" && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-4">Key Risks</h2>
-                <ul className="list-disc pl-6 space-y-2">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Risks</h2>
+                <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
                   {views["Key Risks"].map((risk, index) => (
                     <li key={index} className="text-lg">{risk}</li>
                   ))}

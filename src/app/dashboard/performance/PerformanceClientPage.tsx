@@ -1,4 +1,3 @@
-// src/app/dashboard/_performance/PerformancePageClient.tsx (Client-side)
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -10,7 +9,9 @@ interface PerformancePageClientProps {
   performanceGrouped: any[];
 }
 
-const PerformancePageClient: React.FC<PerformancePageClientProps> = ({ performanceGrouped }) => {
+const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
+  performanceGrouped,
+}) => {
   const { currentPeriod } = usePeriod();
   const [data, setData] = useState<any[]>(performanceGrouped);
   const [loading, setLoading] = useState<boolean>(false);
@@ -22,7 +23,6 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({ performan
       setLoading(true);
       setError(null);
       try {
-        // Simulate a fetch (you may fetch new data if needed)
         setData(performanceGrouped); // For now, using the prop data
       } catch (err) {
         setError("Failed to load performance data. Please try again later.");
@@ -34,17 +34,28 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({ performan
     getPerformanceData();
   }, [currentPeriod, performanceGrouped]);
 
-  const transformChartData = (performanceGrouped: any[], currentPeriod: string) => {
-    const groups = Array.from(new Set(performanceGrouped.map((item) => item.group)));
+  const transformChartData = (
+    performanceGrouped: any[],
+    currentPeriod: string
+  ) => {
+    const groups = Array.from(
+      new Set(performanceGrouped.map((item) => item.group))
+    );
 
     return groups.map((group) => {
-      const filteredData = performanceGrouped.filter((item) => item.group === group);
+      const filteredData = performanceGrouped.filter(
+        (item) => item.group === group
+      );
       const chartData = filteredData
         .map((item) => {
           const value = item[`pct_chg_${currentPeriod}`] ?? null;
-          return value !== null ? { label: item.name || item.code, value } : null;
+          return value !== null
+            ? { label: item.name || item.code, value }
+            : null;
         })
-        .filter((item): item is { label: string; value: number } => item !== null)
+        .filter(
+          (item): item is { label: string; value: number } => item !== null
+        )
         .sort((a, b) => b.value - a.value);
 
       const formattedData = chartData.reduce<Record<string, number>>(
@@ -60,34 +71,41 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({ performan
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center text-gray-500">Loading...</div>;
   }
 
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return <div className="error-message text-red-500">{error}</div>;
   }
 
   const chartDataByGroup = transformChartData(data, currentPeriod);
 
   return (
-    <div className="w-full max-h-[600px] flex flex-col overflow-auto space-y-4">
+    <div className="w-full flex flex-col space-y-4 overflow-hidden">
       <CompactSelector />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2">
         {chartDataByGroup.map(({ group, data }) => (
-          <div key={group} className="rounded-lg p-4 bg-gray-800 shadow-md">
-            <h3 className="text-white text-sm font-semibold mb-2 truncate" title={group}>{group}</h3>
+          <div
+            key={group}
+            className="rounded-lg p-2 bg-background shadow-md overflow-hidden"
+          >
+            <h3
+              className="text-foreground text-sm font-semibold mb-1 truncate"
+              title={group}
+            >
+              {group}
+            </h3>
             {Object.keys(data).length > 0 ? (
-              <div className="h-[120px] w-full">
+              <div className="max-h-120 overflow-hidden">
                 <PerformanceChart data={data} />
               </div>
             ) : (
-              <p className="text-gray-400 text-sm italic">No data available</p>
+              <p className="text-muted text-sm italic">No data available</p>
             )}
           </div>
         ))}
       </div>
     </div>
-
   );
 };
 

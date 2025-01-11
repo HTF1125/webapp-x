@@ -1,36 +1,22 @@
-// /dashboard/page.tsx
+import React, { Suspense } from "react";
 
-import React from "react";
-import PerformancePage from "./performance/PerformancePage";
-import PredictionPage from "./prediction/page";
-// import MarketCommentaryComponent from "./_commentary/page";
-import StrategiesPage from "../strategies/page";
-export default async function DashboardPage() {
-  // Fetch data on the server side
+const PerformancePage = React.lazy(() => import("./performance/PerformancePage"));
+const PredictionPage = React.lazy(() => import("./prediction/page"));
 
+export default function DashboardPage() {
   return (
-    <div className="w-full flex flex-col space-y-4">
-      <div className="w-full box-border">
+    <div className="w-full items-center flex flex-col space-y-4">
+      <Suspense fallback={<div className="text-center text-gray-500">Loading Performance...</div>}>
+        <div className="w-full box-border">
           <PerformancePage />
-      </div>
-
-      {/* <div className="w-full box-border flex flex-row gap-4 flex-wrap max-w-5xl mx-auto sm:max-h-80 overflow-auto">
-        <div className="flex-1 w-36 overflow-auto min-w-56">
-          <MarketCommentaryComponent />
         </div>
-        <div className="flex-1 w-36 overflow-auto min-w-56">
-          Insights
-        </div>
-        <div className="flex-1 w-36 overflow-auto min-w-56">
-          Views
-        </div>
-      </div> */}
+      </Suspense>
 
-      <PredictionPage />
-      <div className="max-w-5xl mx-auto ">
-        <StrategiesPage />
-      </div>
-
+      <Suspense fallback={<div className="text-center text-gray-500">Loading Predictions...</div>}>
+        <div className="w-full box-border">
+          <PredictionPage />
+        </div>
+      </Suspense>
     </div>
   );
 }

@@ -20,7 +20,7 @@ const CompactSelector: React.FC = () => {
 
   return (
     <div
-      className="inline-flex flex-wrap gap-2 p-2 rounded-lg shadow-lg bg-gray-800"
+      className="inline-flex flex-wrap gap-1 p-1 rounded-lg shadow-lg bg-background"
       role="group"
       aria-label="Period Selector"
     >
@@ -28,10 +28,10 @@ const CompactSelector: React.FC = () => {
         <button
           key={option}
           onClick={() => setCurrentPeriod(option)}
-          className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-sm transition-all duration-200 ease-in-out ${
+          className={`px-2 py-1 text-xs sm:text-sm font-semibold rounded-sm transition-all duration-200 ease-in-out ${
             currentPeriod === option
-              ? "bg-blue-500 text-white shadow-md ring-2 ring-blue-400 ring-opacity-50"
-              : "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white"
+              ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary ring-opacity-50"
+              : "bg-muted text-muted-foreground hover:bg-muted-hover hover:text-foreground"
           }`}
           aria-pressed={currentPeriod === option}
         >

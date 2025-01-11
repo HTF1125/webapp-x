@@ -37,38 +37,32 @@ const AllInsights = () => {
   const { isAdmin } = useAuth();
 
   return (
-    <div className="w-full bg-black text-white flex flex-col items-center px-4 py-4">
-      {/* Header, Search, and Actions */}
-      <div className="w-full flex items-center justify-between px-4 py-2 mb-4">
+    <div className="w-full bg-background text-foreground flex flex-col items-center px-4 py-6 space-y-6">
+      {/* Header with Search Bar and Action Button */}
+      <div className="w-full flex items-center justify-between gap-4 px-4 py-2">
         <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
         <Button
           onClick={() => setIsSourceListVisible(true)}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          className="w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
           Show Source List
         </Button>
       </div>
 
-      {/* Drag-and-Drop for PDFs */}
-      <div className="w-full my-2 z-0">
+      {/* Drag-and-Drop Section for PDFs */}
+      <div className="w-full my-4">
         <DragAndDrop message="Upload PDF Insights" />
       </div>
 
-      {/* Insights Cards in a table-like structure */}
-      <div className="w-full bg-black border border-gray-700 rounded p-4 max-h-[600px] overflow-y-auto">
+      {/* Insights Section: Cards */}
+      <div className="w-full bg-background border border-divider rounded-lg p-4 max-h-[600px] overflow-y-auto">
         <div className="w-full space-y-4">
           {insights.length > 0 ? (
             insights.map((insight) => (
-              <InsightCard
-                key={insight._id}
-                insight={insight}
-                isAdmin={isAdmin}
-              />
+              <InsightCard key={insight._id} insight={insight} isAdmin={isAdmin} />
             ))
           ) : (
-            <div className="text-center text-gray-500 py-3">
-              No insights found.
-            </div>
+            <div className="text-center text-muted py-3">No insights found.</div>
           )}
         </div>
 
@@ -76,7 +70,7 @@ const AllInsights = () => {
         {!isLoadingMore && insights.length > 0 && (
           <Button
             onClick={handleLoadMore}
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+            className="mt-4 w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
           >
             Load More
           </Button>
@@ -90,24 +84,21 @@ const AllInsights = () => {
         )}
       </div>
 
-      {/* SourceList Modal */}
-      {/* SourceList Modal */}
+      {/* Source List Modal */}
       <Modal
         isOpen={isSourceListVisible}
-        size="5xl" // Make the modal fullscreen
+        size="5xl"
         onOpenChange={(open) => {
           if (!open) {
             setIsSourceListVisible(false);
           }
         }}
-        className="bg-black overflow-hidden"
+        className="bg-background overflow-hidden"
       >
         <ModalContent>
           {() => (
             <>
-              <ModalHeader className="text-white text-2xl font-bold">
-                Source List
-              </ModalHeader>
+              <ModalHeader className="text-foreground text-2xl font-bold">Source List</ModalHeader>
               <ModalBody className="h-[80vh] overflow-y-auto p-4">
                 <SourceList />
               </ModalBody>
@@ -142,9 +133,6 @@ const AllInsights = () => {
       {selectedInsight && (
         <EditInsight
           currentInsight={selectedInsight}
-          onSaveComplete={() => {
-            setSelectedInsight(null);
-          }}
           onClose={() => setSelectedInsight(null)}
         />
       )}

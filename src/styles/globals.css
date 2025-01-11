@@ -24,11 +24,6 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
   }
 
   .dark {
@@ -51,43 +46,46 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
+}
 
+@layer base {
   * {
     @apply border-border;
   }
-
-  html {
-    @apply h-full;
-    font-family: 'Roboto', sans-serif; /* Use the new font here */
-  }
-
   body {
-    @apply h-full bg-background text-foreground;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .bg-background {
+    @apply bg-[hsl(var(--background))];
+  }
+  .text-foreground {
+    @apply text-[hsl(var(--foreground))];
+  }
+  .border-border {
+    @apply border-[hsl(var(--border))];
   }
 }
 
 @layer components {
   .editor-container {
-    @apply bg-white mx-auto my-5 rounded-t-lg max-w-xl text-black relative leading-5 font-normal text-left;
+    @apply bg-background mx-auto my-5 rounded-t-lg max-w-xl text-foreground relative leading-5 font-normal text-left;
   }
 
   .editor-input {
-    @apply min-h-[150px] resize-none text-sm outline-none p-4 caret-gray-600;
+    @apply min-h-[150px] resize-none text-sm outline-none p-4 caret-foreground;
   }
 
   .editor-placeholder {
-    @apply text-gray-400 absolute top-4 left-4 text-sm pointer-events-none;
+    @apply text-muted-foreground absolute top-4 left-4 text-sm pointer-events-none;
   }
 }
 
 @layer utilities {
-  /* Animation utilities */
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
   }
@@ -99,27 +97,8 @@
   .animate-slide-in-left {
     animation: slideInLeft 0.3s ease-in-out;
   }
-
-  /* Custom Scrollbars */
-  .custom-scrollbar::-webkit-scrollbar {
-    @apply w-2 h-2;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-secondary;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-primary rounded-full;
-  }
-
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary) var(--secondary);
-  }
 }
 
-/* Keyframe Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -135,7 +114,6 @@
   to { transform: translateX(0); }
 }
 
-/* Print Styles */
 @media print {
   body {
     @apply text-black bg-white;
@@ -146,7 +124,6 @@
   }
 }
 
-/* Mobile Styles */
 @media (max-width: 768px) {
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;

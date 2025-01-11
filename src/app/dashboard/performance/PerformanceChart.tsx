@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
 
+// Register necessary components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 type PerformanceChartProps = {
@@ -23,6 +24,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
   const chartRef = useRef<ChartJS<"bar"> | null>(null);
   const [yAxisFontSize, setYAxisFontSize] = useState(12);
   const [dataLabelFontSize, setDataLabelFontSize] = useState(12);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Sort the data entries
   const sortedEntries = useMemo(() => {
@@ -40,9 +42,15 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       if (!ctx) return [];
 
       return values.map((value) => {
-        const gradient = ctx.createLinearGradient(0, 0, 400, 0);
-        gradient.addColorStop(0, value > 0 ? "rgba(0, 204, 102, 0.8)" : "rgba(204, 0, 0, 0.8)");
-        gradient.addColorStop(1, value > 0 ? "rgba(0, 102, 204, 0.8)" : "rgba(255, 51, 51, 0.8)");
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(
+          0,
+          value > 0 ? "rgba(0, 204, 102, 0.8)" : "rgba(204, 0, 0, 0.8)"
+        );
+        gradient.addColorStop(
+          1,
+          value > 0 ? "rgba(0, 102, 204, 0.8)" : "rgba(255, 51, 51, 0.8)"
+        );
         return gradient;
       });
     }
@@ -50,87 +58,121 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
   }, [values]);
 
   useEffect(() => {
+    // Check if dark mode is enabled by looking for the "dark" class
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    };
+
+    checkDarkMode(); // Initial check
+
+    const observer = new MutationObserver(() => {
+      checkDarkMode();
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     if (chartRef.current) {
       const chart = chartRef.current;
       const chartHeight = chart.height;
-      const newYAxisFontSize = Math.max(8, Math.min(14, Math.floor(chartHeight / 20)));
-      const newDataLabelFontSize = Math.max(8, Math.min(12, Math.floor(chartHeight / 25)));
+      const newYAxisFontSize = Math.max(
+        8,
+        Math.min(14, Math.floor(chartHeight / 20))
+      );
+      const newDataLabelFontSize = Math.max(
+        8,
+        Math.min(12, Math.floor(chartHeight / 25))
+      );
       setYAxisFontSize(newYAxisFontSize);
       setDataLabelFontSize(newDataLabelFontSize);
-    }
-  }, [values]);
 
-  // Memoize chart options to avoid recalculating on every render
-  const options = useMemo(() => ({
-    indexAxis: "y" as const,
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        ticks: {
-          color: "#bbb",
-          font: {
-            size: yAxisFontSize,
+      // Re-render the chart when the theme changes (use `isDarkMode` to dynamically update the colors)
+      chart.update();
+    }
+  }, [isDarkMode]);
+
+  const options = useMemo(
+    () => ({
+      indexAxis: "y" as const,
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          ticks: {
+            color: isDarkMode ? "#bbb" : "#333", // Adjust color for dark/light mode
+            font: {
+              size: yAxisFontSize,
+            },
+          },
+          grid: {
+            color: isDarkMode ? "#444" : "#ddd", // Adjust grid color for dark/light mode
           },
         },
-        grid: {
-          color: "#444",
+        y: {
+          ticks: {
+            color: isDarkMode ? "#fff" : "#000", // Adjust Y-axis tick color for dark/light mode
+            autoSkip: false,
+            font: {
+              size: yAxisFontSize,
+            },
+          },
+          grid: {
+            display: false,
+          },
         },
       },
-      y: {
-        ticks: {
-          color: "#fff",
-          autoSkip: false,
-          font: {
-            size: yAxisFontSize,
-          },
-        },
-        grid: {
+      plugins: {
+        legend: {
           display: false,
         },
-      },
-    },
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: function (tooltipItem: TooltipItem<"bar">) {
-            const value = tooltipItem.raw as number;
-            return `${value > 0 ? "+" : ""}${value}%`;
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem: TooltipItem<"bar">) {
+              const value = tooltipItem.raw as number;
+              return `${value > 0 ? "+" : ""}${value}%`;
+            },
           },
+          backgroundColor: isDarkMode
+            ? "rgba(0, 0, 0, 0.8)"
+            : "rgba(255, 255, 255, 0.8)",
+          titleColor: isDarkMode ? "#fff" : "#000",
+          bodyColor: isDarkMode ? "#fff" : "#000",
+          borderColor: isDarkMode ? "#666" : "#ccc",
+          borderWidth: 1,
         },
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        titleColor: "#fff",
-        bodyColor: "#fff",
-        borderColor: "#666",
-        borderWidth: 1,
-      },
-      datalabels: {
-        display: true,
-        align: "end" as const,
-        anchor: "end" as const,
-        formatter: (_: number, context: Context) => {
-          const signedValue = values[context.dataIndex];
-          return `${signedValue > 0 ? "+" : ""}${signedValue}%`;
+        datalabels: {
+          display: true,
+          align: "end" as const,
+          anchor: "end" as const,
+          formatter: (_: number, context: Context) => {
+            const signedValue = values[context.dataIndex];
+            return `${signedValue > 0 ? "+" : ""}${signedValue}%`;
+          },
+          font: {
+            size: dataLabelFontSize,
+          },
+          color: isDarkMode ? "#fff" : "#000", // Datalabels color based on the theme
+          clip: false,
         },
-        font: {
-          size: dataLabelFontSize,
+      },
+      layout: {
+        padding: {
+          top: 10,
+          bottom: 10,
+          right: 40,
+          left: 10,
         },
-        color: "#fff",
-        clip: false,
       },
-    },
-    layout: {
-      padding: {
-        top: 10,
-        bottom: 10,
-        right: 40,
-        left: 10,
-      },
-    },
-  }), [yAxisFontSize, dataLabelFontSize, values]);
+    }),
+    [yAxisFontSize, dataLabelFontSize, values, isDarkMode]
+  );
 
   const chartData = {
     labels,
@@ -140,7 +182,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
         data: values.map((value) => Math.abs(value)),
         backgroundColor: gradientColors,
         borderColor: values.map((value) =>
-          value < 0 ? "rgba(255, 99, 132, 1)" : "rgba(75, 192, 192, 1)"
+          value < 0 ? "rgba(255,99,132)" : "rgba(75,192,192)"
         ),
         borderWidth: 1,
       },
@@ -148,14 +190,18 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
   };
 
   return (
-    <Bar
-      ref={chartRef}
-      data={chartData}
-      options={options}
-      plugins={[ChartDataLabels]}
-      aria-label="Performance Chart"
-      role="img"
-    />
+    <div
+      className={`w-full p-1 h-full`} 
+    >
+      <Bar
+        ref={chartRef}
+        data={chartData}
+        options={options}
+        plugins={[ChartDataLabels]}
+        aria-label="Performance Chart"
+        role="img"
+      />
+    </div>
   );
 };
 

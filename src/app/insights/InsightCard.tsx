@@ -10,16 +10,15 @@ const InsightCard: React.FC<{
   insight: Insight;
   isAdmin: boolean;
 }> = ({ insight, isAdmin }) => {
-  const { setSelectedInsight, handleUpdateSummary, handleDelete } =
-    useInsights();
+  const { setSelectedInsight, handleUpdateSummary, handleDelete } = useInsights();
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 py-4 px-6 border-b border-gray-700 bg-gray-900 text-sm hover:bg-gray-800 transition-colors">
+    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 py-4 px-6 border-b border-divider bg-background text-sm hover:bg-muted transition-colors">
       <div className="flex-grow space-y-2 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 w-full">
         <div className="md:col-span-3">
           <h3
-            className="font-semibold text-white cursor-pointer hover:text-cyan-400 truncate"
+            className="font-semibold text-foreground cursor-pointer hover:text-cyan-400 truncate"
             onClick={() => setIsSummaryModalOpen(true)}
           >
             {insight.name}
@@ -27,20 +26,20 @@ const InsightCard: React.FC<{
         </div>
         <div className="md:col-span-2">
           <p
-            className="text-gray-400 truncate"
+            className="text-muted truncate"
             title={insight.issuer || "Unknown"}
           >
             {insight.issuer || "Unknown"}
           </p>
         </div>
         <div className="md:col-span-2">
-          <p className="text-gray-400">
+          <p className="text-muted">
             {new Date(insight.published_date).toLocaleDateString()}
           </p>
         </div>
         <div className="md:col-span-5">
           <p
-            className="text-gray-400 truncate"
+            className="text-muted truncate"
             title={insight.summary || "No summary available."}
           >
             {insight.summary
@@ -52,14 +51,14 @@ const InsightCard: React.FC<{
       {isAdmin && (
         <div className="flex justify-end gap-3 mt-3 md:mt-0">
           <button
-            className="text-gray-400 hover:text-cyan-400 transition-colors"
+            className="text-muted hover:text-cyan-400 transition-colors"
             onClick={() => handleUpdateSummary(insight)}
             title="Update Summary"
           >
             <RotateCcw size={18} />
           </button>
           <button
-            className="text-gray-400 hover:text-cyan-400 transition-colors"
+            className="text-muted hover:text-cyan-400 transition-colors"
             onClick={() => {
               window.open(
                 `https://files.investment-x.app/${insight._id}.pdf`,
@@ -71,14 +70,14 @@ const InsightCard: React.FC<{
             <FileText size={18} />
           </button>
           <button
-            className="text-gray-400 hover:text-cyan-400 transition-colors"
+            className="text-muted hover:text-cyan-400 transition-colors"
             onClick={() => setSelectedInsight(insight)}
             title="Edit"
           >
             <Edit3 size={18} />
           </button>
           <button
-            className="text-gray-400 hover:text-red-500 transition-colors"
+            className="text-muted hover:text-red-500 transition-colors"
             onClick={() => handleDelete(insight)}
             title="Delete"
           >

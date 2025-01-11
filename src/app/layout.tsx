@@ -2,22 +2,23 @@ import "@/styles/globals.css";
 import { Roboto_Condensed } from "next/font/google";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
-import { MantineProvider } from "@mantine/core";
 import { NextUIProvider } from "@nextui-org/react";
-import ErrorBoundary from "@/components/common/ErrorBoundary";
-import Navbar from "@/components/navbar/Navbar";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import Providers from "@/components/Providers";
 import MenuNav from "@/components/menunav/MenuNav";
 
+// Load Google Font
 const font = Roboto_Condensed({
   subsets: ["latin"],
-  display: "swap"
+  display: "swap",
 });
 
+// Metadata for the application
 export const metadata: Metadata = {
   title: "Investment-X",
 };
 
+// Main layout component
 export default function RootLayout({
   children,
 }: {
@@ -25,34 +26,27 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={font.className}>
-      <body className="bg-black text-white max-h-screen flex flex-col overflow-auto">
-        <MantineProvider>
+      <body className="flex h-screen w-screen overflow-hidden">
+        <NextThemesProvider attribute="class" defaultTheme="dark">
           <NextUIProvider>
-            <ErrorBoundary>
-              <Providers>
-                <div className="flex flex-row max-h-screen overflow-auto">
+            <Providers>
+              <div className="flex w-screen h-screen">
+                {/* Sidebar Navigation */}
+                <div className="w-75px h-full bg-menu-nav border-r border-divider overflow-y-auto">
                   <MenuNav />
-                  <div className="flex flex-col flex-grow max-h-screen overflow-auto">
-                    <header className="sticky top-0 left-0 w-full bg-gray-800 shadow-lg z-50">
-                      <Navbar />
-                    </header>
-                    <main className="flex-grow w-full mx-auto bg-black p-6">
-                      {children}
-                    </main>
-                    <footer className="w-full text-sm text-gray-400 text-center mt-auto py-4 border-t border-gray-700">
-                      <div>
-                        © {new Date().getFullYear()} Investment-X. All rights reserved.
-                      </div>
-                    </footer>
-                  </div>
                 </div>
-              </Providers>
-            </ErrorBoundary>
+                {/* Main Content Area */}
+                <div className="w-full h-full flex flex-col overflow-hidden">
+                  <main className="h-[calc(100%-80px)] p-4 overflow-y-auto bg-background text-foreground">
+                    {children}
+                  </main>
+                </div>
+              </div>
+            </Providers>
           </NextUIProvider>
-        </MantineProvider>
+        </NextThemesProvider>
         <Analytics />
       </body>
     </html>
   );
 }
-

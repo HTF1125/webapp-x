@@ -1,65 +1,76 @@
-const { nextui } = require("@nextui-org/react");
 import type { Config } from "tailwindcss";
+import { nextui } from "@nextui-org/react";
 
 const config: Config = {
-  darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}", // Include NextUI theme files
   ],
+  darkMode: "class", // Enable dark mode with class strategy
   theme: {
     extend: {
       colors: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        // Chart colors
+        chartPositive: "rgba(0, 204, 102, 0.8)",
+        chartNegative: "rgba(204, 0, 0, 0.8)",
+        chartPositiveGradientStart: "rgba(0, 204, 102, 0.8)",
+        chartPositiveGradientEnd: "rgba(0, 102, 204, 0.8)",
+        chartNegativeGradientStart: "rgba(204, 0, 0, 0.8)",
+        chartNegativeGradientEnd: "rgba(255, 51, 51, 0.8)",
+        chartXAxisTick: "#bbb",
+        chartYAxisTick: "#fff",
+        chartGrid: "#444",
+        chartTooltipBackground: "rgba(0, 0, 0, 0.8)",
+        chartTooltipTitle: "#fff",
+        chartTooltipBody: "#fff",
+        chartTooltipBorder: "#666",
       },
     },
   },
-  plugins: [nextui()],
+  plugins: [
+    nextui({
+      themes: {
+        light: {
+          colors: {
+            background: "#FFFFFF", // Light theme background color
+            foreground: "#000000", // Light theme foreground color
+            primary: {
+              DEFAULT: "#006FEE", // Primary color for light theme
+              foreground: "#FFFFFF", // Foreground color for primary in light theme
+            },
+            secondary: {
+              DEFAULT: "#338ef7", // Secondary color for light theme
+              foreground: "#FFFFFF", // Foreground color for secondary in light theme
+            },
+            default: {
+              DEFAULT: "#CCCCCC", // Default color for light theme
+              foreground: "#000000", // Foreground color for default in light theme
+            },
+          },
+        },
+        dark: {
+          colors: {
+            background: "#001731", // Dark theme background color
+            foreground: "#FFFFFF", // Dark theme foreground color
+            primary: {
+              DEFAULT: "#005bc4", // Primary color for dark theme
+              foreground: "#FFFFFF", // Foreground color for primary in dark theme
+            },
+            secondary: {
+              DEFAULT: "#004493", // Secondary color for dark theme
+              foreground: "#FFFFFF", // Foreground color for secondary in dark theme
+            },
+            default: {
+              DEFAULT: "#CCCCCC", // Default color for dark theme
+              foreground: "#000000", // Foreground color for default in dark theme
+            },
+          },
+        },
+      },
+    }),
+  ],
 };
+
 export default config;

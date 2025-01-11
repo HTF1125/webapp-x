@@ -1,16 +1,17 @@
 // app/loading.tsx
+"use client";
+
 import React from 'react';
-import { LoadingOverlay, Box } from '@mantine/core';
+import { Spinner } from '@nextui-org/react';
 
 export default function Loading() {
+
   return (
-    <Box pos="relative" h="100vh">
-      <LoadingOverlay
-        visible={true}
-        zIndex={1000}
-        overlayProps={{ radius: 'sm', blur: 2 }}
-        loaderProps={{ color: 'pink', type: 'bars' }}
-      />
-    </Box>
+    <div className="h-screen flex justify-center items-center bg-background">
+      <div className="text-center">
+        <Spinner size="lg" color="primary" />
+        <div className="mt-5 text-foreground">Loading...</div>
+      </div>
+    </div>
   );
 }

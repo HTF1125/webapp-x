@@ -133,29 +133,29 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
           onClose();
         }
       }}
-      className="bg-gray-900 max-h-[95vh] overflow-hidden"
+      className="bg-white dark:bg-gray-900 max-h-[95vh] overflow-hidden"
       style={{ transition: "none" }}
     >
       <ModalContent>
         {(onCloseInternal) => (
           <>
-            <ModalHeader className="flex flex-col gap-1 text-2xl text-white">
+            <ModalHeader className="flex flex-col gap-1 text-2xl text-gray-900 dark:text-white">
               Summary
             </ModalHeader>
             <ModalBody className="max-h-[80vh] overflow-hidden">
-              <div className="mb-6 bg-gray-800 p-4 rounded-lg shadow-lg">
+              <div className="mb-6 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <button
-                      className="text-gray-300 hover:text-white transition-all"
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all"
                       onClick={decreaseSpeed}
                       aria-label="Decrease Speed"
                     >
                       <FaMinus size={18} />
                     </button>
-                    <span className="text-sm text-gray-300">{speechRate.toFixed(2)}x</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">{speechRate.toFixed(2)}x</span>
                     <button
-                      className="text-gray-300 hover:text-white transition-all"
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all"
                       onClick={increaseSpeed}
                       aria-label="Increase Speed"
                     >
@@ -164,14 +164,14 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
                   </div>
                   <div className="flex items-center space-x-4">
                     <button
-                      className="text-gray-300 hover:text-white transition-all"
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all"
                       onClick={handleStop}
                       aria-label="Stop"
                     >
                       <FaStop size={24} />
                     </button>
                     <button
-                      className="text-gray-300 hover:text-white transition-all"
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all"
                       onClick={handleReadAloud}
                       aria-label={isReading ? (isPaused ? "Resume" : "Pause") : "Play"}
                     >
@@ -189,7 +189,7 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
                 </div>
               </div>
               <ScrollShadow className="max-h-[65vh] overflow-y-auto px-4">
-                <div ref={contentRef} className="text-gray-200 leading-relaxed text-lg">
+                <div ref={contentRef} className="text-gray-700 dark:text-gray-200 leading-relaxed text-lg">
                   {lines.map((line, index) => (
                     <React.Fragment key={index}>
                       {line.split("").map((char, charIndex) => {
@@ -199,7 +199,7 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary })
                             key={globalCharIndex}
                             data-charindex={globalCharIndex}
                             className={
-                              globalCharIndex < readTextEndIndex ? "text-gray-500" : ""
+                              globalCharIndex < readTextEndIndex ? "text-gray-400 dark:text-gray-500" : ""
                             }
                           >
                             {char}
