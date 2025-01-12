@@ -45,7 +45,7 @@ export async function updateInsight(insight: Insight): Promise<Insight> {
     throw new Error("Insight _id is undefined.");
   }
 
-  const endpoint = rurl(`/api/insight/${insight._id}`); // Construct endpoint with ID
+  const endpoint = rurl(`/api/insight`); // Construct endpoint with ID
 
   try {
     const data = await fetchData(endpoint, insight, { method: "PUT" });
