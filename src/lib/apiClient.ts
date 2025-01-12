@@ -1,69 +1,92 @@
-const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export const rurl = (url: string) => {
   console.log(NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_API_URL);
   return new URL(url, NEXT_PUBLIC_API_URL).toString();
-}
+};
 
 /**
- * 发送请求的统一处理
- * @param url 请求路径
- * @param params 请求参数
- * @param options fetch发送请求需要的配置
+ * Unified request handler
+ * @param url Request path
+ * @param params Request parameters
+ * @param options Fetch configuration
  * @returns Promise
  */
-export const fetchData = async (url: string, params: Record<string, any> = {}, options: RequestInit = {}) => {
-  // 设置默认配置
-  const defaultOptions: any = {
-    method: 'GET',
+export const fetchData = async (
+  url: string,
+  params: Record<string, any> = {},
+  options: RequestInit = {}
+) => {
+  // Setup default options
+  const defaultOptions: RequestInit = {
+    method: "GET",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   };
 
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    defaultOptions.headers['Authorization'] = 'Bearer ' + token;
+  // Guard against `localStorage` usage in SSR
+  let token: string | null = null;
+  if (typeof window !== "undefined") {
+    token = localStorage.getItem("access_token");
   }
 
+  if (token) {
+    (defaultOptions.headers as Record<string, string>)["Authorization"] =
+      "Bearer " + token;
+  }
 
-  // 合并用户传入的配置
-  const newOptions = {
+  // Merge user-provided options
+  const newOptions: RequestInit = {
     ...defaultOptions,
     ...options,
     headers: {
-      ...defaultOptions.headers,
-      ...(options.headers || {}),
+      ...(defaultOptions.headers ?? {}),
+      ...(options.headers ?? {}),
     },
   };
 
-  // 处理 GET 请求的参数拼接
-  if (newOptions.method.toUpperCase() === 'GET' && params && Object.keys(params).length > 0) {
+  // Handle GET parameters
+  if (
+    newOptions.method &&
+    newOptions.method.toUpperCase() === "GET" &&
+    params &&
+    Object.keys(params).length > 0
+  ) {
     const queryString = new URLSearchParams(params).toString();
-    url += (url.includes('?') ? '&' : '?') + queryString;
+    url += (url.includes("?") ? "&" : "?") + queryString;
   }
 
-  // 处理非 GET 请求的 body 参数
-  if (newOptions.method.toUpperCase() !== 'GET' && params && newOptions.headers['Content-Type'] === 'application/json') {
+  // Handle non-GET request body
+  if (
+    newOptions.method &&
+    newOptions.method.toUpperCase() !== "GET" &&
+    params &&
+    (newOptions.headers as Record<string, string>)["Content-Type"] ===
+      "application/json"
+  ) {
     newOptions.body = JSON.stringify(params);
   }
 
   const response = await fetch(url, newOptions);
   if (!response.ok) {
-    const errorData = await resoveResponse(response);
-    throw new Error(errorData?.message || 'Request failed. Please try again.');
+    const errorData = await resolveResponse(response);
+    throw new Error(errorData?.message || "Request failed. Please try again.");
   }
 
-  return resoveResponse(response);
-}
+  return resolveResponse(response);
+};
 
-function resoveResponse(response: Response) {
-  const contentType = (response.headers.get('Content-Type') ?? '').split(';')[0].toLowerCase();
-  if (contentType?.includes('application/json')) {
+function resolveResponse(response: Response) {
+  const contentType = (response.headers.get("Content-Type") ?? "")
+    .split(";")[0]
+    .toLowerCase();
+
+  if (contentType.includes("application/json")) {
     return response.json();
-  } else if (contentType?.includes('text/')) {
+  } else if (contentType.includes("text/")) {
     return response.text();
-  } else if (contentType?.includes('application/octet-stream')) {
+  } else if (contentType.includes("application/octet-stream")) {
     return response.blob();
   } else {
     return response;

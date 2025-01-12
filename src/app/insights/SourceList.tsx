@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+
 import {
   InsightSource,
   fetchInsightSources,
   createInsightSource,
   updateInsightSource,
   deleteInsightSource,
-} from "./SourceApi";
+} from "@/services/insightApi";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
@@ -32,10 +34,16 @@ const SourceList: React.FC = () => {
   const [sources, setSources] = useState<InsightSource[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Track dialog state for creating a new source
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false); // Track dialog state for updating a source
-  const [selectedSource, setSelectedSource] = useState<InsightSource | null>(null); // Track the selected source for update
+  const [selectedSource, setSelectedSource] = useState<InsightSource | null>(
+    null
+  ); // Track the selected source for update
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // Track delete confirmation dialog state
-  const [sourceToDelete, setSourceToDelete] = useState<InsightSource | null>(null); // Store the source to delete
-  const [selectedFrequency, setSelectedFrequency] = useState<string | null>(null); // State to store the selected frequency filter
+  const [sourceToDelete, setSourceToDelete] = useState<InsightSource | null>(
+    null
+  ); // Store the source to delete
+  const [selectedFrequency, setSelectedFrequency] = useState<string | null>(
+    null
+  ); // State to store the selected frequency filter
 
   /** Load sources when the component mounts */
   useEffect(() => {
@@ -67,7 +75,7 @@ const SourceList: React.FC = () => {
     } else {
       // If source doesn't have an ID, create it
       try {
-        source.last_visited = new Date().toISOString()
+        source.last_visited = new Date().toISOString();
         const createdSource = await createInsightSource(source);
         setSources((prevSources) => [...prevSources, createdSource]);
       } catch (error) {
@@ -81,7 +89,9 @@ const SourceList: React.FC = () => {
       // Proceed with deleting the selected source
       deleteInsightSource(sourceToDelete._id)
         .then(() => {
-          setSources((prevSources) => prevSources.filter((s) => s._id !== sourceToDelete._id));
+          setSources((prevSources) =>
+            prevSources.filter((s) => s._id !== sourceToDelete._id)
+          );
           setIsDeleteDialogOpen(false); // Close the delete confirmation dialog
         })
         .catch((error) => {
@@ -128,10 +138,12 @@ const SourceList: React.FC = () => {
     : sources;
 
   return (
-    <div className="bg-black text-white flex flex-col w-full mx-auto p-4">
+    <div className="bg-black text-white flex flex-col w-full mx-auto p-4 dark: bg-white">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-white">Insight Sources</h2>
+          <h2 className="text-lg font-semibold text-black dark: text-white">
+            Insight Sources
+          </h2>
           <p className="text-sm text-gray-400">Manage your insight sources</p>
         </div>
         <Button
@@ -140,7 +152,7 @@ const SourceList: React.FC = () => {
             setSelectedSource(null); // Set the selected source for update
             setIsUpdateDialogOpen(true); // Open the update dialog
           }}
-          className="text-white bg-black"
+          className="text-white bg-black dark: bg-white"
         >
           <FaPlus className="inline" />
         </Button>
@@ -167,7 +179,7 @@ const SourceList: React.FC = () => {
           {filteredSources.map((source) => (
             <div
               key={source._id}
-              className="relative bg-gray-900 p-3 rounded-lg flex flex-col space-y-2 border border-white hover:bg-gray-800"
+              className="relative bg-gray-900 p-3 rounded-lg flex flex-col space-y-2 border border-white hover:bg-gray-800 dark:bg-gray-800 dark:border-gray-700 hover:dark:bg-gray-700"
             >
               <div className="flex items-center space-x-3 truncate">
                 <img
@@ -245,11 +257,12 @@ const SourceList: React.FC = () => {
 
       {/* Custom Confirmation Dialog for Deletion */}
       {isDeleteDialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10 dark: bg-white ">
           <div className="bg-gray-900 p-6 rounded-lg w-96">
             <h3 className="text-lg text-white mb-4">Confirm Deletion</h3>
             <p className="text-sm text-gray-400 mb-4">
-              Are you sure you want to delete this source? This action cannot be undone.
+              Are you sure you want to delete this source? This action cannot be
+              undone.
             </p>
             <div className="flex justify-end space-x-4">
               <Button

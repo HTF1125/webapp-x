@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { getPredictions, TimeSeriesPredictionResponse } from "./DataServices";
-import { Tab } from '@headlessui/react';
+import {
+  getPredictions,
+  TimeSeriesPredictionResponse,
+} from "@/services/predApi";
+import { Tab } from "@headlessui/react";
 import PredictionChart from "./PredictionChart";
 
 const PredictionPage = () => {
   const [predictionData, setPredictionData] = useState<TimeSeriesPredictionResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [,setSelectedFeature] = useState<string | null>(null);
+  const [, setSelectedFeature] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,26 +46,30 @@ const PredictionPage = () => {
   if (!predictionData) return <NoDataMessage />;
 
   return (
-    <div className="w-full p-6 shadow-lg rounded-lg">
-      <div className="max-w-screen-xl mx-auto">
+    <div className="w-full min-h-screen">
+      <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-extrabold mb-10 text-center text-gray-800 dark:text-white">
           Market Predictions & Feature Insights
         </h1>
 
-        <div className="flex flex-col lg:flex-row gap-10">
+        <div className="space-y-10">
           {/* Main Chart */}
-          <div className="lg:w-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
-            <h2 className="text-xl font-bold mb-4 text-center text-gray-800 dark:text-white">Overall Trend</h2>
+          <div className="rounded-xl shadow-xl p-6">
+            <h2 className="text-xl font-bold mb-4 text-center text-gray-800 dark:text-white">
+              Overall Trend
+            </h2>
             <PredictionChart
               allDates={allDates}
               predictionData={predictionData.prediction}
               targetData={predictionData.target}
             />
           </div>
-
+          
           {/* Feature Charts */}
-          <div className="lg:w-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
-            <h2 className="text-xl font-bold mb-4 text-center text-gray-800 dark:text-white">Feature Comparisons</h2>
+          <div className="rounded-xl shadow-xl p-6">
+            <h2 className="text-xl font-bold mb-4 text-center text-gray-800 dark:text-white">
+              Feature Comparisons
+            </h2>
             <Tab.Group>
               <Tab.List className="flex flex-wrap gap-2 justify-center mb-6">
                 {Object.keys(predictionData.features).map((feature) => (
@@ -70,7 +77,11 @@ const PredictionPage = () => {
                     key={feature}
                     className={({ selected }) =>
                       `px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200
-                      ${selected ? "bg-indigo-600 text-white dark:bg-indigo-500" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"}`
+                      ${
+                        selected
+                          ? "bg-indigo-600 text-white dark:bg-indigo-500"
+                          : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                      }`
                     }
                     onClick={() => setSelectedFeature(feature)}
                   >
@@ -102,19 +113,19 @@ const PredictionPage = () => {
 };
 
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-indigo-100 to-indigo-200 dark:from-gray-900 dark:to-gray-800">
+  <div className="flex items-center justify-center min-h-screen">
     <div className="w-14 h-14 border-4 border-t-4 border-indigo-200 dark:border-gray-600 rounded-full animate-spin"></div>
   </div>
 );
 
 const ErrorMessage = ({ message }: { message: string }) => (
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-indigo-100 to-indigo-200 dark:from-gray-900 dark:to-gray-800">
+  <div className="flex items-center justify-center min-h-screen">
     <p className="text-red-600 dark:text-red-400 text-xl">{message}</p>
   </div>
 );
 
 const NoDataMessage = () => (
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-indigo-100 to-indigo-200 dark:from-gray-900 dark:to-gray-800">
+  <div className="flex items-center justify-center min-h-screen">
     <p className="text-gray-600 dark:text-gray-300 text-xl">No data found.</p>
   </div>
 );

@@ -1,31 +1,28 @@
-// app/insights/components/LoadingSpinner.tsx
-
-"use client";
+// LoadingSpinner.tsx
+import React from "react";
+import { Spinner } from "@nextui-org/react";
 
 interface LoadingSpinnerProps {
-  size?: number; // spinner size in pixels
-  color?: string; // color for the spinner
-  message?: string; // optional loading message
+  className?: string; // Additional classes for customization
+  size?: "sm" | "md" | "lg"; // Size of the spinner
+  color?: "default" | "current" | "white" | "primary" | "secondary" | "success" | "warning" | "danger"; // Custom color for the spinner
+  label?: string; // Optional label for accessibility
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 40,
-  color = "text-blue-500",
-  message = "Loading...",
+  className = "",
+  size = "md", // Default size
+  color = "primary", // Default color
+  label = "Loading...", // Default label for accessibility
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div
-        className={`animate-spin rounded-full ${color}`}
-        style={{
-          width: size,
-          height: size,
-          borderWidth: size / 10,
-          borderColor: `${color.replace("text", "border")}`,
-          borderTopColor: "transparent",
-        }}
-      ></div>
-      {message && <p className="mt-4 text-lg text-gray-500">{message}</p>}
+    <div className={`flex items-center justify-center ${className}`}>
+      <Spinner 
+        size={size} 
+        color={color} 
+        aria-label={label} 
+      />
+      {label && <span className="ml-2 text-gray-500">{label}</span>}
     </div>
   );
 };

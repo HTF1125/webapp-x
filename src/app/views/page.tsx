@@ -79,7 +79,7 @@ export default function TacticalView() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+      <div className="flex items-center justify-center h-screen text-gray-900 dark:text-white">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -91,7 +91,7 @@ export default function TacticalView() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-red-500">
+      <div className="flex items-center justify-center h-screen text-red-500">
         <h1>Error: {error}</h1>
       </div>
     );
@@ -108,13 +108,13 @@ export default function TacticalView() {
   ];
 
   return (
-    <div className="p-6 text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-900">
+    <div className="p-6 text-gray-900 dark:text-gray-100 ">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8"
+          className="rounded-lg shadow-xl p-6 mb-8"
         >
           <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400">Tactical View Report</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Published: {formatDate(published_date)}</p>
@@ -154,14 +154,14 @@ export default function TacticalView() {
             className="md:w-3/4"
           >
             {activeSection === "Global Economic Outlook" && (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="p-6 rounded-lg shadow-md">
                 <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Global Economic Outlook</h2>
                 <p className="text-lg text-gray-700 dark:text-gray-300">{views["Global Economic Outlook"]}</p>
               </div>
             )}
 
             {activeSection === "Key Investment Themes" && (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="p-6 rounded-lg shadow-md">
                 <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Investment Themes</h2>
                 <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
                   {views["Key Investment Themes"].map((theme, index) => (
@@ -172,7 +172,7 @@ export default function TacticalView() {
             )}
 
             {activeSection === "Asset Class Views" && (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="p-6 rounded-lg shadow-md">
                 <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Asset Class Views</h2>
                 {Object.entries(views["Asset Class Views"]).map(([category, data]) => (
                   <div key={category} className="mb-6">
@@ -206,11 +206,11 @@ export default function TacticalView() {
             )}
 
             {activeSection === "Top Tactical Ideas" && (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="p-6 rounded-lg shadow-md">
                 <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Top Tactical Ideas</h2>
                 <ul className="space-y-4">
                   {views["Top Tactical Ideas"].map((idea, index) => (
-                    <li key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <li key={index} className="rounded-lg p-4">
                       <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{idea.idea}</h3>
                       <p className="text-gray-700 dark:text-gray-300">{idea.rationale}</p>
                     </li>
@@ -220,7 +220,7 @@ export default function TacticalView() {
             )}
 
             {activeSection === "Key Risks" && (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="p-6 rounded-lg shadow-md">
                 <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Risks</h2>
                 <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
                   {views["Key Risks"].map((risk, index) => (

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState} from "react";
 import { Insight } from "./InsightApi";
+import { useInsights } from "./provider";
 
 interface EditInsightProps {
   currentInsight?: Partial<Insight>;
@@ -14,12 +15,32 @@ const EditInsight: React.FC<EditInsightProps> = ({
 }) => {
   const [insightData, setInsightData] =
     useState<Partial<Insight>>(currentInsight);
-  const [loading] = useState<boolean>(false);
-  const [error] = useState<string | null>(null);
-  const [successMessage, ] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const { handleUpdateInsight } = useInsights();
 
   const handleSave = async () => {
-    // ... (keep the existing handleSave logic)
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      // Ensure that the insightData has an _id to update
+      if (!insightData._id) {
+        throw new Error("Insight _id is required for updating.");
+      }
+
+      // Call the update function
+      await handleUpdateInsight(insightData as Insight);
+      setSuccessMessage("Insight updated successfully!");
+      onClose(); // Close the modal after saving
+    } catch (error) {
+      console.error("Error saving insight:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

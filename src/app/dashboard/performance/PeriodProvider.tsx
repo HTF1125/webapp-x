@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import { Period } from "./DataServices";
+import { Period } from "@/services/perfApi";
 
 interface PeriodContextProps {
   currentPeriod: Period;

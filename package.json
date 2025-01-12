@@ -75,6 +75,7 @@
     "dompurify": "^3.1.7",
     "embla-carousel-react": "^7.1.0",
     "framer-motion": "^11.16.4",
+    "iconify": "^1.4.0",
     "jsm-editor": "^0.0.12",
     "jwt-decode": "^4.0.0",
     "lexical": "^0.16.1",
@@ -105,11 +106,14 @@
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "usehooks-ts": "^3.1.0",
     "uuid": "^11.0.3",
     "vaul": "^1.1.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@iconify-icon/react": "^2.3.0",
+    "@iconify/react": "^5.2.0",
     "@types/node": "^20",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18",

@@ -1,22 +1,24 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
   Shield,
-  ChevronDown,
+  ChevronRight,
   LogOut,
   Settings,
   Crown,
 } from "lucide-react";
 import { useAuth } from "@/context/Auth/AuthContext";
 
-const NavbarUser: React.FC = () => {
+const SidebarUser: React.FC<{ isCompact: boolean }> = ({ isCompact }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAbove, setShowAbove] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const { isAuthenticated, isAdmin, logout, user } = useAuth();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,6 +38,20 @@ const NavbarUser: React.FC = () => {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    const checkPosition = () => {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        setShowAbove(spaceBelow < 200); // Adjust 200 based on your menu height
+      }
+    };
+
+    checkPosition();
+    window.addEventListener('resize', checkPosition);
+    return () => window.removeEventListener('resize', checkPosition);
+  }, []);
+
   const handleMenuClose = () => setIsOpen(false);
 
   const handleLogout = async () => {
@@ -48,27 +64,44 @@ const NavbarUser: React.FC = () => {
     }
   };
 
+  const getInitials = (name?: string) => {
+    if (!name) return "UN";
+    const names = name.split(' ');
+    return names.map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  };
+
+  const renderUserAvatar = () => {
+    const initials = getInitials(user?.username);
+    return (
+      <div className="flex items-center justify-center w-10 h-10 rounded-md bg-gray-600 text-white font-semibold">
+        {initials}
+      </div>
+    );
+  };
+
   const renderIcon = () => {
-    if (isAuthenticated && isAdmin) {
+    if (isAuthenticated) {
       return (
-        <div className="flex items-center space-x-1">
-          <Shield className="w-6 h-6 text-yellow-500" />
-          <Crown className="w-4 h-4 text-yellow-500" />
-          <ChevronDown className="w-5 h-5 text-yellow-500" />
-        </div>
-      );
-    } else if (isAuthenticated) {
-      return (
-        <div className="flex items-center space-x-1">
-          <User className="w-6 h-6 text-gray-400" />
-          <ChevronDown className="w-5 h-5 text-gray-400" />
+        <div className="flex items-center space-x-2">
+          {renderUserAvatar()}
+          {!isCompact && (
+            <>
+              <span className="text-sm font-medium truncate max-w-[120px]">
+                {user?.username || "User"}
+              </span>
+              {isAdmin && <Crown className="w-4 h-4 text-yellow-500" />}
+              <ChevronRight 
+                className={`w-4 h-4 transition-transform ${isOpen ? (showAbove ? 'rotate-[-90deg]' : 'rotate-90') : ''}`} 
+              />
+            </>
+          )}
         </div>
       );
     } else {
       return (
-        <Link href="/sign-in" className="flex items-center space-x-1">
-          <User className="w-6 h-6 text-gray-400" />
-          <span className="text-gray-400">Sign In</span>
+        <Link href="/sign-in" className="flex items-center space-x-2">
+          <User className="w-6 h-6" />
+          {!isCompact && <span className="text-sm">Sign In</span>}
         </Link>
       );
     }
@@ -118,9 +151,10 @@ const NavbarUser: React.FC = () => {
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative">
       <button
-        className="flex items-center p-2 rounded-full hover:bg-gray-700 focus:outline-none"
+        ref={buttonRef}
+        className="flex items-center p-2 rounded-md hover:bg-gray-700 focus:outline-none w-full"
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
@@ -129,13 +163,13 @@ const NavbarUser: React.FC = () => {
       </button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && !isCompact && (
           <motion.div
             ref={menuRef}
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className="absolute left-[calc(-100%)] mt-[10px] w-[250px] bg-gray-800 text-white rounded-md shadow-lg py-2 z-[100]"
+            initial={{ opacity: 0, y: showAbove ? 10 : -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: showAbove ? 10 : -10 }}
+            className={`absolute ${showAbove ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 w-full bg-gray-800 text-white rounded-md shadow-lg py-2 z-10`}
           >
             {renderMenuItems()}
           </motion.div>
@@ -145,4 +179,4 @@ const NavbarUser: React.FC = () => {
   );
 };
 
-export default NavbarUser;
+export default SidebarUser;

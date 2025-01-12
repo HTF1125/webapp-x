@@ -1,6 +1,7 @@
 import React from "react";
 import { usePeriod } from "./PeriodProvider";
-import { Period } from "./DataServices"; // Assuming the Period type is exported from a `types` file
+import { Period } from "@/services/perfApi";
+
 
 const CompactSelector: React.FC = () => {
   const { currentPeriod, setCurrentPeriod } = usePeriod();
@@ -28,7 +29,7 @@ const CompactSelector: React.FC = () => {
         <button
           key={option}
           onClick={() => setCurrentPeriod(option)}
-          className={`px-2 py-1 text-xs sm:text-sm font-semibold rounded-sm transition-all duration-200 ease-in-out ${
+          className={`px-3 py-1 text-xs sm:text-sm font-semibold rounded-sm transition-all duration-200 ease-in-out ${
             currentPeriod === option
               ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary ring-opacity-50"
               : "bg-muted text-muted-foreground hover:bg-muted-hover hover:text-foreground"

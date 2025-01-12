@@ -1,4 +1,4 @@
-import { NEXT_PUBLIC_API_URL } from "@/config";
+import { fetchData, rurl } from "@/lib/apiClient";
 
 // types.ts
 export interface TimeSeriesPredictionResponse {
@@ -25,24 +25,18 @@ export const getPredictions = async (
   if (
     predictionsCache[cacheKey] &&
     predictionsCache[cacheKey].expiresAt > currentTime
-  ) {
+  ) { 
     return predictionsCache[cacheKey].data;
   }
 
   // Build the API endpoint
-  const endpoint = new URL("/api/predictions", NEXT_PUBLIC_API_URL);
-  endpoint.searchParams.append("name", name);
+  const endpoint = rurl("/api/predictions");
 
   try {
-    // Fetch data from the API
-    const res = await fetch(endpoint.toString());
-
-    if (!res.ok) {
-      console.error("Failed to fetch predictions", await res.text());
-      return null;
-    }
-
-    const data: TimeSeriesPredictionResponse = await res.json();
+    // Fetch data from the API using fetchData
+    const data: TimeSeriesPredictionResponse = await fetchData(endpoint, {
+      name,
+    });
 
     // Store the data in the cache with a 2-hour expiration
     predictionsCache[cacheKey] = {

@@ -10,6 +10,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useProgress } from "@/context/Progress/ProgressContext";
+
 import {
   Insight,
   fetchInsights,
@@ -17,7 +18,7 @@ import {
   updateInsight,
   updateSummary,
   createInsightWithPDF,
-} from "./InsightApi";
+} from "@/services/insightApi";
 
 // Create context to share state across components
 interface InsightsContextType {
