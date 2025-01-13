@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-
 import {
   InsightSource,
   fetchInsightSources,
@@ -20,8 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreVerticalIcon } from "lucide-react";
-import { FaPlus } from "react-icons/fa"; // Import the "+" icon for the button
-import EditInsightSource from "./EditInsightSource"; // Import the new EditInsightSource component
+import { FaPlus } from "react-icons/fa";
+import EditInsightSource from "./EditInsightSource";
 
 /** Format date/time for the source's last visited property */
 const formatLastVisited = (date: string | null) => {
@@ -32,20 +31,19 @@ const formatLastVisited = (date: string | null) => {
 
 const SourceList: React.FC = () => {
   const [sources, setSources] = useState<InsightSource[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Track dialog state for creating a new source
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false); // Track dialog state for updating a source
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selectedSource, setSelectedSource] = useState<InsightSource | null>(
     null
-  ); // Track the selected source for update
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // Track delete confirmation dialog state
+  );
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [sourceToDelete, setSourceToDelete] = useState<InsightSource | null>(
     null
-  ); // Store the source to delete
+  );
   const [selectedFrequency, setSelectedFrequency] = useState<string | null>(
     null
-  ); // State to store the selected frequency filter
+  );
 
-  /** Load sources when the component mounts */
   useEffect(() => {
     fetchInsightSources()
       .then((fetchedSources) => {
@@ -61,7 +59,6 @@ const SourceList: React.FC = () => {
 
   const handleSave = async (source: InsightSource) => {
     if (source._id) {
-      // If source has an ID, update it
       try {
         const updatedSource = await updateInsightSource(source);
         setSources((prevSources) =>
@@ -73,7 +70,6 @@ const SourceList: React.FC = () => {
         console.error("Error updating source:", error);
       }
     } else {
-      // If source doesn't have an ID, create it
       try {
         source.last_visited = new Date().toISOString();
         const createdSource = await createInsightSource(source);
@@ -86,13 +82,12 @@ const SourceList: React.FC = () => {
 
   const handleDelete = () => {
     if (sourceToDelete) {
-      // Proceed with deleting the selected source
       deleteInsightSource(sourceToDelete._id)
         .then(() => {
           setSources((prevSources) =>
             prevSources.filter((s) => s._id !== sourceToDelete._id)
           );
-          setIsDeleteDialogOpen(false); // Close the delete confirmation dialog
+          setIsDeleteDialogOpen(false);
         })
         .catch((error) => {
           console.error("Error deleting source:", error);
@@ -101,21 +96,17 @@ const SourceList: React.FC = () => {
   };
 
   const handleNameClick = async (url: string, source: InsightSource) => {
-    // Open the URL in a new window
     window.open(url, "_blank", "noopener,noreferrer");
 
-    // Update the last visited date
     const updatedSource = {
       ...source,
       last_visited: new Date().toISOString(),
     };
 
-    // Optimistically update the state
     const updatedSources = sources.map((s) =>
       s._id === updatedSource._id ? updatedSource : s
     );
 
-    // Re-sort the sources after updating the last_visited date
     const sortedSources = updatedSources.sort((a, b) => {
       const dateA = a.last_visited ? new Date(a.last_visited).getTime() : 0;
       const dateB = b.last_visited ? new Date(b.last_visited).getTime() : 0;
@@ -124,7 +115,6 @@ const SourceList: React.FC = () => {
 
     setSources(sortedSources);
 
-    // Update the backend with the new last visited date
     try {
       await updateInsightSource(updatedSource);
     } catch (error) {
@@ -132,37 +122,34 @@ const SourceList: React.FC = () => {
     }
   };
 
-  // Filter sources by selected frequency
   const filteredSources = selectedFrequency
     ? sources.filter((source) => source.frequency === selectedFrequency)
     : sources;
 
   return (
-    <div className="bg-black text-white flex flex-col w-full mx-auto p-4 dark: bg-white">
+    <div className="bg-white text-black dark:bg-gray-900 dark:text-white flex flex-col w-full mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-black dark: text-white">
-            Insight Sources
-          </h2>
-          <p className="text-sm text-gray-400">Manage your insight sources</p>
+          <h2 className="text-lg font-semibold">Insight Sources</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Manage your insight sources
+          </p>
         </div>
         <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedSource(null); // Set the selected source for update
-            setIsUpdateDialogOpen(true); // Open the update dialog
+          onClick={() => {
+            setSelectedSource(null);
+            setIsUpdateDialogOpen(true);
           }}
-          className="text-white bg-black dark: bg-white"
+          className="bg-black text-white dark:bg-white dark:text-black"
         >
           <FaPlus className="inline" />
         </Button>
       </div>
 
-      {/* Frequency Filter */}
       <div className="mb-4">
-        <label className="text-white text-sm mr-2">Filter by Frequency:</label>
+        <label className="text-sm mr-2">Filter by Frequency:</label>
         <select
-          className="p-2 bg-gray-700 text-white rounded"
+          className="p-2 bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded"
           value={selectedFrequency || ""}
           onChange={(e) => setSelectedFrequency(e.target.value || null)}
         >
@@ -173,13 +160,12 @@ const SourceList: React.FC = () => {
         </select>
       </div>
 
-      {/* Scrollable Area for sources */}
       <ScrollArea className="h-[50rem]">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredSources.map((source) => (
             <div
               key={source._id}
-              className="relative bg-gray-900 p-3 rounded-lg flex flex-col space-y-2 border border-white hover:bg-gray-800 dark:bg-gray-800 dark:border-gray-700 hover:dark:bg-gray-700"
+              className="relative bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex flex-col space-y-2 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <div className="flex items-center space-x-3 truncate">
                 <img
@@ -188,33 +174,30 @@ const SourceList: React.FC = () => {
                   className="w-5 h-5 rounded flex-shrink-0"
                 />
                 <h3
-                  className="text-xs font-semibold truncate cursor-pointer text-blue-400 hover:underline flex-1"
-                  onClick={() => handleNameClick(source.url, source)} // Handle the click on the source name
+                  className="text-xs font-semibold truncate cursor-pointer text-blue-500 dark:text-blue-400 hover:underline"
+                  onClick={() => handleNameClick(source.url, source)}
                 >
                   {source.name || "Unnamed Source"}
                 </h3>
-                {/* Dropdown Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-white">
+                    <Button variant="ghost" size="sm">
                       <MoreVerticalIcon className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="center">
                     <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedSource(source); // Set the selected source for update
-                        setIsUpdateDialogOpen(true); // Open the update dialog
+                      onClick={() => {
+                        setSelectedSource(source);
+                        setIsUpdateDialogOpen(true);
                       }}
                     >
                       Update
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSourceToDelete(source); // Set the source to delete
-                        setIsDeleteDialogOpen(true); // Open the delete confirmation dialog
+                      onClick={() => {
+                        setSourceToDelete(source);
+                        setIsDeleteDialogOpen(true);
                       }}
                       className="text-red-500"
                     >
@@ -224,17 +207,11 @@ const SourceList: React.FC = () => {
                 </DropdownMenu>
               </div>
               <div className="flex space-x-2">
-                <Badge
-                  variant="secondary"
-                  className="bg-gray-800 text-xs text-gray-300"
-                >
+                <Badge variant="secondary" className="text-xs">
                   {formatLastVisited(source.last_visited)}
                 </Badge>
                 {source.frequency && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-gray-800 text-xs text-gray-300"
-                  >
+                  <Badge variant="secondary" className="text-xs">
                     {source.frequency}
                   </Badge>
                 )}
@@ -244,7 +221,6 @@ const SourceList: React.FC = () => {
         </div>
       </ScrollArea>
 
-      {/* Dialog for creating or updating an insight source */}
       <EditInsightSource
         isOpen={isDialogOpen || isUpdateDialogOpen}
         onClose={() => {
@@ -255,12 +231,11 @@ const SourceList: React.FC = () => {
         source={selectedSource}
       />
 
-      {/* Custom Confirmation Dialog for Deletion */}
       {isDeleteDialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10 dark: bg-white ">
-          <div className="bg-gray-900 p-6 rounded-lg w-96">
-            <h3 className="text-lg text-white mb-4">Confirm Deletion</h3>
-            <p className="text-sm text-gray-400 mb-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
+            <h3 className="text-lg mb-4">Confirm Deletion</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Are you sure you want to delete this source? This action cannot be
               undone.
             </p>
@@ -268,7 +243,6 @@ const SourceList: React.FC = () => {
               <Button
                 onClick={() => setIsDeleteDialogOpen(false)}
                 variant="outline"
-                className="text-white"
               >
                 Cancel
               </Button>

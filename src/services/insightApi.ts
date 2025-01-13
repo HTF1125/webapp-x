@@ -162,7 +162,7 @@ export async function updateInsightSource(
     throw new Error("_id must be provided when updating an insight source.");
   }
 
-  const endpoint = rurl(`/api/insightsources/${insightSource._id}`); // Use rurl to construct the endpoint
+  const endpoint = rurl(`/api/insightsources`); // Use rurl to construct the endpoint
 
   try {
     const data = await fetchData(endpoint, insightSource, { method: "PUT" });
