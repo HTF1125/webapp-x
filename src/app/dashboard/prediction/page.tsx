@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import {
   getPredictions,
   TimeSeriesPredictionResponse,
@@ -13,8 +13,14 @@ const PredictionPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [, setSelectedFeature] = useState<string | null>(null);
+  const dataFetchedRef = useRef(false);
 
   useEffect(() => {
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
+    const abortController = new AbortController();
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -24,12 +30,17 @@ const PredictionPage = () => {
           setSelectedFeature(Object.keys(data.features)[0]);
         }
       } catch (err) {
-        setError("Failed to fetch prediction data");
+        if (!abortController.signal.aborted) {
+          setError("Failed to fetch prediction data");
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
+
+    return () => abortController.abort();
   }, []);
 
   const allDates = useMemo(() => {

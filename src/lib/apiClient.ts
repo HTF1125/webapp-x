@@ -1,7 +1,6 @@
 const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export const rurl = (url: string) => {
-  console.log(NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_API_URL);
   return new URL(url, NEXT_PUBLIC_API_URL).toString();
 };
 

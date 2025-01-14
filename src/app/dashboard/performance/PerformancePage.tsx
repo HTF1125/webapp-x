@@ -9,8 +9,8 @@ const PerformancePage = async () => {
     const performanceGrouped = await fetchPerformanceGrouped();
 
     return (
-<div className="w-full p-6 shadow-lg rounded-lg">
-<PeriodProvider>
+      <div className="w-full p-6 shadow-lg rounded-lg">
+        <PeriodProvider>
           <PerformancePageClient performanceGrouped={performanceGrouped} />
         </PeriodProvider>
       </div>

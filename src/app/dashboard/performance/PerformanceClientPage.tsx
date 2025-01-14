@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { usePeriod } from "./PeriodProvider";
 import CompactSelector from "./CompactSelector";
 import PerformanceChart from "./PerformanceChart";
@@ -13,26 +13,7 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
   performanceGrouped,
 }) => {
   const { currentPeriod } = usePeriod();
-  const [data, setData] = useState<any[]>(performanceGrouped);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Re-fetch data when `currentPeriod` changes
-  useEffect(() => {
-    const getPerformanceData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        setData(performanceGrouped); // For now, using the prop data
-      } catch (err) {
-        setError("Failed to load performance data. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getPerformanceData();
-  }, [currentPeriod, performanceGrouped]);
+  const [data] = useState<any[]>(performanceGrouped);
 
   const transformChartData = (
     performanceGrouped: any[],
@@ -69,14 +50,6 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
       return { group, data: formattedData };
     });
   };
-
-  if (loading) {
-    return <div className="text-center text-gray-500">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="error-message text-red-500">{error}</div>;
-  }
 
   const chartDataByGroup = transformChartData(data, currentPeriod);
 
