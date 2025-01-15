@@ -1,6 +1,17 @@
+import { MdOutlineDashboard } from "react-icons/md";
+import {
+  FaRegLightbulb,
+  FaRegListAlt,
+  FaUsers,
+  FaChartPie,
+  FaChartLine,
+  FaGift,
+  FaReceipt,
+  FaCog,
+} from "react-icons/fa";
 import { Chip } from "@nextui-org/react";
 
-const sectionItems = [
+export const sectionItems = [
   {
     key: "overview",
     title: "Overview",
@@ -8,15 +19,15 @@ const sectionItems = [
       {
         key: "dashboard",
         href: "/dashboard",
-        icon: "solar:home-2-linear",
+        icon: <MdOutlineDashboard size={20} />,
         title: "Dashboard",
       },
       {
         key: "insights",
         href: "/insights",
-        icon: "solar:widget-2-outline",
+        icon: <FaRegLightbulb size={20} />,
         title: "Insights",
-        endContent: (
+        notification: (
           <Chip size="sm" variant="flat">
             New
           </Chip>
@@ -25,16 +36,13 @@ const sectionItems = [
       {
         key: "views",
         href: "/views",
-        icon: "solar:checklist-minimalistic-outline",
+        icon: <FaRegListAlt size={20} />,
         title: "Views",
-        // endContent: (
-        //   <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-        // ),
       },
       {
         key: "strategies",
         href: "/strategies",
-        icon: "solar:users-group-two-rounded-outline",
+        icon: <FaUsers size={20} />,
         title: "Strategies",
       },
     ],
@@ -45,39 +53,22 @@ const sectionItems = [
     items: [
       {
         key: "cap_table",
-        href: "#",
+        href: "/cap-table",
+        icon: <FaChartPie size={20} />,
         title: "Cap Table",
-        icon: "solar:pie-chart-2-outline",
-        items: [
-          {
-            key: "shareholders",
-            href: "#",
-            title: "Shareholders",
-          },
-          {
-            key: "note_holders",
-            href: "#",
-            title: "Note Holders",
-          },
-          {
-            key: "transactions_log",
-            href: "#",
-            title: "Transactions Log",
-          },
-        ],
       },
       {
         key: "analytics",
-        href: "#",
-        icon: "solar:chart-outline",
+        href: "/analytics",
+        icon: <FaChartLine size={20} />,
         title: "Analytics",
       },
       {
         key: "perks",
         href: "/perks",
-        icon: "solar:gift-linear",
+        icon: <FaGift size={20} />,
         title: "Perks",
-        endContent: (
+        notification: (
           <Chip size="sm" variant="flat">
             3
           </Chip>
@@ -85,18 +76,16 @@ const sectionItems = [
       },
       {
         key: "expenses",
-        href: "#",
-        icon: "solar:bill-list-outline",
+        href: "/expenses",
+        icon: <FaReceipt size={20} />,
         title: "Expenses",
       },
       {
         key: "settings",
         href: "/settings",
-        icon: "solar:settings-outline",
+        icon: <FaCog size={20} />,
         title: "Settings",
       },
     ],
   },
 ];
-
-export default sectionItems;

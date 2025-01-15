@@ -45,7 +45,7 @@ const AllInsights = () => {
           onClick={() => setIsSourceListVisible(true)}
           className="w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
-          Show Source List
+          Source
         </Button>
       </div>
 

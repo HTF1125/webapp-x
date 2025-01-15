@@ -1,7 +1,6 @@
 import React, { Suspense } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
-
 const PerformancePage = React.lazy(
   () => import("./performance/PerformancePage")
 );
@@ -15,7 +14,6 @@ export default function DashboardPage() {
           <PerformancePage />
         </div>
       </Suspense>
-
       <Suspense fallback={<LoadingSpinner className="min-h-400px" />}>
         <div className="w-full box-border">
           <PredictionPage />

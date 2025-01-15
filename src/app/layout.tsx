@@ -5,7 +5,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { NextUIProvider } from "@nextui-org/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import Providers from "@/components/Providers";
-import Sidebar from "@/components/sidebar/comp";
+import { SidebarMenu } from "@/components/sidebar/SidebarMenuItem";
+import { sectionItems } from "@/components/sidebar/sectionItems";
 
 // Load Google Font
 const font = Roboto_Condensed({
@@ -32,7 +33,7 @@ export default function RootLayout({
           <NextUIProvider>
             <Providers>
               <div className="flex h-screen w-screen">
-                <Sidebar />
+                <SidebarMenu sections={sectionItems} />
                 <div className="flex-1 overflow-hidden">
                   <main className="h-full w-full overflow-y-auto bg-background text-foreground p-4">
                     {children}
