@@ -105,19 +105,11 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       maintainAspectRatio: false,
       scales: {
         x: {
-          ticks: {
-            color: isDarkMode ? "#bbb" : "#333", // Adjust color for dark/light mode
-            font: {
-              size: yAxisFontSize,
-            },
-          },
-          grid: {
-            color: isDarkMode ? "#444" : "#ddd", // Adjust grid color for dark/light mode
-          },
+          display: false,
         },
         y: {
           ticks: {
-            color: isDarkMode ? "#fff" : "#000", // Adjust Y-axis tick color for dark/light mode
+            color: isDarkMode ? "#fff" : "#000",
             autoSkip: false,
             font: {
               size: yAxisFontSize,
@@ -136,7 +128,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
           callbacks: {
             label: function (tooltipItem: TooltipItem<"bar">) {
               const value = tooltipItem.raw as number;
-              return `${value > 0 ? "+" : ""}${value}%`;
+              return `${value > 0 ? "+" : "-"}${value}%`;
             },
           },
           backgroundColor: isDarkMode
@@ -164,10 +156,10 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       },
       layout: {
         padding: {
-          top: 10,
-          bottom: 10,
-          right: 40,
-          left: 10,
+          top: 5,
+          bottom: 5,
+          right: 35,
+          left: 5,
         },
       },
     }),
@@ -191,7 +183,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
 
   return (
     <div
-      className={`w-full p-1 h-full`} 
+      className="w-full max-h-[100px] overflow-hidden"
     >
       <Bar
         ref={chartRef}

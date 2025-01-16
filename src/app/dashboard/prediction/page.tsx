@@ -9,7 +9,8 @@ import { Tab } from "@headlessui/react";
 import PredictionChart from "./PredictionChart";
 
 const PredictionPage = () => {
-  const [predictionData, setPredictionData] = useState<TimeSeriesPredictionResponse | null>(null);
+  const [predictionData, setPredictionData] =
+    useState<TimeSeriesPredictionResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [, setSelectedFeature] = useState<string | null>(null);
@@ -57,28 +58,25 @@ const PredictionPage = () => {
   if (!predictionData) return <NoDataMessage />;
 
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full max-w-5xl">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-extrabold mb-10 text-center text-gray-800 dark:text-white">
+        <h1 className="text-xl font-bold mb-2 text-left text-gray-800 dark:text-white">
           Market Predictions & Feature Insights
         </h1>
 
-        <div className="space-y-10">
-          {/* Main Chart */}
-          <div className="rounded-xl shadow-xl p-6">
-            <h2 className="text-xl font-bold mb-4 text-center text-gray-800 dark:text-white">
-              Overall Trend
-            </h2>
-            <PredictionChart
-              allDates={allDates}
-              predictionData={predictionData.prediction}
-              targetData={predictionData.target}
-            />
-          </div>
-          
+        <div className="rounded-xl">
+          <h2 className="text-md font-bold mb-4 text-center text-gray-800 dark:text-white">
+            Composite
+          </h2>
+          <PredictionChart
+            allDates={allDates}
+            predictionData={predictionData.prediction}
+            targetData={predictionData.target}
+          />
+
           {/* Feature Charts */}
-          <div className="rounded-xl shadow-xl p-6">
-            <h2 className="text-xl font-bold mb-4 text-center text-gray-800 dark:text-white">
+          <div className="rounded-xl  p-6">
+            <h2 className="text-md font-bold mb-2 text-center text-gray-800 dark:text-white">
               Feature Comparisons
             </h2>
             <Tab.Group>

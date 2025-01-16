@@ -1,6 +1,6 @@
 // perfAPI.ts
 
-import { fetchData, rurl } from "@/lib/apiClient";
+import { rurl } from "@/lib/apiClient";
 
 export type Period =
   | "1d"
@@ -28,15 +28,19 @@ export interface PerformanceGrouped {
   pct_chg_ytd?: number;
 }
 
-// Function to fetch performance data
 export async function fetchPerformanceGrouped(): Promise<PerformanceGrouped[]> {
   try {
-    const data = await fetchData(
-      rurl("/api/performances-grouped"),
-      {},
-      { method: "GET" }
-    );
-    return data;
+    const response = await fetch(rurl("/api/performances-grouped"), {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      next: { revalidate: 300 },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch performance data.");
+    }
+
+    return response.json(); // Parse the response as JSON
   } catch (error) {
     console.error("Error fetching performance data:", error);
     throw error;

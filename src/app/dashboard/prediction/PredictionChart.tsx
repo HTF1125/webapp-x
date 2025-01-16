@@ -61,9 +61,8 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString(undefined, {
+      year: "2-digit",
       month: "short",
-      day: "numeric",
-      year: "numeric",
     });
 
   const chartOptions: ChartOptions<"line"> = useMemo(() => ({
@@ -71,14 +70,14 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top",
+        position: "top" as const,
         labels: {
           color: isDarkMode ? "white" : "black",
-          font: { size: 12, weight: "bold" },
+          font: { size: 8, weight: "bold" },
         },
       },
       tooltip: {
-        mode: "index",
+        mode: "index" as const,
         intersect: false,
         backgroundColor: isDarkMode ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.8)",
         titleColor: isDarkMode ? "white" : "black",
@@ -88,48 +87,52 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
     scales: {
       x: {
         ticks: {
-          callback: (_, index) => formatDate(allDates[index]),
+          callback: (_, index) => {
+            // Show every nth label to prevent overcrowding
+            return index % Math.ceil(allDates.length / 5) === 0 ? formatDate(allDates[index]) : '';
+          },
           color: isDarkMode ? "white" : "black",
-          font: { size: 11 },
-          maxRotation: 45,
+          font: { size: 8 },
+          maxRotation: 0, // Prevent rotation
+          autoSkip: false,
         },
         grid: { display: false },
       },
       y1: {
-        type: "linear",
-        position: "left",
+        type: "linear" as const,
+        position: "left" as const,
         ticks: {
-          color: isDarkMode ? "white" : "black",
-          font: { size: 10 },
+          color: featureData ? "rgba(153,102,255,1)" : "rgba(54,162,235,1)",
+          font: { size: 8 },
         },
         grid: { display: true, color: isDarkMode ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)" },
         title: {
           display: true,
           text: predictionData ? "Prediction / Feature" : "Feature",
-          color: isDarkMode ? "white" : "black",
+          color: featureData ? "rgba(153,102,255,1)" : "rgba(54,162,235,1)",
         },
       },
       y2: {
-        type: "linear",
-        position: "right",
+        type: "linear" as const,
+        position: "right" as const,
         ticks: {
-          color: isDarkMode ? "white" : "black",
-          font: { size: 10 },
+          color: "rgba(255, 206, 86, 1)",
+          font: { size: 8 },
         },
         grid: { display: false },
         title: {
           display: true,
           text: "Target",
-          color: isDarkMode ? "white" : "black",
+          color: "rgba(255, 206, 86, 1)",
         },
       },
     },
     interaction: {
-      mode: "nearest",
-      axis: "x",
+      mode: "nearest" as const,
+      axis: "x" as const,
       intersect: false,
     },
-  }), [isDarkMode, allDates, predictionData]);
+  }), [isDarkMode, allDates, predictionData, featureData]);
 
   const chartData = {
     labels: allDates,
@@ -165,7 +168,7 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
   };
 
   return (
-    <div className="h-[300px]">
+    <div className="h-[200px]">
       <Line data={chartData} options={chartOptions} />
     </div>
   );

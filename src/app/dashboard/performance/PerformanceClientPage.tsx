@@ -54,23 +54,23 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
   const chartDataByGroup = transformChartData(data, currentPeriod);
 
   return (
-    <div className="w-full flex flex-col space-y-4 overflow-hidden">
+    <div className="w-full max-w-5xl flex flex-col space-y-1 overflow-hidden">
       <CompactSelector />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
         {chartDataByGroup.map(({ group, data }) => (
           <div
             key={group}
-            className="rounded-lg p-2 bg-background shadow-md overflow-hidden"
+            className="rounded-lg p-1 bg-background"
           >
             <h3
-              className="text-foreground text-sm font-semibold mb-1 truncate"
+              className="text-foreground text-sm font-semibold truncate"
               title={group}
             >
               {group}
             </h3>
             {Object.keys(data).length > 0 ? (
-              <div className="max-h-120 overflow-hidden">
-                <PerformanceChart data={data} />
+              <div className="overflow-hidden">
+              <PerformanceChart data={data} />
               </div>
             ) : (
               <p className="text-muted text-sm italic">No data available</p>
