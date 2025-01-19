@@ -18,7 +18,7 @@ const PerformancePage = async () => {
     console.error("Error fetching performance data:", error);
 
     return (
-      <div className="w-full max-w-5xl mx-auto p-4 text-center text-red-500 bg-red-100 rounded-lg">
+      <div className="w-full mx-auto p-4 text-center text-red-500 bg-red-100 rounded-lg">
         <p>Failed to load performance data. Please try again later.</p>
       </div>
     );

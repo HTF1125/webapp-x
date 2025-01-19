@@ -58,7 +58,7 @@ const PredictionPage = () => {
   if (!predictionData) return <NoDataMessage />;
 
   return (
-    <div className="w-full max-w-5xl">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-xl font-bold mb-2 text-left text-gray-800 dark:text-white">
           Market Predictions & Feature Insights

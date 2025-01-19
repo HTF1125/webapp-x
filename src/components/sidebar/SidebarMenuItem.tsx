@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-
 import Link from "next/link";
 import SidebarUser from "./sidebar-user";
 import ResponsiveLogo from "./logo";
@@ -87,33 +86,61 @@ const SidebarSection: React.FC<{
 const SidebarMenu: React.FC<{ sections: typeof sectionItems }> = ({
   sections,
 }) => {
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="relative flex flex-col h-full w-20 md:w-72 text-gray-900 dark:text-gray-100 p-4 overflow-hidden border-r border-gray-300 dark:border-gray-700">
-      {/* Logo */}
-      <ResponsiveLogo />
-      <Spacer y={6} />
-      {/* Navigation */}
-      <nav aria-label="Sidebar navigation">
-        <ul className="sidebar-menu space-y-6">
-          {sections.map((section) => (
-            <SidebarSection
-              key={section.key}
-              title={section.title}
-              items={section.items}
-            />
-          ))}
-        </ul>
-      </nav>
-      <Spacer y={6} />
-      {/* User Menu */}
-      <SidebarUser />
-      <Spacer y={6} />
-      {/* Theme Switch */}
-      <ThemeSwitch />
-      <div className="mt-auto text-center text-gray-600 dark:text-gray-400 text-xs md:text-sm">
-        <p>&copy; 2025 Investment-X</p>
+    <>
+      {/* Hamburger Menu Button */}
+      <button
+        onClick={() => setSidebarOpen(!isSidebarOpen)}
+        className="fixed top-4 left-4 z-50 p-2 bg-gray-300 dark:bg-gray-700 rounded-lg shadow-md"
+        aria-label="Toggle Sidebar"
+      >
+        ☰
+      </button>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 right-0 h-screen w-3/4 max-w-xs bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 z-40 ${
+          isSidebarOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Logo */}
+        <div className="relative flex flex-col h-full text-gray-900 dark:text-gray-100 p-4 border-r border-gray-300 dark:border-gray-700">
+          <ResponsiveLogo />
+          <Spacer y={6} />
+          {/* Navigation */}
+          <nav aria-label="Sidebar navigation">
+            <ul className="sidebar-menu space-y-6">
+              {sections.map((section) => (
+                <SidebarSection
+                  key={section.key}
+                  title={section.title}
+                  items={section.items}
+                />
+              ))}
+            </ul>
+          </nav>
+          <Spacer y={6} />
+          {/* User Menu */}
+          <SidebarUser />
+          <Spacer y={6} />
+          {/* Theme Switch */}
+          <ThemeSwitch />
+          <div className="mt-auto text-center text-gray-600 dark:text-gray-400 text-xs md:text-sm">
+            <p>&copy; 2025 Investment-X</p>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Backdrop */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+        ></div>
+      )}
+    </>
   );
 };
 
