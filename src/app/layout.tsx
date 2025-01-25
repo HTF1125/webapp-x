@@ -7,20 +7,21 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import Providers from "@/components/Providers";
 import { SidebarMenu } from "@/components/sidebar/SidebarMenuItem";
 import { sectionItems } from "@/components/sidebar/sectionItems";
+import { TopNavbar } from "@/components/topnavbar/TopNavBar";
 
-// Load Google Font
+// Load Google Font with proper subsets and display settings
 const font = Roboto_Condensed({
   subsets: ["latin"],
   display: "swap",
 });
 
-// Metadata for the application
+// Define metadata for the application
 export const metadata: Metadata = {
   title: "Investment-X",
   description: "Your go-to platform for investment insights and management",
 };
 
-// Main layout component
+// RootLayout Component
 export default function RootLayout({
   children,
 }: {
@@ -29,20 +30,34 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={font.className}>
       <body className="overflow-hidden">
+        {/* Theme and UI providers for the app */}
         <NextThemesProvider attribute="class" defaultTheme="dark">
           <NextUIProvider>
             <Providers>
-              <div className="flex h-screen w-screen">
-                <SidebarMenu sections={sectionItems} />
-                <div className="flex-1 overflow-hidden">
-                  <main className="h-full w-full overflow-y-auto bg-background text-foreground p-4">
-                    {children}
-                  </main>
+              <div className="flex flex-col h-screen w-full mx-auto">
+                {/* Top Navigation Bar */}
+                <TopNavbar />
+
+                {/* Main Layout with Sidebar and Content Area */}
+                <div className="flex flex-1 overflow-hidden">
+                  {/* Sidebar Menu */}
+                  <SidebarMenu sections={sectionItems} />
+
+                  {/* Centered Content Section */}
+                  <div className="flex-1 flex items-center overflow-hidden transition-all duration-300 relative">
+                    <main className="h-full w-full overflow-y-auto bg-background text-foreground p-4">
+                      <section className="container mx-auto w-full max-w-7xl flex justify-center">
+                        {children}
+                      </section>
+                    </main>
+                  </div>
                 </div>
               </div>
             </Providers>
           </NextUIProvider>
         </NextThemesProvider>
+
+        {/* Vercel Analytics */}
         <Analytics />
       </body>
     </html>

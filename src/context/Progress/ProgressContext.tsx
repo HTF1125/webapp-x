@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-
+// Modified FloatingTask Component
 const FloatingTask: React.FC<{ task: Task }> = ({ task }) => {
   const { removeTask } = useProgress();
 
@@ -25,20 +25,52 @@ const FloatingTask: React.FC<{ task: Task }> = ({ task }) => {
   const taskStyle: React.CSSProperties = {
     backgroundColor: "#2D3748",
     border: task.error
-      ? "2px solid #e53e3e"
+      ? "1px solid #e53e3e"
       : task.completed
-      ? "2px solid #4caf50"
+      ? "1px solid #4caf50"
       : "1px solid #4a5568",
-    borderRadius: "8px",
-    padding: "15px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    borderRadius: "6px",
+    padding: "10px 10px 10px 10px", // Reduced padding
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
     color: "#F7FAFC",
+    position: "relative", // For positioning the close button
+    fontSize: "14px", // Smaller font size
+  };
+
+  const closeButtonStyle: React.CSSProperties = {
+    position: "absolute",
+    top: "5px",
+    right: "5px",
+    background: "transparent",
+    border: "none",
+    color: "#F7FAFC",
+    fontSize: "14px",
+    cursor: "pointer",
+    padding: "0",
   };
 
   return (
     <div style={taskStyle}>
+      {/* Close ('x') Button */}
+      <button
+        onClick={() => removeTask(task.id)}
+        style={closeButtonStyle}
+        aria-label="Close Task"
+      >
+        &times;
+      </button>
+
+      {/* Task Name */}
       <div>{task.name}</div>
-      {task.error && <div style={{ color: "#e53e3e" }}>{task.error}</div>}
+
+      {/* Error Message */}
+      {task.error && (
+        <div style={{ color: "#e53e3e", marginTop: "5px", fontSize: "12px" }}>
+          {task.error}
+        </div>
+      )}
+
+      {/* Completion Button (if no autoClearTime) */}
       {task.completed && !task.autoClearTime && (
         <button
           onClick={() => removeTask(task.id)}
@@ -46,9 +78,11 @@ const FloatingTask: React.FC<{ task: Task }> = ({ task }) => {
             backgroundColor: "#4caf50",
             color: "white",
             border: "none",
-            padding: "5px 10px",
-            borderRadius: "4px",
+            padding: "3px 6px",
+            borderRadius: "3px",
             cursor: "pointer",
+            fontSize: "12px",
+            marginTop: "5px",
           }}
         >
           OK
@@ -58,6 +92,7 @@ const FloatingTask: React.FC<{ task: Task }> = ({ task }) => {
   );
 };
 
+// Modified FloatingTaskList Component
 const FloatingTaskList: React.FC = () => {
   const { tasks } = useProgress();
 
@@ -65,12 +100,12 @@ const FloatingTaskList: React.FC = () => {
     position: "fixed",
     bottom: "20px",
     right: "20px",
-    width: "300px",
-    maxHeight: "80vh",
+    width: "250px", // Reduced width
+    maxHeight: "70vh", // Adjusted max height
     overflowY: "auto",
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
+    gap: "8px", // Reduced gap between tasks
     zIndex: 1000,
   };
 

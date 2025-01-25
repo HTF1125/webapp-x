@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/Auth/AuthContext";
 
-const SidebarUser: React.FC = () => {
+const TopNavUser: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showAbove, setShowAbove] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -194,4 +194,4 @@ const SidebarUser: React.FC = () => {
   );
 };
 
-export default SidebarUser;
+export default TopNavUser;

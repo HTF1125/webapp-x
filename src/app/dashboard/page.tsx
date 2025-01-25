@@ -1,24 +1,22 @@
-import React, { Suspense } from "react";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-
-const PerformancePage = React.lazy(
-  () => import("./performance/PerformancePage")
-);
-const PredictionPage = React.lazy(() => import("./prediction/page"));
+import React from "react";
+import PerformancePage from "./performance/PerformancePage";
+import PredictionPage from "./prediction/page";
+import RefreshButton from "./TaskButton";
 
 export default function DashboardPage() {
   return (
-    <div className="w-full items-center flex flex-col space-y-4">
-      <Suspense fallback={<LoadingSpinner className="min-h-400px" />}>
-        <div className="w-full box-border">
-          <PerformancePage />
-        </div>
-      </Suspense>
-      <Suspense fallback={<LoadingSpinner className="min-h-400px" />}>
-        <div className="w-full box-border">
-          <PredictionPage />
-        </div>
-      </Suspense>
+    <div className="w-full flex flex-col items-center space-y-4 relative">
+      <div className="absolute top-4 right-4">
+        <RefreshButton></RefreshButton>
+        <span className="sr-only">Refresh data</span>
+      </div>
+
+      <section className="w-full">
+        <PerformancePage />
+      </section>
+      <section className="w-full">
+        <PredictionPage />
+      </section>
     </div>
   );
 }
