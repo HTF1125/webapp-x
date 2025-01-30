@@ -36,68 +36,58 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
 
   // Memoize gradient colors to avoid recalculating on every render
   const gradientColors = useMemo(() => {
-    if (chartRef.current) {
-      const chart = chartRef.current;
-      const ctx = chart.canvas.getContext("2d");
-      if (!ctx) return [];
+    const ctx = chartRef.current?.canvas.getContext("2d");
+    if (!ctx) return [];
 
-      return values.map((value) => {
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(
-          0,
-          value > 0 ? "rgba(0, 204, 102, 0.8)" : "rgba(204, 0, 0, 0.8)"
-        );
-        gradient.addColorStop(
-          1,
-          value > 0 ? "rgba(0, 102, 204, 0.8)" : "rgba(255, 51, 51, 0.8)"
-        );
-        return gradient;
-      });
-    }
-    return [];
+    return values.map((value) => {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(
+        0,
+        value > 0 ? "rgba(0, 204, 102, 0.8)" : "rgba(204, 0, 0, 0.8)"
+      );
+      gradient.addColorStop(
+        1,
+        value > 0 ? "rgba(0, 102, 204, 0.8)" : "rgba(255, 51, 51, 0.8)"
+      );
+      return gradient;
+    });
   }, [values]);
 
+  // Detect dark mode changes
   useEffect(() => {
-    // Check if dark mode is enabled by looking for the "dark" class
     const checkDarkMode = () => {
       setIsDarkMode(document.documentElement.classList.contains("dark"));
     };
 
     checkDarkMode(); // Initial check
 
-    const observer = new MutationObserver(() => {
-      checkDarkMode();
-    });
+    const observer = new MutationObserver(checkDarkMode);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
 
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
+  // Adjust font sizes based on chart height
   useEffect(() => {
     if (chartRef.current) {
       const chart = chartRef.current;
       const chartHeight = chart.height;
-      const newYAxisFontSize = Math.max(
-        8,
-        Math.min(14, Math.floor(chartHeight / 20))
-      );
-      const newDataLabelFontSize = Math.max(
-        8,
-        Math.min(12, Math.floor(chartHeight / 25))
-      );
+
+      const newYAxisFontSize = Math.max(8, Math.min(14, Math.floor(chartHeight / 20)));
+      const newDataLabelFontSize = Math.max(8, Math.min(12, Math.floor(chartHeight / 25)));
+
       setYAxisFontSize(newYAxisFontSize);
       setDataLabelFontSize(newDataLabelFontSize);
 
-      // Re-render the chart when the theme changes (use `isDarkMode` to dynamically update the colors)
+      // Re-render the chart when the theme changes
       chart.update();
     }
   }, [isDarkMode]);
 
+  // Chart options
   const options = useMemo(
     () => ({
       indexAxis: "y" as const,
@@ -125,15 +115,14 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
           display: false,
         },
         tooltip: {
+          enabled: true,
           callbacks: {
-            label: function (tooltipItem: TooltipItem<"bar">) {
+            label: (tooltipItem: TooltipItem<"bar">) => {
               const value = tooltipItem.raw as number;
-              return `${value > 0 ? "+" : "-"}${value}%`;
+              return `${value > 0 ? "+" : "-"}${Math.abs(value)}%`;
             },
           },
-          backgroundColor: isDarkMode
-            ? "rgba(0, 0, 0, 0.8)"
-            : "rgba(255, 255, 255, 0.8)",
+          backgroundColor: isDarkMode ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.8)",
           titleColor: isDarkMode ? "#fff" : "#000",
           bodyColor: isDarkMode ? "#fff" : "#000",
           borderColor: isDarkMode ? "#666" : "#ccc",
@@ -150,7 +139,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
           font: {
             size: dataLabelFontSize,
           },
-          color: isDarkMode ? "#fff" : "#000", // Datalabels color based on the theme
+          color: isDarkMode ? "#fff" : "#000",
           clip: false,
         },
       },
@@ -166,25 +155,27 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
     [yAxisFontSize, dataLabelFontSize, values, isDarkMode]
   );
 
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: "Performance",
-        data: values.map((value) => Math.abs(value)),
-        backgroundColor: gradientColors,
-        borderColor: values.map((value) =>
-          value < 0 ? "rgba(255,99,132)" : "rgba(75,192,192)"
-        ),
-        borderWidth: 1,
-      },
-    ],
-  };
+  // Chart data
+  const chartData = useMemo(
+    () => ({
+      labels,
+      datasets: [
+        {
+          label: "Performance",
+          data: values.map((value) => Math.abs(value)),
+          backgroundColor: gradientColors,
+          borderColor: values.map((value) =>
+            value < 0 ? "rgba(255,99,132)" : "rgba(75,192,192)"
+          ),
+          borderWidth: 1,
+        },
+      ],
+    }),
+    [labels, values, gradientColors]
+  );
 
   return (
-    <div
-      className="w-full max-h-[100px] overflow-hidden"
-    >
+    <div className="w-full max-h-[100px] overflow-hidden" role="region" aria-label="Performance Chart">
       <Bar
         ref={chartRef}
         data={chartData}

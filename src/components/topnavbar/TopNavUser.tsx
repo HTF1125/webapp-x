@@ -3,23 +3,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  User,
-  Shield,
-  ChevronRight,
-  LogOut,
-  Settings,
-  Crown,
-} from "lucide-react";
+import { User, Shield, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/context/Auth/AuthContext";
 
 const TopNavUser: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showAbove, setShowAbove] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null); // Changed to HTMLDivElement
   const { isAuthenticated, isAdmin, logout, user } = useAuth();
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -27,43 +20,22 @@ const TopNavUser: React.FC = () => {
       }
     };
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    const checkPosition = () => {
-      if (buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - rect.bottom;
-        setShowAbove(spaceBelow < 200);
-      }
-    };
-
-    checkPosition();
-    window.addEventListener("resize", checkPosition);
-    return () => window.removeEventListener("resize", checkPosition);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMenuClose = () => setIsOpen(false);
-
+  // Handle logout
   const handleLogout = async () => {
     try {
       await logout();
-      handleMenuClose();
+      setIsOpen(false);
       console.log("User has logged out.");
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
+  // Get user initials for avatar
   const getInitials = (name?: string) => {
     if (!name) return "UN";
     const names = name.split(" ");
@@ -74,11 +46,12 @@ const TopNavUser: React.FC = () => {
       .toUpperCase();
   };
 
+  // Render user avatar
   const renderUserAvatar = () => {
     const initials = getInitials(user?.username);
     return (
       <div
-        className="flex items-center justify-center w-8 h-8 rounded-md bg-gray-600 text-white dark:bg-gray-300 dark:text-gray-800 font-semibold"
+        className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white dark:bg-gray-300 dark:text-gray-800 font-semibold hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors"
         title={user?.username || "User"}
       >
         {initials}
@@ -86,56 +59,23 @@ const TopNavUser: React.FC = () => {
     );
   };
 
-  const renderIcon = () => {
-    if (isAuthenticated) {
-      return (
-        <div className="flex items-center space-x-2">
-          {renderUserAvatar()}
-          <div className="hidden md:inline-flex items-center space-x-2">
-            <span className="text-sm font-medium truncate max-w-[120px] text-gray-900 dark:text-gray-200">
-              {user?.username || "User"}
-            </span>
-            {isAdmin && <Crown className="w-4 h-4 text-yellow-500" />}
-            <ChevronRight
-              className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform ${
-                isOpen ? (showAbove ? "rotate-[-90deg]" : "rotate-90") : ""
-              }`}
-            />
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <Link
-          href="/sign-in"
-          className="flex items-center space-x-2"
-          title="Sign In"
-        >
-          <User className="w-6 h-6 text-gray-600 dark:text-gray-200" />
-          <span className="text-sm hidden md:inline text-gray-900 dark:text-gray-200">
-            Sign In
-          </span>
-        </Link>
-      );
-    }
-  };
-
+  // Render dropdown menu items
   const renderMenuItems = () => {
     if (isAuthenticated) {
       return (
         <>
           <Link
             href="/profile"
-            className="flex items-center px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md"
-            onClick={handleMenuClose}
+            className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md transition-colors"
+            onClick={() => setIsOpen(false)}
           >
             <User className="w-4 h-4 mr-2" />
             Profile
           </Link>
           <Link
             href="/settings"
-            className="flex items-center px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md"
-            onClick={handleMenuClose}
+            className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md transition-colors"
+            onClick={() => setIsOpen(false)}
           >
             <Settings className="w-4 h-4 mr-2" />
             Settings
@@ -143,8 +83,8 @@ const TopNavUser: React.FC = () => {
           {isAdmin && (
             <Link
               href="/admin"
-              className="flex items-center px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md"
-              onClick={handleMenuClose}
+              className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md transition-colors"
+              onClick={() => setIsOpen(false)}
             >
               <Shield className="w-4 h-4 mr-2 text-yellow-500" />
               Admin Dashboard
@@ -152,7 +92,7 @@ const TopNavUser: React.FC = () => {
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md"
+            className="flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md transition-colors"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Sign out
@@ -165,31 +105,46 @@ const TopNavUser: React.FC = () => {
 
   return (
     <div className="relative">
-      <button
-        ref={buttonRef}
-        className="flex items-center p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none w-full"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-haspopup="true"
-        aria-expanded={isOpen}
-      >
-        {renderIcon()}
-      </button>
+      {isAuthenticated ? (
+        <>
+<div
+  ref={buttonRef}
+  role="button"
+  tabIndex={0}
+  className="flex items-center p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors cursor-pointer"
+  onClick={() => setIsOpen(!isOpen)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      setIsOpen(!isOpen);
+    }
+  }}
+  aria-haspopup="true" // Keep this for accessibility
+>
+  {renderUserAvatar()}
+</div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            ref={menuRef}
-            initial={{ opacity: 0, y: showAbove ? 10 : -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: showAbove ? 10 : -10 }}
-            className={`absolute ${
-              showAbove ? "bottom-full mb-2" : "top-full mt-2"
-            } left-0 w-64 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-lg py-2 z-10`}
-          >
-            {renderMenuItems()}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                ref={menuRef}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-2 z-50"
+              >
+                {renderMenuItems()}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      ) : (
+        <Link
+          href="/signin"
+          className="flex items-center p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors"
+        >
+          {renderUserAvatar()}
+        </Link>
+      )}
     </div>
   );
 };

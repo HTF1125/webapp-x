@@ -3,13 +3,6 @@
 import { NEXT_PUBLIC_API_URL } from "@/config";
 import { useEffect, useState } from "react";
 
-interface DataSource {
-  field: string;
-  s_code: string;
-  s_field: string;
-  source: string;
-}
-
 interface MetaData {
   code: string;
   name: string | null;
@@ -17,7 +10,6 @@ interface MetaData {
   market: string | null;
   remark: string | null;
   disabled: boolean;
-  data_sources: DataSource[];
 }
 
 const MetadataPage = () => {
@@ -32,20 +24,16 @@ const MetadataPage = () => {
     market: "",
     remark: "",
     disabled: false,
-    data_sources: [],
   });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Fetch the data from the API
+  // Fetch metadata
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
         const endpoint = new URL("/api/metadatas", NEXT_PUBLIC_API_URL);
-
         const response = await fetch(endpoint);
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
+        if (!response.ok) throw new Error("Failed to fetch data");
         const data = await response.json();
         setMetadata(data);
       } catch (err: any) {
@@ -58,26 +46,19 @@ const MetadataPage = () => {
     fetchMetadata();
   }, []);
 
-  // Delete a metadata item
+  // Delete metadata
   const deleteMetadata = async (metaData: MetaData) => {
     try {
       const endpoint = new URL(`/api/metadata`, NEXT_PUBLIC_API_URL);
-
       const response = await fetch(endpoint, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(metaData), // Send the MetaData object as the request body
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(metaData),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete metadata");
-      }
+      if (!response.ok) throw new Error("Failed to delete metadata");
 
-      // Filter out the deleted item from the local state
       setMetadata(metadata.filter((meta) => meta.code !== metaData.code));
-
       alert(`Metadata with code ${metaData.code} deleted successfully`);
     } catch (err: any) {
       setError(err.message);
@@ -85,13 +66,12 @@ const MetadataPage = () => {
     }
   };
 
-  // Open the edit modal and set the data for editing
+  // Open modal for editing or creating metadata
   const openEditModal = (metaData: MetaData | null) => {
     if (metaData) {
       setEditingMetaData(metaData);
-      setIsCreate(false); // Set to false when editing
+      setIsCreate(false);
     } else {
-      // Initialize new metadata fields for creation
       setEditingMetaData({
         code: "",
         name: "",
@@ -99,14 +79,13 @@ const MetadataPage = () => {
         market: "",
         remark: "",
         disabled: false,
-        data_sources: [],
       });
-      setIsCreate(true); // Set to true when creating
+      setIsCreate(true);
     }
     setIsModalOpen(true);
   };
 
-  // Close the modal
+  // Close modal
   const closeEditModal = () => {
     setIsModalOpen(false);
     setEditingMetaData({
@@ -116,44 +95,32 @@ const MetadataPage = () => {
       market: "",
       remark: "",
       disabled: false,
-      data_sources: [],
-    }); // Reset the state when modal is closed
+    });
   };
 
-  // Update the metadata
-  const updateMetadata = async () => {
-    if (!editingMetaData) return;
-
-    // Validation: Ensure code is provided when creating
+  // Save or update metadata
+  const saveMetadata = async () => {
     if (isCreate && !editingMetaData.code.trim()) {
       alert("Code is required.");
       return;
     }
 
     const method = isCreate ? "POST" : "PUT";
-    const endpoint = new URL(
-      isCreate ? "/api/metadata" : "/api/metadata",
-      NEXT_PUBLIC_API_URL
-    );
+    const endpoint = new URL(`/api/metadata`, NEXT_PUBLIC_API_URL);
 
     try {
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingMetaData),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`Failed to ${isCreate ? "create" : "update"} metadata`);
-      }
 
-      // Optimistic UI Update (if creating new metadata)
       if (isCreate) {
         setMetadata([...metadata, editingMetaData]);
       } else {
-        // Update the metadata in the local state
         setMetadata(
           metadata.map((meta) =>
             meta.code === editingMetaData.code ? editingMetaData : meta
@@ -175,286 +142,163 @@ const MetadataPage = () => {
     }
   };
 
-  // Handle changes to DataSource fields in the modal
-  const handleDataSourceChange = (
-    index: number,
-    field: string,
-    value: string
-  ) => {
-    if (!editingMetaData) return;
-
-    const updatedDataSources = [...editingMetaData.data_sources];
-    updatedDataSources[index] = {
-      ...updatedDataSources[index],
-      [field]: value,
-    };
-
-    setEditingMetaData({
-      ...editingMetaData,
-      data_sources: updatedDataSources,
-    });
-  };
-
-  // Add a new DataSource to the metadata
-  const addDataSource = () => {
-    if (!editingMetaData) return;
-
-    const newDataSource: DataSource = {
-      field: "",
-      s_code: "",
-      s_field: "",
-      source: "YAHOO", // default value, can be changed
-    };
-
-    setEditingMetaData({
-      ...editingMetaData,
-      data_sources: [...editingMetaData.data_sources, newDataSource],
-    });
-  };
-
-  // Remove a DataSource from the metadata
-  const removeDataSource = (index: number) => {
-    if (!editingMetaData) return;
-
-    const updatedDataSources = [...editingMetaData.data_sources];
-    updatedDataSources.splice(index, 1);
-
-    setEditingMetaData({
-      ...editingMetaData,
-      data_sources: updatedDataSources,
-    });
-  };
-
-  if (loading) {
-    return <div className="text-white">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
-  }
+  if (loading)
+    return <div className="text-white text-center py-10">Loading...</div>;
+  if (error)
+    return <div className="text-red-500 text-center py-10">Error: {error}</div>;
 
   return (
     <div className="bg-gray-900 text-white min-h-screen p-5">
-      <h1 className="text-3xl font-bold mb-5">Metadata List</h1>
-      <button
-        onClick={() => openEditModal(null)} // Open modal for creating new metadata
-        className="w-full p-2 bg-green-500 hover:bg-green-700 text-white rounded-md mb-4"
-      >
-        Create New Metadata
-      </button>
-      <table className="table-auto w-full border-collapse text-left">
-        <thead>
-          <tr className="border-b border-gray-700">
-            <th className="px-4 py-2">Code</th>
-            <th className="px-4 py-2">Name</th>
-            <th className="px-4 py-2">Exchange</th>
-            <th className="px-4 py-2">Market</th>
-            <th className="px-4 py-2">Disabled</th>
-            <th className="px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {metadata.map((meta) => (
-            <tr key={meta.code} className="border-b border-gray-700">
-              <td className="px-4 py-2">{meta.code}</td>
-              <td className="px-4 py-2">{meta.name || "N/A"}</td>
-              <td className="px-4 py-2">{meta.exchange || "N/A"}</td>
-              <td className="px-4 py-2">{meta.market || "N/A"}</td>
-              <td className="px-4 py-2">{meta.disabled ? "Yes" : "No"}</td>
-              <td className="px-4 py-2">
-                <button
-                  onClick={() => openEditModal(meta)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
-                >
-                  Update
-                </button>
-                <button
-                  onClick={() => deleteMetadata(meta)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Metadata List</h1>
+        <button
+          onClick={() => openEditModal(null)}
+          className="w-full sm:w-auto p-2 bg-green-500 hover:bg-green-600 text-white rounded-md mb-6"
+        >
+          Create New Metadata
+        </button>
+        <MetadataTable
+          metadata={metadata}
+          onEdit={openEditModal}
+          onDelete={deleteMetadata}
+        />
+      </div>
 
-      {isModalOpen && editingMetaData && (
-        <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-gray-800 p-6 rounded-lg w-11/12 md:w-3/4 lg:w-1/2 overflow-y-auto max-h-screen">
-            <h2 className="text-2xl font-bold mb-4">
-              {isCreate ? "Create New Metadata" : "Edit Metadata"}
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm">Code:</label>
-                <input
-                  type="text"
-                  value={editingMetaData.code || ""}
-                  onChange={(e) =>
-                    setEditingMetaData({
-                      ...editingMetaData,
-                      code: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm">Name:</label>
-                <input
-                  type="text"
-                  value={editingMetaData.name || ""}
-                  onChange={(e) =>
-                    setEditingMetaData({
-                      ...editingMetaData,
-                      name: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm">Exchange:</label>
-                <input
-                  type="text"
-                  value={editingMetaData.exchange || ""}
-                  onChange={(e) =>
-                    setEditingMetaData({
-                      ...editingMetaData,
-                      exchange: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm">Market:</label>
-                <input
-                  type="text"
-                  value={editingMetaData.market || ""}
-                  onChange={(e) =>
-                    setEditingMetaData({
-                      ...editingMetaData,
-                      market: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm">Remark:</label>
-                <input
-                  type="text"
-                  value={editingMetaData.remark || ""}
-                  onChange={(e) =>
-                    setEditingMetaData({
-                      ...editingMetaData,
-                      remark: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                />
-              </div>
-              <div className="flex items-center">
-                <label className="block text-sm mr-2">Disabled:</label>
-                <input
-                  type="checkbox"
-                  checked={editingMetaData.disabled}
-                  onChange={(e) =>
-                    setEditingMetaData({
-                      ...editingMetaData,
-                      disabled: e.target.checked,
-                    })
-                  }
-                  className="mt-1"
-                />
-              </div>
-            </div>
-
-            <h3 className="text-xl font-semibold mt-4">Data Sources</h3>
-            {editingMetaData.data_sources?.map((dataSource, index) => (
-              <div key={index} className="mt-2">
-                <div className="grid grid-cols-4 gap-2">
-                  <div>
-                    <label className="block text-sm">Field:</label>
-                    <input
-                      type="text"
-                      value={dataSource.field}
-                      onChange={(e) =>
-                        handleDataSourceChange(index, "field", e.target.value)
-                      }
-                      className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Source Code:</label>
-                    <input
-                      type="text"
-                      value={dataSource.s_code}
-                      onChange={(e) =>
-                        handleDataSourceChange(index, "s_code", e.target.value)
-                      }
-                      className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Source Field:</label>
-                    <input
-                      type="text"
-                      value={dataSource.s_field}
-                      onChange={(e) =>
-                        handleDataSourceChange(index, "s_field", e.target.value)
-                      }
-                      className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Source:</label>
-                    <input
-                      type="text"
-                      value={dataSource.source}
-                      onChange={(e) =>
-                        handleDataSourceChange(index, "source", e.target.value)
-                      }
-                      className="w-full p-2 mt-1 bg-gray-700 text-white rounded-md"
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={() => removeDataSource(index)}
-                  className="text-red-500 hover:text-red-700 mt-2"
-                >
-                  Remove DataSource
-                </button>
-                <hr className="my-3" />
-              </div>
-            ))}
-            <button
-              onClick={addDataSource}
-              className="w-full p-2 bg-green-500 hover:bg-green-700 text-white rounded-md mt-4"
-            >
-              Add DataSource
-            </button>
-
-            <button
-              onClick={updateMetadata}
-              className="mt-4 w-full p-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md"
-            >
-              {isCreate ? "Create" : "Update"}
-            </button>
-            <button
-              onClick={closeEditModal}
-              className="mt-2 w-full p-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+      {isModalOpen && (
+        <MetadataModal
+          isCreate={isCreate}
+          metadata={editingMetaData}
+          onChange={setEditingMetaData}
+          onSave={saveMetadata}
+          onClose={closeEditModal}
+        />
       )}
     </div>
   );
 };
+
+// Metadata Table Component
+const MetadataTable = ({
+  metadata,
+  onEdit,
+  onDelete,
+}: {
+  metadata: MetaData[];
+  onEdit: (meta: MetaData) => void;
+  onDelete: (meta: MetaData) => void;
+}) => (
+  <div className="overflow-x-auto">
+    <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+      <thead className="bg-gray-700">
+        <tr>
+          <th className="px-4 py-3 text-left">Code</th>
+          <th className="px-4 py-3 text-left">Name</th>
+          <th className="px-4 py-3 text-left">Exchange</th>
+          <th className="px-4 py-3 text-left">Market</th>
+          <th className="px-4 py-3 text-left">Disabled</th>
+          <th className="px-4 py-3 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {metadata.map((meta) => (
+          <tr
+            key={meta.code}
+            className="border-b border-gray-700 hover:bg-gray-750"
+          >
+            <td className="px-4 py-3">{meta.code}</td>
+            <td className="px-4 py-3">{meta.name || "N/A"}</td>
+            <td className="px-4 py-3">{meta.exchange || "N/A"}</td>
+            <td className="px-4 py-3">{meta.market || "N/A"}</td>
+            <td className="px-4 py-3">{meta.disabled ? "Yes" : "No"}</td>
+            <td className="px-4 py-3">
+              <button
+                onClick={() => onEdit(meta)}
+                className="text-blue-400 hover:text-blue-300 mr-3"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(meta)}
+                className="text-red-400 hover:text-red-300"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+// Metadata Modal Component
+const MetadataModal = ({
+  isCreate,
+  metadata,
+  onChange,
+  onSave,
+  onClose,
+}: {
+  isCreate: boolean;
+  metadata: MetaData;
+  onChange: (meta: MetaData) => void;
+  onSave: () => void;
+  onClose: () => void;
+}) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-gray-800 p-6 rounded-lg w-11/12 md:w-3/4 lg:w-1/2 max-h-screen overflow-y-auto">
+      <h2 className="text-2xl font-bold mb-4">
+        {isCreate ? "Create New Metadata" : "Edit Metadata"}
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {["code", "name", "exchange", "market", "remark"].map((field) => (
+          <div key={field}>
+            <label htmlFor={field} className="block text-sm capitalize mb-1">
+              {field}:
+            </label>
+            <input
+              id={field}
+              type="text"
+              value={metadata[field as keyof MetaData] || ""} 
+              onChange={(e) =>
+                onChange({ ...metadata, [field]: e.target.value })
+              }
+              className="w-full p-2 bg-gray-700 text-white rounded-md"
+              placeholder={`Enter ${field}`}
+              title={`Enter the ${field} for this metadata`}
+            />
+          </div>
+        ))}
+        <div className="flex items-center">
+          <label htmlFor="disabled" className="block text-sm mr-2">
+            Disabled:
+          </label>
+          <input
+            id="disabled"
+            type="checkbox"
+            checked={metadata.disabled}
+            onChange={(e) =>
+              onChange({ ...metadata, disabled: e.target.checked })
+            }
+            className="mt-1"
+            title="Toggle to enable or disable this metadata"
+          />
+        </div>
+      </div>
+      <button
+        onClick={onSave}
+        className="mt-4 w-full p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+      >
+        {isCreate ? "Create" : "Update"}
+      </button>
+      <button
+        onClick={onClose}
+        className="mt-2 w-full p-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+);
 
 export default MetadataPage;

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { NEXT_PUBLIC_API_URL } from "@/config";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FaChartLine, FaLightbulb, FaChartPie, FaRocket, FaExclamationTriangle } from "react-icons/fa";
 
 interface ViewRationale {
@@ -108,16 +108,16 @@ export default function TacticalView() {
   ];
 
   return (
-    <div className="p-6 text-gray-900 dark:text-gray-100 ">
+    <div className="p-6 text-gray-900 dark:text-gray-100">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="rounded-lg shadow-xl p-6 mb-8"
+          className="rounded-lg shadow-xl p-6 mb-8 bg-gradient-to-r from-blue-600 to-purple-600"
         >
-          <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400">Tactical View Report</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Published: {formatDate(published_date)}</p>
+          <h1 className="text-4xl font-bold text-white">Tactical View Report</h1>
+          <p className="text-gray-200 mt-2">Published: {formatDate(published_date)}</p>
         </motion.div>
 
         <div className="flex flex-col md:flex-row gap-8">
@@ -132,9 +132,9 @@ export default function TacticalView() {
                 <li key={section.title}>
                   <button
                     onClick={() => setActiveSection(section.title)}
-                    className={`w-full text-left px-4 py-2 rounded-lg flex items-center space-x-2 ${
+                    className={`w-full text-left px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-300 ${
                       activeSection === section.title
-                        ? "bg-blue-600 text-white"
+                        ? "bg-blue-600 text-white shadow-lg"
                         : "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
                     }`}
                   >
@@ -153,82 +153,109 @@ export default function TacticalView() {
             transition={{ duration: 0.5 }}
             className="md:w-3/4"
           >
-            {activeSection === "Global Economic Outlook" && (
-              <div className="p-6 rounded-lg shadow-md">
-                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Global Economic Outlook</h2>
-                <p className="text-lg text-gray-700 dark:text-gray-300">{views["Global Economic Outlook"]}</p>
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {activeSection === "Global Economic Outlook" && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="p-6 rounded-lg shadow-md bg-white dark:bg-gray-800 w-full"
+                >
+                  <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Global Economic Outlook</h2>
+                  <p className="text-lg text-gray-700 dark:text-gray-300">{views["Global Economic Outlook"]}</p>
+                </motion.div>
+              )}
 
-            {activeSection === "Key Investment Themes" && (
-              <div className="p-6 rounded-lg shadow-md">
-                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Investment Themes</h2>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-                  {views["Key Investment Themes"].map((theme, index) => (
-                    <li key={index} className="text-lg">{theme}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {activeSection === "Key Investment Themes" && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="p-6 rounded-lg shadow-md bg-white dark:bg-gray-800 w-full"
+                >
+                  <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Investment Themes</h2>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                    {views["Key Investment Themes"].map((theme, index) => (
+                      <li key={index} className="text-lg">{theme}</li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
 
-            {activeSection === "Asset Class Views" && (
-              <div className="p-6 rounded-lg shadow-md">
-                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Asset Class Views</h2>
-                {Object.entries(views["Asset Class Views"]).map(([category, data]) => (
-                  <div key={category} className="mb-6">
-                    <h3 className="text-2xl font-medium mb-2 text-gray-800 dark:text-gray-200">{category}</h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-100 dark:bg-gray-700">
-                          <tr>
-                            <th className="px-4 py-2 text-gray-800 dark:text-gray-200">Region / Sector</th>
-                            <th className="px-4 py-2 text-gray-800 dark:text-gray-200">View</th>
-                            <th className="px-4 py-2 text-gray-800 dark:text-gray-200">Rationale</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {Object.entries(data).map(([key, value]) => {
-                            const viewRationale = value as ViewRationale | undefined;
-                            return (
-                              <tr key={key} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{key}</td>
-                                <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{viewRationale?.view}</td>
-                                <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{viewRationale?.rationale}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+              {activeSection === "Asset Class Views" && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="p-6 rounded-lg shadow-md bg-white dark:bg-gray-800 w-full"
+                >
+                  <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Asset Class Views</h2>
+                  {Object.entries(views["Asset Class Views"]).map(([category, data]) => (
+                    <div key={category} className="mb-6">
+                      <h3 className="text-2xl font-medium mb-2 text-gray-800 dark:text-gray-200">{category}</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead className="bg-gray-100 dark:bg-gray-700">
+                            <tr>
+                              <th className="px-4 py-2 text-gray-800 dark:text-gray-200">Region / Sector</th>
+                              <th className="px-4 py-2 text-gray-800 dark:text-gray-200">View</th>
+                              <th className="px-4 py-2 text-gray-800 dark:text-gray-200">Rationale</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.entries(data).map(([key, value]) => {
+                              const viewRationale = value as ViewRationale | undefined;
+                              return (
+                                <tr key={key} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                  <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{key}</td>
+                                  <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{viewRationale?.view}</td>
+                                  <td className="border-t border-gray-200 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300">{viewRationale?.rationale}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeSection === "Top Tactical Ideas" && (
-              <div className="p-6 rounded-lg shadow-md">
-                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Top Tactical Ideas</h2>
-                <ul className="space-y-4">
-                  {views["Top Tactical Ideas"].map((idea, index) => (
-                    <li key={index} className="rounded-lg p-4">
-                      <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{idea.idea}</h3>
-                      <p className="text-gray-700 dark:text-gray-300">{idea.rationale}</p>
-                    </li>
                   ))}
-                </ul>
-              </div>
-            )}
+                </motion.div>
+              )}
 
-            {activeSection === "Key Risks" && (
-              <div className="p-6 rounded-lg shadow-md">
-                <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Risks</h2>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-                  {views["Key Risks"].map((risk, index) => (
-                    <li key={index} className="text-lg">{risk}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {activeSection === "Top Tactical Ideas" && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="p-6 rounded-lg shadow-md bg-white dark:bg-gray-800 w-full"
+                >
+                  <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Top Tactical Ideas</h2>
+                  <ul className="space-y-4">
+                    {views["Top Tactical Ideas"].map((idea, index) => (
+                      <li key={index} className="rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                        <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{idea.idea}</h3>
+                        <p className="text-gray-700 dark:text-gray-300">{idea.rationale}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+
+              {activeSection === "Key Risks" && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="p-6 rounded-lg shadow-md bg-white dark:bg-gray-800 w-full"
+                >
+                  <h2 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Key Risks</h2>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                    {views["Key Risks"].map((risk, index) => (
+                      <li key={index} className="text-lg">{risk}</li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </div>

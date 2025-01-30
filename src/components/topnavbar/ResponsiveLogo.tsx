@@ -5,7 +5,7 @@ import LogoDarkColor from "@/images/investment-x-logo-dark.svg";
 
 const ResponsiveLogo = () => {
     return (
-        <Link href="/" className="flex items-center justify-center flex">
+        <Link href="/" className="flex items-center justify-center">
             <div className="relative w-[150px] h-[40px]">
                 {/* Light mode logo */}
                 <Image
