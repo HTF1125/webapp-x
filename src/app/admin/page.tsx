@@ -27,7 +27,6 @@ const MetadataPage = () => {
   });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Fetch metadata
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
@@ -46,7 +45,6 @@ const MetadataPage = () => {
     fetchMetadata();
   }, []);
 
-  // Delete metadata
   const deleteMetadata = async (metaData: MetaData) => {
     try {
       const endpoint = new URL(`/api/metadata`, NEXT_PUBLIC_API_URL);
@@ -66,7 +64,6 @@ const MetadataPage = () => {
     }
   };
 
-  // Open modal for editing or creating metadata
   const openEditModal = (metaData: MetaData | null) => {
     if (metaData) {
       setEditingMetaData(metaData);
@@ -85,7 +82,6 @@ const MetadataPage = () => {
     setIsModalOpen(true);
   };
 
-  // Close modal
   const closeEditModal = () => {
     setIsModalOpen(false);
     setEditingMetaData({
@@ -98,7 +94,6 @@ const MetadataPage = () => {
     });
   };
 
-  // Save or update metadata
   const saveMetadata = async () => {
     if (isCreate && !editingMetaData.code.trim()) {
       alert("Code is required.");
@@ -177,7 +172,6 @@ const MetadataPage = () => {
   );
 };
 
-// Metadata Table Component
 const MetadataTable = ({
   metadata,
   onEdit,
@@ -231,7 +225,6 @@ const MetadataTable = ({
   </div>
 );
 
-// Metadata Modal Component
 const MetadataModal = ({
   isCreate,
   metadata,
@@ -259,7 +252,7 @@ const MetadataModal = ({
             <input
               id={field}
               type="text"
-              value={metadata[field as keyof MetaData] || ""} 
+              value={metadata[field as keyof MetaData] as string || ""}
               onChange={(e) =>
                 onChange({ ...metadata, [field]: e.target.value })
               }

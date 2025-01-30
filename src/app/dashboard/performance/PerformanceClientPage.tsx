@@ -6,33 +6,51 @@ import CompactSelector from "./CompactSelector";
 import PerformanceChart from "./PerformanceChart";
 import PerformanceTable from "./PerformanceTable";
 
-interface PerformanceDataItem {
+// Adjusted PerformanceData type to ensure no undefined values
+interface PerformanceData {
   group: string;
-  code?: string;
-  name?: string;
-  pct_chg_1d?: number;
-  pct_chg_1w?: number;
-  pct_chg_1m?: number;
-  pct_chg_3m?: number;
-  pct_chg_6m?: number;
-  pct_chg_1y?: number;
-  pct_chg_mtd?: number;
-  pct_chg_ytd?: number;
+  code: string;
+  name: string;
+  pct_chg_1d: number;
+  pct_chg_1w: number;
+  pct_chg_1m: number;
+  pct_chg_3m: number;
+  pct_chg_6m: number;
+  pct_chg_1y: number;
+  pct_chg_mtd: number;
+  pct_chg_ytd: number;
 }
 
 interface PerformancePageClientProps {
-  performanceGrouped: any[];
+  performanceGrouped: PerformanceData[];
 }
 
 const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
   performanceGrouped,
 }) => {
   const { currentPeriod } = usePeriod();
-  const [data] = useState<any[]>(performanceGrouped);
+
+  // Defaulting undefined values to 0 for the required properties
+  const [data] = useState<PerformanceData[]>(
+    performanceGrouped.map((item) => ({
+      group: item.group,
+      code: item.code,
+      name: item.name,
+      pct_chg_1d: item.pct_chg_1d ?? 0,
+      pct_chg_1w: item.pct_chg_1w ?? 0,
+      pct_chg_1m: item.pct_chg_1m ?? 0,
+      pct_chg_3m: item.pct_chg_3m ?? 0,
+      pct_chg_6m: item.pct_chg_6m ?? 0,
+      pct_chg_1y: item.pct_chg_1y ?? 0,
+      pct_chg_mtd: item.pct_chg_mtd ?? 0,
+      pct_chg_ytd: item.pct_chg_ytd ?? 0,
+    }))
+  );
+
   const [viewMode, setViewMode] = useState<'chart' | 'table'>('chart');
 
   const transformChartData = (
-    performanceGrouped: any[],
+    performanceGrouped: PerformanceData[],
     currentPeriod: string
   ) => {
     const groups = Array.from(
@@ -45,8 +63,8 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
       );
       const chartData = filteredData
         .map((item) => {
-          const value = item[`pct_chg_${currentPeriod}`] ?? null;
-          return value !== null
+          const value = item[`pct_chg_${currentPeriod}` as keyof PerformanceData];
+          return value !== undefined
             ? { label: item.name || item.code, value }
             : null;
         })
@@ -69,7 +87,7 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
 
   const chartDataByGroup = transformChartData(data, currentPeriod);
 
-  const groupedData: Record<string, PerformanceDataItem[]> = data.reduce(
+  const groupedData: Record<string, PerformanceData[]> = data.reduce(
     (acc, item) => {
       if (!acc[item.group]) {
         acc[item.group] = [];
@@ -77,12 +95,11 @@ const PerformancePageClient: React.FC<PerformancePageClientProps> = ({
       acc[item.group].push(item);
       return acc;
     },
-    {} as Record<string, PerformanceDataItem[]>
+    {} as Record<string, PerformanceData[]>
   );
-  
 
   return (
-    <div className="w-full  flex flex-col space-y-1 overflow-hidden">
+    <div className="w-full flex flex-col space-y-1 overflow-hidden">
       <CompactSelector />
       <div className="flex justify-end mb-2">
         <button

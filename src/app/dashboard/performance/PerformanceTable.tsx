@@ -70,19 +70,22 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, group }) => {
     [data]
   );
 
-  const renderCell = React.useCallback((item: typeof rows[number], columnKey: string | number) => {
-    const value = item[columnKey as keyof typeof item];
+  const renderCell = React.useCallback(
+    (item: typeof rows[number], columnKey: string | number) => {
+      const value = item[columnKey as keyof typeof item];
 
-    if (columnKey === "code" || columnKey === "name") {
-      return <span className="text-xs">{value}</span>;
-    }
+      if (columnKey === "code" || columnKey === "name") {
+        return <span className="text-xs">{value}</span>;
+      }
 
-    return (
-      <span className={`text-xs ${getCellColor(value as number)}`}>
-        {(value as number)?.toFixed(1)}%
-      </span>
-    );
-  }, []);
+      return (
+        <span className={`text-xs ${getCellColor(value as number)}`}>
+          {(value as number)?.toFixed(1)}%
+        </span>
+      );
+    },
+    []
+  );
 
   return (
     <div className="w-full">
