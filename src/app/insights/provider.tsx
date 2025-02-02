@@ -56,11 +56,15 @@ const convertFileToBase64 = (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      if (reader.result) {
-        const result = reader.result as string;
-        resolve(result.split(",")[1]);
+      if (reader.result && typeof reader.result === "string") {
+        const base64String = reader.result.split(",")[1];
+        if (base64String) {
+          resolve(base64String);
+        } else {
+          reject("Failed to extract base64 string from file.");
+        }
       } else {
-        reject("File reading result is null.");
+        reject("File reading result is not a string or is null.");
       }
     };
     reader.onerror = (error) => reject(error);

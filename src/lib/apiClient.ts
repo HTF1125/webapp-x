@@ -77,7 +77,7 @@ export const fetchData = async (
 };
 
 function resolveResponse(response: Response) {
-  const contentType = (response.headers.get("Content-Type") ?? "")
+  const contentType = ((response as any).headers?.get("Content-Type") ?? "")
     .split(";")[0]
     .toLowerCase();
 
@@ -91,3 +91,6 @@ function resolveResponse(response: Response) {
     return response;
   }
 }
+
+
+

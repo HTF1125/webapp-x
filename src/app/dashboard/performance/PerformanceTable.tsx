@@ -10,22 +10,10 @@ import {
   TableCell,
   Tooltip,
 } from "@nextui-org/react";
-
-interface PerformanceData {
-  code: string;
-  name: string;
-  pct_chg_1d: number;
-  pct_chg_1w: number;
-  pct_chg_1m: number;
-  pct_chg_3m: number;
-  pct_chg_6m: number;
-  pct_chg_1y: number;
-  pct_chg_mtd: number;
-  pct_chg_ytd: number;
-}
+import { PerformanceGrouped } from "@/services/perfApi";
 
 interface PerformanceTableProps {
-  data: PerformanceData[];
+  data: PerformanceGrouped[];
   group: string;
 }
 
@@ -40,6 +28,7 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, group }) => {
     () => [
       { key: "code", label: "CODE" },
       { key: "name", label: "NAME" },
+      { key: "level", label: "LEVEL" },
       { key: "1d", label: "1D", tooltip: "1-Day Performance" },
       { key: "1w", label: "1W", tooltip: "1-Week Performance" },
       { key: "1m", label: "1M", tooltip: "1-Month Performance" },
@@ -58,6 +47,7 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, group }) => {
         key: index.toString(),
         code: item.code,
         name: item.name,
+        level: item.level,
         "1d": item.pct_chg_1d,
         "1w": item.pct_chg_1w,
         "1m": item.pct_chg_1m,
@@ -74,7 +64,7 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, group }) => {
     (item: typeof rows[number], columnKey: string | number) => {
       const value = item[columnKey as keyof typeof item];
 
-      if (columnKey === "code" || columnKey === "name") {
+      if (columnKey === "code" || columnKey === "name" || columnKey === "level") {
         return <span className="text-xs">{value}</span>;
       }
 

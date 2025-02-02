@@ -13,6 +13,7 @@ const PerformancePage = async () => {
       group: item.group,
       code: item.code,
       name: item.name,
+      level: item.level,
       pct_chg_1d: item.pct_chg_1d ?? 0, // Default undefined values to 0
       pct_chg_1w: item.pct_chg_1w ?? 0,
       pct_chg_1m: item.pct_chg_1m ?? 0,

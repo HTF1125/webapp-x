@@ -14,7 +14,7 @@ import {
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
 
 // Register necessary components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend, ChartDataLabels);
 
 type PerformanceChartProps = {
   data: Record<string, number>;
@@ -119,7 +119,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
           callbacks: {
             label: (tooltipItem: TooltipItem<"bar">) => {
               const value = tooltipItem.raw as number;
-              return `${value > 0 ? "+" : "-"}${Math.abs(value)}%`;
+              return `${value >= 0 ? "+" : "-"}${Math.abs(value)}%`;
             },
           },
           backgroundColor: isDarkMode ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.8)",
@@ -134,7 +134,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
           anchor: "end" as const,
           formatter: (_: number, context: Context) => {
             const signedValue = values[context.dataIndex];
-            return `${signedValue > 0 ? "+" : ""}${signedValue}%`;
+            return signedValue !== undefined ? `${signedValue >= 0 ? "+" : ""}${signedValue}%` : "";
           },
           font: {
             size: dataLabelFontSize,
@@ -180,7 +180,6 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
         ref={chartRef}
         data={chartData}
         options={options}
-        plugins={[ChartDataLabels]}
         aria-label="Performance Chart"
         role="img"
       />

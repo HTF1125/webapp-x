@@ -40,32 +40,32 @@ const StrategyDetails: React.FC<StrategyDetailsProps> = ({ strategy }) => {
   const [isLogScale, setIsLogScale] = useState(true);
 
   const { filteredStrategyData, filteredBenchmarkData, filteredDates } =
-    useMemo(() => {
-      if (!strategy || !strategy.book) {
-        return {
-          filteredStrategyData: [],
-          filteredBenchmarkData: [],
-          filteredDates: [],
-        };
-      }
+  useMemo(() => {
+    if (!strategy || !strategy.book) {
+      return {
+        filteredStrategyData: [],
+        filteredBenchmarkData: [],
+        filteredDates: [],
+      };
+    }
 
-      const { filteredData: strategyData, filteredDates } =
-        filterDataByTimeRange(
-          strategy.book.v || [],
-          strategy.book.d || [],
-          timeRange
-        );
-      const { filteredData: benchmarkData } = filterDataByTimeRange(
-        strategy.book.b || [],
+    const { filteredData: strategyData, filteredDates } =
+      filterDataByTimeRange(
+        strategy.book.v || [],
         strategy.book.d || [],
         timeRange
       );
-      return {
-        filteredStrategyData: normalizeData(strategyData),
-        filteredBenchmarkData: normalizeData(benchmarkData),
-        filteredDates,
-      };
-    }, [strategy, timeRange]);
+    const { filteredData: benchmarkData } = filterDataByTimeRange(
+      strategy.book.b || [],
+      strategy.book.d || [],
+      timeRange
+    );
+    return {
+      filteredStrategyData: normalizeData(strategyData),
+      filteredBenchmarkData: normalizeData(benchmarkData),
+      filteredDates: filteredDates.filter((date): date is string => date !== undefined),
+    };
+  }, [strategy, timeRange]);
 
   if (!strategy) {
     return (
@@ -220,14 +220,10 @@ function filterDataByTimeRange(
   };
 }
 
-function normalizeData(data: number[]) {
-  if (data.length === 0) return [];
+const normalizeData = (data: (number | undefined)[]): number[] => {
+  return data.map(value => typeof value === 'number' ? value : 0);
+};
 
-  const startValue = data[0];
-
-  // Avoid division by zero if startValue is zero.
-  return data.map((value) => (startValue !== 0 ? value / startValue : value));
-}
 
 function createChartData(
   dates: string[],

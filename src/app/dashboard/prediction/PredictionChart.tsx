@@ -26,9 +26,9 @@ ChartJS.register(
 
 type PredictionChartProps = {
   allDates: string[];
-  predictionData?: any;
-  targetData: any;
-  featureData?: any;
+  predictionData?: Record<string, number>;
+  targetData: Record<string, number>;
+  featureData?: Record<string, number>;
   featureKey?: string;
 };
 
@@ -56,7 +56,7 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
     return () => observer.disconnect();
   }, []);
 
-  const getAlignedData = (data: { [date: string]: number }) =>
+  const getAlignedData = (data: Record<string, number>) =>
     allDates.map((date) => data[date] ?? null);
 
   const formatDate = (dateString: string) =>
@@ -83,13 +83,16 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
         titleColor: isDarkMode ? "white" : "black",
         bodyColor: isDarkMode ? "white" : "black",
       },
+      datalabels: {
+        display: false, // This explicitly disables data labels
+      },
     },
     scales: {
       x: {
         ticks: {
           callback: (_, index) => {
             // Show every nth label to prevent overcrowding
-            return index % Math.ceil(allDates.length / 5) === 0 ? formatDate(allDates[index]) : '';
+            return index % Math.ceil(allDates.length / 5) === 0 ? formatDate(allDates[index] || '') : '';
           },
           color: isDarkMode ? "white" : "black",
           font: { size: 8 },
@@ -146,7 +149,7 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
         pointRadius: 2.5,
         yAxisID: "y2",
       },
-      predictionData && {
+      ...(predictionData ? [{
         label: "Prediction",
         data: getAlignedData(predictionData),
         borderColor: "rgba(54,162,235,1)",
@@ -154,8 +157,8 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
         tension: 0.3,
         pointRadius: 2.5,
         yAxisID: "y1",
-      },
-      featureData && {
+      }] : []),
+      ...(featureData && featureKey ? [{
         label: featureKey,
         data: getAlignedData(featureData),
         borderColor: "rgba(153,102,255,1)",
@@ -163,8 +166,8 @@ const PredictionChart: React.FC<PredictionChartProps> = ({
         tension: 0.3,
         pointRadius: 2.5,
         yAxisID: "y1",
-      },
-    ].filter(Boolean),
+      }] : []),
+    ],
   };
 
   return (

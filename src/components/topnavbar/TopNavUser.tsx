@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Shield, LogOut, Settings } from "lucide-react";
+import { User, Shield, LogOut, Settings, LogIn } from "lucide-react"; // Added LogIn icon
 import { useAuth } from "@/context/Auth/AuthContext";
 
 const TopNavUser: React.FC = () => {
@@ -59,6 +59,18 @@ const TopNavUser: React.FC = () => {
     );
   };
 
+  // Render placeholder for non-logged-in users
+  const renderPlaceholder = () => {
+    return (
+      <div
+        className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white dark:bg-gray-300 dark:text-gray-800 font-semibold hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors"
+        title="Sign In"
+      >
+        <LogIn className="w-4 h-4" /> {/* Use the LogIn icon */}
+      </div>
+    );
+  };
+
   // Render dropdown menu items
   const renderMenuItems = () => {
     if (isAuthenticated) {
@@ -107,21 +119,21 @@ const TopNavUser: React.FC = () => {
     <div className="relative">
       {isAuthenticated ? (
         <>
-<div
-  ref={buttonRef}
-  role="button"
-  tabIndex={0}
-  className="flex items-center p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors cursor-pointer"
-  onClick={() => setIsOpen(!isOpen)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      setIsOpen(!isOpen);
-    }
-  }}
-  aria-haspopup="true" // Keep this for accessibility
->
-  {renderUserAvatar()}
-</div>
+          <div
+            ref={buttonRef}
+            role="button"
+            tabIndex={0}
+            className="flex items-center p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors cursor-pointer"
+            onClick={() => setIsOpen(!isOpen)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setIsOpen(!isOpen);
+              }
+            }}
+            aria-haspopup="true" // Keep this for accessibility
+          >
+            {renderUserAvatar()}
+          </div>
 
           <AnimatePresence>
             {isOpen && (
@@ -139,10 +151,10 @@ const TopNavUser: React.FC = () => {
         </>
       ) : (
         <Link
-          href="/signin"
+          href="/sign-in"
           className="flex items-center p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors"
         >
-          {renderUserAvatar()}
+          {renderPlaceholder()} {/* Use the placeholder for non-logged-in users */}
         </Link>
       )}
     </div>

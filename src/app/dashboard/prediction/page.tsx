@@ -13,7 +13,7 @@ const PredictionPage = () => {
     useState<TimeSeriesPredictionResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [, setSelectedFeature] = useState<string | null>(null);
+  const [, setSelectedFeature] = useState<string>("");
   const dataFetchedRef = useRef(false);
 
   useEffect(() => {
@@ -28,7 +28,10 @@ const PredictionPage = () => {
         const data = await getPredictions("SPX_EPS_Forcastor_6M");
         setPredictionData(data);
         if (data && data.features) {
-          setSelectedFeature(Object.keys(data.features)[0]);
+          const firstFeature = Object.keys(data.features)[0];
+          if (firstFeature) {
+            setSelectedFeature(firstFeature);
+          }
         }
       } catch (err) {
         if (!abortController.signal.aborted) {

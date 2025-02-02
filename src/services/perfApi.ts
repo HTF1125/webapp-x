@@ -17,6 +17,7 @@ export interface PerformanceGrouped {
   group: string;
   name: string;
   code: string;
+  level: number;
   pct_chg_1d?: number;
   pct_chg_1w?: number;
   pct_chg_1m?: number;

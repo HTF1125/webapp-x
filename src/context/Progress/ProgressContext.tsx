@@ -20,7 +20,10 @@ const FloatingTask: React.FC<{ task: Task }> = ({ task }) => {
       }, task.autoClearTime * 1000);
       return () => clearTimeout(timer);
     }
+    return undefined; // Explicitly return undefined for the else case
   }, [task, removeTask]);
+
+
 
   const taskStyle: React.CSSProperties = {
     backgroundColor: "#2D3748",
