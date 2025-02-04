@@ -12,6 +12,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
 } from "react";
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -32,8 +33,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const isVerifyingRef = useRef(false);
+  const isRefreshingRef = useRef(false);
 
   // Reset authentication state and remove token from localStorage
   const resetAuthState = useCallback(() => {
@@ -45,14 +47,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Verify the token and fetch the current user
   const verifyToken = useCallback(async () => {
-    if (isVerifying) return; // Prevent concurrent calls
-    setIsVerifying(true);
+    if (isVerifyingRef.current) return;
+    isVerifyingRef.current = true;
 
     const token = localStorage.getItem("access_token");
     if (!token) {
       resetAuthState();
       setLoading(false);
-      setIsVerifying(false);
+      isVerifyingRef.current = false;
       return;
     }
 
@@ -66,14 +68,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       resetAuthState();
     } finally {
       setLoading(false);
-      setIsVerifying(false);
+      isVerifyingRef.current = false;
     }
-  }, [isVerifying, resetAuthState]);
+  }, [resetAuthState]);
 
   // Refresh the access token if it expires
   const refreshToken = useCallback(async () => {
-    if (isRefreshing) return; // Prevent concurrent calls
-    setIsRefreshing(true);
+    if (isRefreshingRef.current) return;
+    isRefreshingRef.current = true;
 
     try {
       const refreshResponse = await fetchRefreshToken();
@@ -83,9 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Token refresh failed:", error);
       resetAuthState();
     } finally {
-      setIsRefreshing(false);
+      isRefreshingRef.current = false;
     }
-  }, [isRefreshing, verifyToken, resetAuthState]);
+  }, [verifyToken, resetAuthState]);
 
   // Login function
   const login = useCallback(
@@ -115,15 +117,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Check token validity on initial load and periodically
   useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
     const checkTokenValidity = async () => {
       await verifyToken();
       // Set up a periodic token refresh (e.g., every 60 minutes)
-      const interval = setInterval(refreshToken, 60 * 60 * 1000);
-      return () => clearInterval(interval);
+      intervalId = setInterval(refreshToken, 60 * 60 * 1000);
     };
 
     checkTokenValidity();
-  }, [verifyToken, refreshToken]);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, []); // Empty dependency array
 
   const contextValue = {
     user,
