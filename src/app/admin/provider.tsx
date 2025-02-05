@@ -61,7 +61,6 @@ export const MetadataProvider = ({ children }: { children: ReactNode }) => {
   // Automatically fetch data whenever currentPage changes.
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   // Delete metadata

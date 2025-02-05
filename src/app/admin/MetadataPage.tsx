@@ -1,14 +1,5 @@
-"use client";
-
 import React, { useState } from "react";
-import {
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-  FaArrowLeft,
-  FaArrowRight,
-} from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { MetaData } from "@/services/metadataApi";
 import { useMetadata } from "./provider";
 import MetadataModal from "./MetadataModal";
@@ -38,27 +29,24 @@ const MetadataPage = () => {
     id_isin: "",
     remark: "",
     disabled: false,
+    data_sources: [],
   });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Handle search button click or Enter key press
   const handleSearch = () => {
     if (currentPage !== 1) {
       setCurrentPage(1);
-      // The useEffect in the provider will trigger fetchData when currentPage changes.
     } else {
       fetchData();
     }
   };
 
-  // Handle Enter key press in search input (using onKeyDown for better compatibility)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
     }
   };
 
-  // Open modal for creating or updating metadata
   const openEditModal = (metaData: MetaData | null) => {
     if (metaData) {
       setEditingMetaData(metaData);
@@ -72,13 +60,13 @@ const MetadataPage = () => {
         id_isin: "",
         remark: "",
         disabled: false,
+        data_sources: [],
       });
       setIsCreate(true);
     }
     setIsModalOpen(true);
   };
 
-  // Close modal and reset editing metadata
   const closeEditModal = () => {
     setIsModalOpen(false);
     setEditingMetaData({
@@ -89,10 +77,10 @@ const MetadataPage = () => {
       id_isin: "",
       remark: "",
       disabled: false,
+      data_sources: [],
     });
   };
 
-  // Pagination controls
   const goToPreviousPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -101,7 +89,6 @@ const MetadataPage = () => {
     if (hasMoreData) setCurrentPage(currentPage + 1);
   };
 
-  // Loading state
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen dark:bg-gray-900">
@@ -109,7 +96,6 @@ const MetadataPage = () => {
       </div>
     );
 
-  // Error state
   if (error)
     return (
       <div className="flex justify-center items-center h-screen dark:bg-gray-900">
@@ -119,7 +105,6 @@ const MetadataPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 p-8 flex-col">
-      {/* Search Bar */}
       <div className="w-full mb-8">
         <div className="flex items-center space-x-4">
           <input
@@ -139,7 +124,6 @@ const MetadataPage = () => {
         </div>
       </div>
 
-      {/* Metadata Table */}
       <div className="w-full overflow-x-auto">
         <table className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <thead>
@@ -151,6 +135,7 @@ const MetadataPage = () => {
               <th className="p-4 text-left">ISIN</th>
               <th className="p-4 text-left">Remark</th>
               <th className="p-4 text-left">Disabled</th>
+              <th className="p-4 text-left">Data Sources</th>
               <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
@@ -167,6 +152,7 @@ const MetadataPage = () => {
                 <td className="p-4">{meta.id_isin}</td>
                 <td className="p-4">{meta.remark}</td>
                 <td className="p-4">{meta.disabled ? "Yes" : "No"}</td>
+                <td className="p-4">{meta.data_sources.length}</td>
                 <td className="p-4">
                   <div className="flex space-x-2">
                     <button
@@ -189,7 +175,6 @@ const MetadataPage = () => {
         </table>
       </div>
 
-      {/* Pagination Controls */}
       <div className="flex justify-center mt-8 space-x-4">
         <button
           onClick={goToPreviousPage}
@@ -207,7 +192,6 @@ const MetadataPage = () => {
         </button>
       </div>
 
-      {/* Floating Action Button */}
       <button
         onClick={() => openEditModal(null)}
         className="fixed bottom-8 right-8 p-4 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg"
@@ -215,7 +199,6 @@ const MetadataPage = () => {
         <FaPlus size={24} />
       </button>
 
-      {/* Modal */}
       {isModalOpen && (
         <MetadataModal
           isCreate={isCreate}
